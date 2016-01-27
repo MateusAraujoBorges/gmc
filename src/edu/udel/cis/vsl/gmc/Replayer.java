@@ -41,6 +41,11 @@ public class Replayer<STATE, TRANSITION> {
 	 * initial and the final states will be printed.
 	 */
 	private boolean printAllStates = true;
+	
+	/**
+	 * If "-quiet" is used in the command?
+	 */
+	private boolean quiet = false;
 
 	private StatePredicateIF<STATE> predicate = null;
 
@@ -134,6 +139,14 @@ public class Replayer<STATE, TRANSITION> {
 
 	public ErrorLog getLog() {
 		return log;
+	}
+
+	public boolean isQuiet() {
+		return quiet;
+	}
+
+	public void setQuiet(boolean quiet) {
+		this.quiet = quiet;
 	}
 
 	public Trace<TRANSITION, STATE>[] play(STATE initialState,
@@ -248,7 +261,9 @@ public class Replayer<STATE, TRANSITION> {
 			if (printAllStates)
 				printStates(step, 1, executionNames, print, newStates);
 		}
-		out.println("Trace ends after " + step + " trace steps.");
+		if(!quiet){
+			out.println("Trace ends after " + step + " trace steps.");
+		}
 		return traces;
 	}
 
