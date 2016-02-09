@@ -2,6 +2,7 @@ package edu.udel.cis.vsl.gmc;
 
 import java.io.PrintStream;
 import java.io.Serializable;
+import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.Map;
@@ -309,7 +310,9 @@ public class GMCSection implements Serializable {
 				throw new IllegalArgumentException("Option " + option.name()
 						+ ": expected double, saw " + value);
 		case INTEGER:
-			if (value instanceof Integer)
+			if (value instanceof BigInteger)
+				return valueMap.put(option, value);
+			else if (value instanceof Integer)
 				return valueMap.put(option, value);
 			else
 				throw new IllegalArgumentException("Option " + option.name()
