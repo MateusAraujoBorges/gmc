@@ -290,26 +290,32 @@ public class ErrorLog {
 	 */
 	private void reportWithSearcher(LogEntry entry)
 			throws FileNotFoundException {
+		boolean isQuiet = entry.getConfiguration().isQuiet();
 		int length = searcher.stack().size();
 		LogEntry oldEntry = entryMap.get(entry);
 
 		if (minimalCounterexampleSize < 0 || length < minimalCounterexampleSize) {
 			minimalCounterexampleSize = length;
 		}
-		out.println("\nViolation " + numErrors + " encountered at depth " + length
-				+ ":");
-		entry.printBody(out);
+		if(!isQuiet){
+			out.println("\nViolation " + numErrors + " encountered at depth " + length
+					+ ":");
+			entry.printBody(out);
+		}
 		if (oldEntry != null) {
 			int id = oldEntry.getId();
 			File file = oldEntry.getTraceFile();
 			int oldLength = oldEntry.getLength();
-
-			out.println("New log entry is equivalent to previously encountered entry "
-					+ id);
+			if(!isQuiet){
+				out.println("New log entry is equivalent to previously encountered entry "
+						+ id);
+			}
 			if (length < oldLength) {
-				out.println("Length of new trace (" + length
-						+ ") is less than length of old (" + oldLength
-						+ "): replacing old with new...");
+				if(!isQuiet){
+					out.println("Length of new trace (" + length
+							+ ") is less than length of old (" + oldLength
+							+ "): replacing old with new...");
+				}
 				entry.setId(id);
 				entry.setSize(length);
 				entry.setTraceFile(file);
@@ -318,16 +324,19 @@ public class ErrorLog {
 				file.delete();
 				writeTraceFile(entry);
 			} else {
-				out.println("Length of new trace (" + length
-						+ ") is greater than or equal to length of old ("
-						+ oldLength + "): ignoring new trace.");
+				if(!isQuiet){
+					out.println("Length of new trace (" + length
+							+ ") is greater than or equal to length of old ("
+							+ oldLength + "): ignoring new trace.");
+				}
 			}
 		} else {
 			int id = entryMap.size();
 			File file = traceFile(id);
-
-			out.println("Logging new entry " + id + ", writing trace to "
-					+ file);
+			if(!isQuiet){
+				out.println("Logging new entry " + id + ", writing trace to "
+						+ file);
+			}
 			entry.setTraceFile(file);
 			entry.setId(id);
 			entry.setSize(length);
@@ -337,7 +346,9 @@ public class ErrorLog {
 		numErrors++;
 		if (minimize) {
 			searcher.restrictDepth();
-			out.println("Restricting search depth to " + (length - 1));
+			if(!isQuiet){
+				out.println("Restricting search depth to " + (length - 1));
+			}
 			out.flush();
 		} else if (numErrors >= errorBound) {
 			searchTruncated = true;
@@ -352,8 +363,10 @@ public class ErrorLog {
 	 */
 	public void report(LogEntry entry) throws FileNotFoundException {
 		if (searcher == null) {
-			out.println("Error " + numErrors + ":");
-			entry.printBody(out);
+			if(!entry.getConfiguration().isQuiet()){
+				out.println("Error " + numErrors + ":");
+				entry.printBody(out);
+			}
 			numErrors++;
 		} else
 			reportWithSearcher(entry);
