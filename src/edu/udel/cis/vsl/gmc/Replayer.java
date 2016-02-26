@@ -221,15 +221,17 @@ public class Replayer<STATE, TRANSITION> {
 					STATE state = traces[i].lastState();
 
 					if (predicate.holdsAt(state)) {
-						if (!printAllStates) {
+							if(!quiet){
+							if (!printAllStates) {
+								out.println();
+								manager.printStateLong(out, state);
+							}
 							out.println();
-							manager.printStateLong(out, state);
+							out.println("Violation of " + predicate + " found in "
+									+ state + ":");
+							out.println(predicate.explanation());
+							out.println();
 						}
-						out.println();
-						out.println("Violation of " + predicate + " found in "
-								+ state + ":");
-						out.println(predicate.explanation());
-						out.println();
 						traces[i].setViolation(true);
 					}
 				}
