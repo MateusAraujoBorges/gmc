@@ -84,6 +84,12 @@ public class GMCConfiguration implements Serializable{
 	 * associated to this configuratsion.
 	 */
 	private Map<String, GMCSection> sectionMap = new LinkedHashMap<>();
+	
+	/**
+	 * Should output be suppressed? Usually used in CIVL test
+	 * Default: false
+	 */
+	private boolean isQuiet;
 
 	// Constructors...
 
@@ -107,6 +113,7 @@ public class GMCConfiguration implements Serializable{
 						+ option.name());
 		}
 		anonymousSection = new GMCSection(this, ANONYMOUS_SECTION);
+		isQuiet = false;
 	}
 
 	// Helper methods...
@@ -230,6 +237,14 @@ public class GMCConfiguration implements Serializable{
 	public void setAnonymousSection(GMCSection section) {
 		this.anonymousSection = section;
 		this.anonymousSection.setConfiguration(this);
+	}
+	
+	public boolean isQuiet() {
+		return isQuiet;
+	}
+
+	public void setQuiet(boolean isQuiet) {
+		this.isQuiet = isQuiet;
 	}
 
 	/**
