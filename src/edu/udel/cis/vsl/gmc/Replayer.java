@@ -1,6 +1,8 @@
 package edu.udel.cis.vsl.gmc;
 
 import java.io.File;
+import java.io.IOException;
+import java.io.OutputStream;
 import java.io.PrintStream;
 
 /**
@@ -35,6 +37,13 @@ public class Replayer<STATE, TRANSITION> {
 	 * replaying a trace.
 	 */
 	private PrintStream out;
+	
+	private PrintStream dump = new PrintStream(new OutputStream() {
+		@Override
+		public void write(int b) throws IOException {
+			//doing nothing
+		}
+	});
 
 	/**
 	 * Print the states at each step in the trace? If this is false, only the
@@ -99,10 +108,15 @@ public class Replayer<STATE, TRANSITION> {
 			boolean[] print, STATE[] states) {
 		for (int i = 0; i < numStates; i++) {
 			if (print[i]) {
-				// out.println("State " + step + executionNames[i] + ":");
-				out.println();
-				manager.printStateLong(out, states[i]);
-				out.println();
+				if(quiet){
+					dump.println();
+					manager.printStateLong(dump, states[i]);
+					dump.println();
+				}else{
+					out.println();
+					manager.printStateLong(out, states[i]);
+					out.println();
+				}
 			}
 		}
 	}
