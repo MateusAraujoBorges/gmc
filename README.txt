@@ -5,10 +5,10 @@ as a generic depth-first search algorithm.
 
 ======================= Installation from source =======================
 
-1. Install a Java 7 SDK if you have not already.  Go to
+1. Install a Java 8 SDK if you have not already.  Go to
 http://www.oracle.com/technetwork/java/javase/downloads/ for the
 latest from Oracle.  On linux, you can optionally sudo apt-get install
-openjdk-7-jdk. 
+openjdk-8-jdk. 
 
 2. Install Apache ant, if you don't already have it
 (http://ant.apache.org).
