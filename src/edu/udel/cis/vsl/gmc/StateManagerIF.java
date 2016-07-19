@@ -160,7 +160,7 @@ public interface StateManagerIF<STATE, TRANSITION> {
 	int getDepth(STATE state);
 
 	void setDepth(STATE state, int value);
-	
+
 	boolean setseen(STATE state);
 
 }
