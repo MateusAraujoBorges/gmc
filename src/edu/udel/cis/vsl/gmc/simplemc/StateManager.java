@@ -1,21 +1,22 @@
 package edu.udel.cis.vsl.gmc.simplemc;
 
 import java.io.PrintStream;
-
-import edu.udel.cis.vsl.gmc.StateManagerIF;
+import edu.udel.cis.vsl.gcmc.ConcurrentStateManagerIF;
 import edu.udel.cis.vsl.gmc.TraceStepIF;
 
-public class StateManager implements StateManagerIF<State, Transition>{
+public class StateManager implements ConcurrentStateManagerIF<State, Transition>{
 
 	@Override
 	public TraceStepIF<Transition, State> nextState(State state, Transition transition) {
 		State newState = StateFactory.getState(state.getValue() + transition.getOffset());
+		
 		return new TraceStep(newState);
 	}
 
 	@Override
 	public void setSeen(State state, boolean value) {
 		state.setSeen(value);
+		System.out.println(state.getValue());
 	}
 
 	@Override
@@ -23,15 +24,15 @@ public class StateManager implements StateManagerIF<State, Transition>{
 		return state.isSeen();
 	}
 
-	@Override
-	public void setOnStack(State state, boolean value) {
-		state.setOnStack(value);
-	}
+//	@Override
+//	public void setOnStack(State state, boolean value) {
+//		state.setOnStack(value);
+//	}
 
-	@Override
-	public boolean onStack(State state) {
-		return state.isOnStack();
-	}
+//	@Override
+//	public boolean onStack(State state) {
+//		return state.isOnStack();
+//	}
 
 	@Override
 	public void printStateShort(PrintStream out, State state) {
@@ -90,5 +91,36 @@ public class StateManager implements StateManagerIF<State, Transition>{
 			}
 		}
 	}
+
+	@Override
+	public boolean onStack(State state, int id) {
+		return state.isOnStack(id);
+	}
 	
+	@Override
+	public void setOnStack(State state, int id, boolean value) {
+		synchronized (this) {
+			state.setOnStack(id, value);
+		}
+	}
+
+	@Override
+	public boolean fullyExplored(State state) {
+		return state.isFullyExplored();
+	}
+
+	@Override
+	public void setFullyExplored(State state, boolean value) {
+		state.setFullyExplored(value);
+	}
+
+	@Override
+	public boolean fullyExpanded(State state) {
+		return state.isExpanded();
+	}
+
+	@Override
+	public void setExpanded(State state, boolean value) {
+		state.setExpanded(value);
+	}
 }

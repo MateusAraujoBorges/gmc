@@ -1,6 +1,6 @@
 package edu.udel.cis.vsl.gmc.simplemc;
 
-public class Transition {
+public class Transition{
 	private int offset;
 	
 	public Transition(int offset){
@@ -13,5 +13,10 @@ public class Transition {
 
 	public void setOffset(int offset) {
 		this.offset = offset;
+	}
+	
+	@Override
+	public int hashCode() {
+		return offset;
 	}
 }

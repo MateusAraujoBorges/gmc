@@ -1,13 +1,14 @@
  package edu.udel.cis.vsl.gmc.simplemc;
 
 import java.io.PrintStream;
+import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Random;
 
-import edu.udel.cis.vsl.gmc.EnablerIF;
+import edu.udel.cis.vsl.gcmc.ConcurrentEnablerIF;
 
-public class Enabler implements EnablerIF<State, Transition, TransitionSequence>{
+public class Enabler implements ConcurrentEnablerIF<State, Transition, TransitionSequence>{
 
 	@Override
 	public TransitionSequence enabledTransitions(State source) {
@@ -17,6 +18,7 @@ public class Enabler implements EnablerIF<State, Transition, TransitionSequence>
 		int offset1 = rand.nextInt(3)+1;
 		// -1 to -3
 		int offset2 = rand.nextInt(3)-3;
+		int offset3 = 100;
 		
 		try {
 			Thread.sleep(1);
@@ -31,6 +33,7 @@ public class Enabler implements EnablerIF<State, Transition, TransitionSequence>
 //			System.out.println("offset2:"+offset2);
 			transitions.add(new Transition(offset1));
 			transitions.add(new Transition(offset2));
+			transitions.add(new Transition(offset3));
 //		}else{
 //			System.out.println("offset2:"+offset2);
 //			System.out.println("offset1:"+offset1);
@@ -46,20 +49,20 @@ public class Enabler implements EnablerIF<State, Transition, TransitionSequence>
 		return sequence.state();
 	}
 
-	@Override
-	public boolean hasNext(TransitionSequence sequence) {
-		return ! (sequence.isEmpty());
-	}
+//	@Override
+//	public boolean hasNext(TransitionSequence sequence) {
+//		return ! (sequence.isEmpty());
+//	}
 
-	@Override
-	public Transition next(TransitionSequence sequence) {
-		return sequence.pop();
-	}
-
-	@Override
-	public Transition peek(TransitionSequence sequence) {
-		return sequence.peek();
-	}
+//	@Override
+//	public Transition next(TransitionSequence sequence) {
+//		return sequence.pop();
+//	}
+//
+//	@Override
+//	public Transition peek(TransitionSequence sequence) {
+//		return sequence.peek();
+//	}
 
 	@Override
 	public void print(PrintStream out, TransitionSequence sequence) {
@@ -105,8 +108,7 @@ public class Enabler implements EnablerIF<State, Transition, TransitionSequence>
 
 	@Override
 	public boolean hasMultiple(TransitionSequence sequence) {
-		// TODO Auto-generated method stub
-		return false;
+		return sequence.size() > 1;
 	}
 
 	@Override
@@ -114,5 +116,74 @@ public class Enabler implements EnablerIF<State, Transition, TransitionSequence>
 		// TODO Auto-generated method stub
 		return 0;
 	}
+
+	@Override
+	public int size(TransitionSequence transitionSequence) {
+		return transitionSequence.size();
+	}
 	
+	@Override
+	public boolean removeTransition(TransitionSequence ts, Transition t) {
+		return ts.remove(t);
+	}
+
+	@Override
+	public boolean addTransition(TransitionSequence transitionSequence, Transition transition) {
+		return transitionSequence.add(transition);
+	}
+
+	@Override
+	public TransitionSequence enabledTransitionsPOR(State state) {
+		TransitionSequence transitionSequence = new TransitionSequence(state);
+//		Random rand = new Random();
+		// 1 to 3
+		int offset1 = 1;
+		// -1 to -3
+		int offset2 = -3;
+		int offset3 = 100;
+		try {
+			Thread.sleep(1);
+		} catch (InterruptedException e) {
+			e.printStackTrace();
+		}
+		
+		List<Transition> transitions = new LinkedList<>();
+		
+//		if(rand.nextInt(6) % 2 == 0){
+//			System.out.println("offset1:"+offset1);
+//			System.out.println("offset2:"+offset2);
+			transitions.add(new Transition(offset1));
+			transitions.add(new Transition(offset2));
+			transitions.add(new Transition(offset3));
+//		}else{
+//			System.out.println("offset2:"+offset2);
+//			System.out.println("offset1:"+offset1);
+//			transitions.add(new Transition(offset2));
+//			transitions.add(new Transition(offset1));
+//		}
+		transitionSequence.addAll(transitions);
+		return transitionSequence;
+	}
+
+	@Override
+	public boolean contains(TransitionSequence transitionSequence1, TransitionSequence transitionSequence2) {
+		return transitionSequence1.containsAll(transitionSequence2)
+				&& transitionSequence1.size() > transitionSequence2.size();
+	}
+
+	@Override
+	public boolean removeAll(TransitionSequence transitionSequence1,
+			TransitionSequence transitionSequence2) {
+		return transitionSequence1.removeAll(transitionSequence2);
+	}
+
+	@Override
+	public boolean addTransitionSequence(TransitionSequence transitionSequence1, TransitionSequence transitionSequence2) {
+		return transitionSequence1.addAll(transitionSequence2);
+	}
+
+	@Override
+	public Iterator<Transition> iterator(TransitionSequence transitionSequence) {
+		return transitionSequence.iterator();
+	}
 }
