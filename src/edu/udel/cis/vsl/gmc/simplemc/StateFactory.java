@@ -8,8 +8,8 @@ public class StateFactory {
 	private static int stateNum = 0;
 	
 	public static synchronized State getState(int value){
-//		System.out.println(stateNum + " "+ value);
-		boolean finalState = stateNum >= 300 ? true : false;
+		System.out.println(stateNum + " "+ value);
+		boolean finalState = stateNum >= 1000 ? true : false;
 		
 		if(states.containsKey(new Integer(value))){
 			State state = states.get(value);

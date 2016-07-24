@@ -11,7 +11,8 @@ public class State {
 	private BitSet onStack;
 	// all the descendants in the graph are explored
 	private boolean fullyExplored;
-	private boolean expanded;
+	// 1 means inviolable, -1 means violable and 0 means unknow.
+	private int inviolable;
 	
 	public State(int value){
 		this.value = value;
@@ -20,7 +21,7 @@ public class State {
 		depth = 0;
 		finalState = false;
 		fullyExplored = false;
-		expanded = false;
+		inviolable = 0;
 	}
 
 	public int getValue() {
@@ -79,11 +80,11 @@ public class State {
 		this.fullyExplored = fullyExplored;
 	}
 
-	public boolean isExpanded() {
-		return expanded;
+	public int getInviolable() {
+		return inviolable;
 	}
 
-	public void setExpanded(boolean expanded) {
-		this.expanded = expanded;
+	public void setInviolable(int inviolable) {
+		this.inviolable = inviolable;
 	}
 }

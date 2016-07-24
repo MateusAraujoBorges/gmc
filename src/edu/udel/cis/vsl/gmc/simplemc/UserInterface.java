@@ -18,7 +18,7 @@ public class UserInterface {
 //		System.out.println("sequential time: "+ (endTime - startTime));
 //		
 		ConcurrentDfsSearcher2<State, Transition, TransitionSequence>
-			cdfs = new ConcurrentDfsSearcher2<>(enabler, manager, predicate, 3);
+			cdfs = new ConcurrentDfsSearcher2<>(enabler, manager, predicate, 5);
 		startTime = System.currentTimeMillis();
 		cdfs.search(initState);
 		endTime = System.currentTimeMillis();

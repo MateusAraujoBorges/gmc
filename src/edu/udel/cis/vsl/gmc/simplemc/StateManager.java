@@ -115,12 +115,14 @@ public class StateManager implements ConcurrentStateManagerIF<State, Transition>
 	}
 
 	@Override
-	public boolean fullyExpanded(State state) {
-		return state.isExpanded();
+	public void setInviolableCAS(State state, int value) {
+		if(state.getInviolable() == 0){
+			state.setInviolable(value);
+		}
 	}
 
 	@Override
-	public void setExpanded(State state, boolean value) {
-		state.setExpanded(value);
+	public int isInviolable(State state) {
+		return state.getInviolable();
 	}
 }

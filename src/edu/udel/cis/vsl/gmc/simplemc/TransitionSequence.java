@@ -5,56 +5,61 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Set;
 
+import edu.udel.cis.vsl.gcmc.util.Pair;
+
 public class TransitionSequence {
-	private Set<Transition> transitions;
+	private Set<Pair<Transition, State>> selection;
+	private Set<Pair<Transition, State>> notInAmpleSet;
 	private State state;
 	
 	public TransitionSequence(State state){
 		this.state = state;
-		transitions = new HashSet<>();
+		selection = new HashSet<>();
+		notInAmpleSet = new HashSet<>();
 	}
 	
 	public State state() {
 		return state;
 	}
 	
-	public boolean addAll(TransitionSequence ts) {
-		return this.transitions.addAll(ts.transitions());
+	public boolean addSelection(Collection<Pair<Transition, State>> pairs) {
+		return this.selection.addAll(pairs);
 	}
 	
-	public boolean addAll(Collection<Transition> transitions){
-		return this.transitions.addAll(transitions);
+	public boolean addNotInAmpleSet(Collection<Pair<Transition, State>> pairs){
+		return this.notInAmpleSet.addAll(pairs);
 	}
 	
 	public int size() {
-		return this.transitions.size();
+		return this.selection.size();
 	}
 	
 	public boolean isEmpty() {
-		return this.transitions.isEmpty();
+		return this.selection.isEmpty();
 	}
 	
-	public Iterator<Transition> iterator(){
-		return transitions.iterator();
+	public Iterator<Pair<Transition, State>> iterator(){
+		return selection.iterator();
 	}
 	
-	public Collection<Transition> transitions() {
-		return transitions;
+	public Collection<Pair<Transition, State>> transitions() {
+		return selection;
 	}
 	
-	public boolean remove(Transition t){
-		return transitions.remove(t);
+	public boolean remove(Pair<Transition, State> p){
+		return selection.remove(p);
 	}
 	
-	public boolean add(Transition transition){
-		return this.transitions.add(transition);
+	public boolean add(Pair<Transition, State> p){
+		return this.selection.add(p);
 	}
 	
-	public boolean containsAll(TransitionSequence transitionSequence){
-		return transitions.containsAll(transitionSequence.transitions());
+	public boolean isNotInAmpleSetEmpty(){
+		return notInAmpleSet.isEmpty();
 	}
 	
-	public boolean removeAll(TransitionSequence transitionSequence){
-		return transitions.removeAll(transitionSequence.transitions());
+	public void putAllInSelection(){
+		selection.addAll(notInAmpleSet);
+		notInAmpleSet.clear();
 	}
 }
