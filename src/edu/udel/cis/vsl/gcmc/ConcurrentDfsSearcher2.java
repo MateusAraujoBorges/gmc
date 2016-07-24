@@ -314,14 +314,13 @@ public class ConcurrentDfsSearcher2<STATE, TRANSITION, TRANSITIONSEQUENCE> {
 			}
 
 			// TODO change enablerIF.expanded(TRANSITIONSEUQNECE)
-			// TODO change managerIF.successorIterator(STATE):
+			// TODO change enablerIF.successorIterator(TRANSITIONSEUQNECE):
 			if (!enabler.fullyExpanded(transitionSequence)) {
 				boolean successorsOnStack = true;
-				Iterator<Pair<TRANSITION, STATE>> iter = enabler.iterator(transitionSequence);
+				Iterator<STATE> iter = enabler.successorIterator(transitionSequence);
 
 				while (iter.hasNext()) {
-					Pair<TRANSITION, STATE> p = iter.next();
-					STATE state = p.getRight();
+					STATE state = iter.next();
 
 					if (!manager.onStack(state, id)) {
 						successorsOnStack = false;
@@ -442,14 +441,15 @@ public class ConcurrentDfsSearcher2<STATE, TRANSITION, TRANSITIONSEQUENCE> {
 
 				if (s == null) {
 					s = manager.nextState(state, t).getFinalState();
+					p.setRight(s);
+					//TODO change enablerIF: add addSuccessor(TRANSITIONSEQUENCE, STATE)
+					enabler.addSuccessor(transitionSequence, s);
 				}
 
-				Pair<TRANSITION, STATE> pair = new Pair<>(t, s);
-
 				if (manager.seen(s))
-					visited.add(pair);
+					visited.add(p);
 				else
-					unvisited.add(pair);
+					unvisited.add(p);
 			}
 		}
 

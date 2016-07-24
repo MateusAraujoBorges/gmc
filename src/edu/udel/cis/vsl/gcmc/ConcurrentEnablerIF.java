@@ -170,37 +170,13 @@ public interface ConcurrentEnablerIF<STATE, TRANSITION, TRANSITIONSEQUENCE> {
 	 */
 	boolean addTransition(TRANSITIONSEQUENCE transitionSequence, Pair<TRANSITION, STATE> transition);
 	
-	/**
-	 * Get the enabled transitions of a STATE with POR
-	 * 
-	 * @return the TRANSITIONSEQUENCE of state with POR
-	 */
-//	TRANSITIONSEQUENCE enabledTransitionsPOR(STATE state);
-	
-	/**
-	 * Indicate whether transitionSequence2 is a nontrivial subset of transitionSequence1
-	 * 
-	 * @return true if transitionSequence2 is a nontrivial subset of transitionSequence1
-	 */
-//	boolean contains(TRANSITIONSEQUENCE transitionSequence1, TRANSITIONSEQUENCE transitionSequence2);
-	
-	/**
-	 * remove all the transitions in transitionSequence1 from transitionSequence2.
-	 * 
-	 * @return true if transitionSequence1 is changed as the result of the call.
-	 */
-//	boolean removeAll(TRANSITIONSEQUENCE transitionSequence1, TRANSITIONSEQUENCE transitionSequence2);
-	
-	/**
-	 * add transitions in transitionSequence2 to transitionSequence1
-	 */
-//	boolean addTransitionSequence(TRANSITIONSEQUENCE transitionSequence1, TRANSITIONSEQUENCE transitionSequence2);
-	
 	boolean fullyExpanded(TRANSITIONSEQUENCE transitionSequence);
 	
 	void expand(TRANSITIONSEQUENCE transitionSequence);
 	
+	void addSuccessor(TRANSITIONSEQUENCE transitionSequence, STATE state);
 	
+	Iterator<STATE> successorIterator(TRANSITIONSEQUENCE transitionSequence);
 	
 	/**
 	 * @return the iterator of transitionSequence
