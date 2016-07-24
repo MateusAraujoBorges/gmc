@@ -147,4 +147,14 @@ public class Enabler implements ConcurrentEnablerIF<State, Transition, Transitio
 	public void expand(TransitionSequence transitionSequence) {
 		transitionSequence.putAllInSelection();
 	}
+
+	@Override
+	public void addSuccessor(TransitionSequence transitionSequence, State state) {
+		transitionSequence.addSuccessor(state);
+	}
+
+	@Override
+	public Iterator<State> successorIterator(TransitionSequence transitionSequence) {
+		return transitionSequence.successorIter();
+	}
 }

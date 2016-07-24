@@ -10,12 +10,14 @@ import edu.udel.cis.vsl.gcmc.util.Pair;
 public class TransitionSequence {
 	private Set<Pair<Transition, State>> selection;
 	private Set<Pair<Transition, State>> notInAmpleSet;
+	private Set<State> successors;
 	private State state;
 	
 	public TransitionSequence(State state){
 		this.state = state;
 		selection = new HashSet<>();
 		notInAmpleSet = new HashSet<>();
+		successors = new HashSet<>();
 	}
 	
 	public State state() {
@@ -61,5 +63,13 @@ public class TransitionSequence {
 	public void putAllInSelection(){
 		selection.addAll(notInAmpleSet);
 		notInAmpleSet.clear();
+	}
+	
+	public void addSuccessor(State s){
+		successors.add(s);
+	}
+	
+	public Iterator<State> successorIter(){
+		return successors.iterator();
 	}
 }
