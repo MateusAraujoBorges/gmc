@@ -3,6 +3,8 @@ package edu.udel.cis.vsl.gcmc;
 import java.io.PrintStream;
 import java.util.Iterator;
 
+import edu.udel.cis.vsl.gcmc.util.Pair;
+
 /**
  * An EnablerIF tells you which transitions should be explored from a given
  * state. It might need to know things about the state of the search (such as
@@ -159,43 +161,49 @@ public interface ConcurrentEnablerIF<STATE, TRANSITION, TRANSITIONSEQUENCE> {
 	 * 
 	 * @return true if ts contains t.
 	 */
-	boolean removeTransition(TRANSITIONSEQUENCE ts, TRANSITION t);
+	boolean removeTransition(TRANSITIONSEQUENCE ts, Pair<TRANSITION, STATE> transition);
 	
 	/**
 	 * Add TRANSITION t to TRANSITIONSEQUENCE ts
 	 * 
 	 * @return true if transitionSequence does not already contain transition.
 	 */
-	boolean addTransition(TRANSITIONSEQUENCE transitionSequence, TRANSITION transition);
+	boolean addTransition(TRANSITIONSEQUENCE transitionSequence, Pair<TRANSITION, STATE> transition);
 	
 	/**
 	 * Get the enabled transitions of a STATE with POR
 	 * 
 	 * @return the TRANSITIONSEQUENCE of state with POR
 	 */
-	TRANSITIONSEQUENCE enabledTransitionsPOR(STATE state);
+//	TRANSITIONSEQUENCE enabledTransitionsPOR(STATE state);
 	
 	/**
 	 * Indicate whether transitionSequence2 is a nontrivial subset of transitionSequence1
 	 * 
 	 * @return true if transitionSequence2 is a nontrivial subset of transitionSequence1
 	 */
-	boolean contains(TRANSITIONSEQUENCE transitionSequence1, TRANSITIONSEQUENCE transitionSequence2);
+//	boolean contains(TRANSITIONSEQUENCE transitionSequence1, TRANSITIONSEQUENCE transitionSequence2);
 	
 	/**
 	 * remove all the transitions in transitionSequence1 from transitionSequence2.
 	 * 
 	 * @return true if transitionSequence1 is changed as the result of the call.
 	 */
-	boolean removeAll(TRANSITIONSEQUENCE transitionSequence1, TRANSITIONSEQUENCE transitionSequence2);
+//	boolean removeAll(TRANSITIONSEQUENCE transitionSequence1, TRANSITIONSEQUENCE transitionSequence2);
 	
 	/**
 	 * add transitions in transitionSequence2 to transitionSequence1
 	 */
-	boolean addTransitionSequence(TRANSITIONSEQUENCE transitionSequence1, TRANSITIONSEQUENCE transitionSequence2);
+//	boolean addTransitionSequence(TRANSITIONSEQUENCE transitionSequence1, TRANSITIONSEQUENCE transitionSequence2);
+	
+	boolean fullyExpanded(TRANSITIONSEQUENCE transitionSequence);
+	
+	void expand(TRANSITIONSEQUENCE transitionSequence);
+	
+	
 	
 	/**
 	 * @return the iterator of transitionSequence
 	 */
-	Iterator<TRANSITION> iterator(TRANSITIONSEQUENCE transitionSequence);
+	Iterator<Pair<TRANSITION, STATE>> iterator(TRANSITIONSEQUENCE transitionSequence);
 }

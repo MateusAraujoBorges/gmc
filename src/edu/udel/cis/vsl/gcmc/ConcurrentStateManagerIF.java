@@ -190,18 +190,9 @@ public interface ConcurrentStateManagerIF<STATE, TRANSITION> {
 	 */
 	void setFullyExplored(STATE state, boolean value);
 	
-	/**
-	 * Indicate whether a STATE has been fully expanded.
-	 * 
-	 * @return true if state is fully expanded.
-	 */
-	boolean fullyExpanded(STATE state);
-	
-	/**
-	 * Set expanded field of a state to a certain boolean value.
-	 */
-	void setExpanded(STATE state, boolean value);
-	
 	void setOnStack(STATE state, int id, boolean value);
-
+	
+	void setInviolableCAS(STATE state, int value);
+	
+	int isInviolable(STATE state);
 }

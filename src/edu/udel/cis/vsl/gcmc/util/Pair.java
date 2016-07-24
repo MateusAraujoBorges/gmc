@@ -16,4 +16,13 @@ public class Pair<L, R> {
 	public R getRight(){
 		return right;
 	}
+	
+	public void setRight(R right){
+		this.right = right;
+	}
+	
+	@Override
+	public int hashCode() {
+		return left.hashCode();
+	}
 }
