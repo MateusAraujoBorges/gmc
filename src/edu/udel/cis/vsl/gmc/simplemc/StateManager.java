@@ -5,10 +5,12 @@ import edu.udel.cis.vsl.gcmc.ConcurrentStateManagerIF;
 import edu.udel.cis.vsl.gmc.TraceStepIF;
 
 public class StateManager implements ConcurrentStateManagerIF<State, Transition>{
+	private Object inviolableCASLock;
 
 	@Override
 	public TraceStepIF<Transition, State> nextState(State state, Transition transition) {
 		State newState = StateFactory.getState(state.getValue() + transition.getOffset());
+		inviolableCASLock = new Object();
 		
 		return new TraceStep(newState);
 	}
@@ -116,9 +118,11 @@ public class StateManager implements ConcurrentStateManagerIF<State, Transition>
 
 	@Override
 	public void setInviolableCAS(State state, int value) {
-		if(state.getInviolable() == 0){
-			state.setInviolable(value);
-		}
+		synchronized (inviolableCASLock) {
+			if(state.getInviolable() == 0){
+				state.setInviolable(value);
+			}
+		}	
 	}
 
 	@Override
