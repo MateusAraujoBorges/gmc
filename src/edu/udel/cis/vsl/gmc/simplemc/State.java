@@ -11,7 +11,7 @@ public class State {
 	private BitSet onStack;
 	// all the descendants in the graph are explored
 	private boolean fullyExplored;
-	// 1 means inviolable, -1 means violable and 0 means unknow.
+	// 1 means inviolable, -1 means violable and 0 means unknown.
 	private int inviolable;
 	
 	public State(int value){

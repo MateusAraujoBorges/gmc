@@ -12,6 +12,7 @@ public class Enabler implements ConcurrentEnablerIF<State, Transition, Transitio
 
 	@Override
 	public TransitionSequence enabledTransitions(State source) {
+		long time = System.currentTimeMillis();
 		TransitionSequence transitionSequence = new TransitionSequence(source);
 		
 		try {
@@ -25,9 +26,9 @@ public class Enabler implements ConcurrentEnablerIF<State, Transition, Transitio
 //		if(rand.nextInt(6) % 2 == 0){
 //			System.out.println("offset1:"+offset1);
 //			System.out.println("offset2:"+offset2);
-		selection.add(new Pair<Transition, State>(new Transition(3), null));
-		selection.add(new Pair<Transition, State>(new Transition(6), null));
-		selection.add(new Pair<Transition, State>(new Transition(100), null));
+		selection.add(new Pair<Transition, State>(new Transition((int)time%3 + 1), null));
+		selection.add(new Pair<Transition, State>(new Transition((int)time%3*-1 - 1), null));
+//		selection.add(new Pair<Transition, State>(new Transition(100), null));
 //		}else{
 //			System.out.println("offset2:"+offset2);
 //			System.out.println("offset1:"+offset1);
@@ -124,7 +125,13 @@ public class Enabler implements ConcurrentEnablerIF<State, Transition, Transitio
 	}
 	
 	@Override
-	public boolean removeTransition(TransitionSequence ts, Pair<Transition, State> p) {
+	public boolean removeTransition(int id, TransitionSequence ts, Pair<Transition, State> p) {
+		int temp = id;
+		while(temp > 1){
+			System.out.print("                  ");
+			temp--;
+		}
+		System.out.println("transition:" + p.getLeft().getOffset());
 		return ts.remove(p);
 	}
 

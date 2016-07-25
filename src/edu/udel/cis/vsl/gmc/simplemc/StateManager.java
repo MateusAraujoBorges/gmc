@@ -16,9 +16,14 @@ public class StateManager implements ConcurrentStateManagerIF<State, Transition>
 	}
 
 	@Override
-	public void setSeen(State state, boolean value) {
+	public void setSeen(int id, State state, boolean value) {
+		int temp = id;
+		while(temp > 1){
+			System.out.print("                  ");
+			temp--;
+		}
 		state.setSeen(value);
-		System.out.println(state.getValue());
+		System.out.println("state:"+state.getValue());
 	}
 
 	@Override
