@@ -161,7 +161,7 @@ public interface ConcurrentEnablerIF<STATE, TRANSITION, TRANSITIONSEQUENCE> {
 	 * 
 	 * @return true if ts contains t.
 	 */
-	boolean removeTransition(TRANSITIONSEQUENCE ts, Pair<TRANSITION, STATE> transition);
+	boolean removeTransition(int id, TRANSITIONSEQUENCE ts, Pair<TRANSITION, STATE> transition);
 	
 	/**
 	 * Add TRANSITION t to TRANSITIONSEQUENCE ts

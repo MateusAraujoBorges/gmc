@@ -12,7 +12,7 @@ import edu.udel.cis.vsl.gmc.TraceStepIF;
  * that are needed specifically for depth-first search, including methods to
  * mark a state as "seen before", and to make a state as
  * "currently on (or off) the stack". Still other methods are provided for
- * printing information abou states.
+ * printing information about states.
  * 
  * @author Stephen F. Siegel
  * 
@@ -53,7 +53,7 @@ public interface ConcurrentStateManagerIF<STATE, TRANSITION> {
 	 *            the value you want to assign to the seen flag associated to
 	 *            that state
 	 */
-	void setSeen(STATE state, boolean value);
+	void setSeen(int id, STATE state, boolean value);
 
 	/**
 	 * Returns the value of the seen flag associated to the given state.

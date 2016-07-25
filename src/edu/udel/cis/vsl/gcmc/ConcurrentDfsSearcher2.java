@@ -290,7 +290,7 @@ public class ConcurrentDfsSearcher2<STATE, TRANSITION, TRANSITIONSEQUENCE> {
 				Pair<TRANSITION, STATE> p = selector.next();
 				STATE newState = p.getRight();
 
-				enabler.removeTransition(transitionSequence, p);
+				enabler.removeTransition(id, transitionSequence, p);
 
 				if (predicate.holdsAt(newState))
 					predicateHold = true;
@@ -354,6 +354,11 @@ public class ConcurrentDfsSearcher2<STATE, TRANSITION, TRANSITIONSEQUENCE> {
 		@Override
 		protected boolean exec() {
 			while (!stack.empty()) {
+				int temp = id;
+				while(temp > 1){
+					System.out.print("                  ");
+					temp--;
+				}
 				System.out.println("thread" + id);
 				// if other thread finds a cycle violation or a state that
 				// satisfies the predicate, this thread
@@ -366,7 +371,7 @@ public class ConcurrentDfsSearcher2<STATE, TRANSITION, TRANSITIONSEQUENCE> {
 				TRANSITIONSEQUENCE transitionSequence = stack.peek();
 				STATE currentState = enabler.source(transitionSequence);
 
-				manager.setSeen(currentState, true);
+				manager.setSeen(id, currentState, true);
 				// TODO change enabler interface
 				int size = enabler.size(transitionSequence);
 				/**
@@ -384,7 +389,13 @@ public class ConcurrentDfsSearcher2<STATE, TRANSITION, TRANSITIONSEQUENCE> {
 					STATE newState = p.getRight();
 					// TODO, change enablerIF, remove a transition from
 					// transitionSequence
-					enabler.removeTransition(transitionSequence, p);
+					int temp2 = id-1;
+					while(temp2 > 1){
+						System.out.print("                  ");
+						temp2--;
+					}
+					System.out.println("new branch");
+					enabler.removeTransition(id -1 , transitionSequence, p);
 					// clone the this.stack (deep clone)
 					@SuppressWarnings("unchecked")
 					Stack<TRANSITIONSEQUENCE> stackClone = (Stack<TRANSITIONSEQUENCE>) this.stack.clone();
