@@ -2,28 +2,30 @@ package edu.udel.cis.vsl.gmc.simplemc;
 
 import java.io.PrintStream;
 import edu.udel.cis.vsl.gcmc.ConcurrentStateManagerIF;
+import edu.udel.cis.vsl.gcmc.util.Lock;
 import edu.udel.cis.vsl.gmc.TraceStepIF;
 
 public class StateManager implements ConcurrentStateManagerIF<State, Transition>{
-	private Object inviolableCASLock;
+	private Object inviolableCASLock = new Object();
 
 	@Override
 	public TraceStepIF<Transition, State> nextState(State state, Transition transition) {
 		State newState = StateFactory.getState(state.getValue() + transition.getOffset());
-		inviolableCASLock = new Object();
 		
 		return new TraceStep(newState);
 	}
 
 	@Override
 	public void setSeen(int id, State state, boolean value) {
-		int temp = id;
-		while(temp > 1){
-			System.out.print("                  ");
-			temp--;
+		synchronized (Lock.printLock) {
+			int temp = id;
+			while(temp > 1){
+				System.out.print("                  ");
+				temp--;
+			}
+			System.out.println("state:"+state.getValue()+" ");
 		}
 		state.setSeen(value);
-		System.out.println("state:"+state.getValue());
 	}
 
 	@Override
@@ -86,7 +88,8 @@ public class StateManager implements ConcurrentStateManagerIF<State, Transition>
 	public void setDepth(State state, int value) {
 		state.setDepth(value);
 	}
-
+	
+	// remove
 	@Override
 	public boolean setseen(State state) {
 		synchronized (this) {
@@ -133,5 +136,23 @@ public class StateManager implements ConcurrentStateManagerIF<State, Transition>
 	@Override
 	public int isInviolable(State state) {
 		return state.getInviolable();
+	}
+
+	@Override
+	public void setSeen(State state, boolean value) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void setOnStack(State state, boolean value) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public boolean onStack(State state) {
+		// TODO Auto-generated method stub
+		return false;
 	}
 }

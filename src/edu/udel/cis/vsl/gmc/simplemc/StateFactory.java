@@ -9,7 +9,7 @@ public class StateFactory {
 	
 	public static synchronized State getState(int value){
 //		System.out.println(stateNum + " "+ value);
-		boolean finalState = stateNum >= 50 ? true : false;
+		boolean finalState = stateNum >= 100 ? true : false;
 		
 		if(states.containsKey(new Integer(value))){
 			State state = states.get(value);

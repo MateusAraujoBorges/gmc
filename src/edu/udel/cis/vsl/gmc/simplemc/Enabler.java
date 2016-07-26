@@ -6,6 +6,7 @@ import java.util.LinkedList;
 import java.util.List;
 
 import edu.udel.cis.vsl.gcmc.ConcurrentEnablerIF;
+import edu.udel.cis.vsl.gcmc.util.Lock;
 import edu.udel.cis.vsl.gcmc.util.Pair;
 
 public class Enabler implements ConcurrentEnablerIF<State, Transition, TransitionSequence>{
@@ -26,8 +27,8 @@ public class Enabler implements ConcurrentEnablerIF<State, Transition, Transitio
 //		if(rand.nextInt(6) % 2 == 0){
 //			System.out.println("offset1:"+offset1);
 //			System.out.println("offset2:"+offset2);
-		selection.add(new Pair<Transition, State>(new Transition((int)time%3 + 1), null));
-		selection.add(new Pair<Transition, State>(new Transition((int)time%3*-1 - 1), null));
+		selection.add(new Pair<Transition, State>(new Transition((int)time%2 + 1), null));
+		selection.add(new Pair<Transition, State>(new Transition((int)time%2*-1 - 1), null));
 //		selection.add(new Pair<Transition, State>(new Transition(100), null));
 //		}else{
 //			System.out.println("offset2:"+offset2);
@@ -39,8 +40,8 @@ public class Enabler implements ConcurrentEnablerIF<State, Transition, Transitio
 		transitionSequence.addSelection(selection);
 		
 		List<Pair<Transition, State>> notInAmpleSet = new LinkedList<>();
-		notInAmpleSet.add(new Pair<Transition, State>(new Transition(50), null));
-		notInAmpleSet.add(new Pair<Transition, State>(new Transition(-50), null));
+		notInAmpleSet.add(new Pair<Transition, State>(new Transition(1), null));
+		notInAmpleSet.add(new Pair<Transition, State>(new Transition(-1), null));
 		transitionSequence.addNotInAmpleSet(notInAmpleSet);
 		
 		return transitionSequence;
@@ -51,20 +52,23 @@ public class Enabler implements ConcurrentEnablerIF<State, Transition, Transitio
 		return sequence.state();
 	}
 
-//	@Override
-//	public boolean hasNext(TransitionSequence sequence) {
-//		return ! (sequence.isEmpty());
-//	}
+	@Override
+	public boolean hasNext(TransitionSequence sequence) {
+		// method only for sequential dfs
+		return false;
+	}
 
-//	@Override
-//	public Transition next(TransitionSequence sequence) {
-//		return sequence.pop();
-//	}
-//
-//	@Override
-//	public Transition peek(TransitionSequence sequence) {
-//		return sequence.peek();
-//	}
+	@Override
+	public Transition next(TransitionSequence sequence) {
+		// method only for sequential dfs
+		return null;
+	}
+
+	@Override
+	public Transition peek(TransitionSequence sequence) {
+		// method only for sequential dfs
+		return null;
+	}
 
 	@Override
 	public void print(PrintStream out, TransitionSequence sequence) {
@@ -126,12 +130,14 @@ public class Enabler implements ConcurrentEnablerIF<State, Transition, Transitio
 	
 	@Override
 	public boolean removeTransition(int id, TransitionSequence ts, Pair<Transition, State> p) {
-		int temp = id;
-		while(temp > 1){
-			System.out.print("                  ");
-			temp--;
+		synchronized (Lock.printLock) {
+			int temp = id;
+			while(temp > 1){
+				System.out.print("                  ");
+				temp--;
+			}
+			System.out.println("transition:" + p.getLeft().getOffset());
 		}
-		System.out.println("transition:" + p.getLeft().getOffset());
 		return ts.remove(p);
 	}
 
