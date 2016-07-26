@@ -8,6 +8,7 @@ import java.util.Stack;
 import java.util.concurrent.ForkJoinPool;
 import java.util.concurrent.ForkJoinTask;
 
+import edu.udel.cis.vsl.gcmc.util.Lock;
 import edu.udel.cis.vsl.gcmc.util.Pair;
 import edu.udel.cis.vsl.gmc.StatePredicateIF;
 
@@ -310,6 +311,27 @@ public class ConcurrentDfsSearcher2<STATE, TRANSITION, TRANSITIONSEQUENCE> {
 					this.stack.push(newTransitionSequence);
 					manager.setOnStack(newState, id, true);
 					return true;
+				}else{
+					// debug
+					synchronized (Lock.printLock) {
+						if(manager.onStack(newState, id)){
+							int temp = id;
+							while(temp > 1){
+								System.out.print("                  ");
+								temp--;
+							}
+							System.out.println("on stack, backtrack");
+						}
+						
+						if(manager.fullyExplored(newState)){
+							int temp = id;
+							while(temp > 1){
+								System.out.print("                  ");
+								temp--;
+							}
+							System.out.println("fully explored, backtrack");
+						}
+					}
 				}
 			}
 
@@ -332,6 +354,14 @@ public class ConcurrentDfsSearcher2<STATE, TRANSITION, TRANSITIONSEQUENCE> {
 				// TODO change managerIF add unviolable(STATE)
 				if (manager.isInviolable(s) == 1) {
 					// TODO change EnablerIF add expand(TRANSITIONSEQUENCE)
+					synchronized (Lock.printLock) {
+						int temp = id;
+						while(temp > 1){
+							System.out.print("                  ");
+							temp--;
+						}
+						System.out.println("Full expand here");
+					}
 					enabler.expand(transitionSequence);
 					return true;
 				}
@@ -354,12 +384,14 @@ public class ConcurrentDfsSearcher2<STATE, TRANSITION, TRANSITIONSEQUENCE> {
 		@Override
 		protected boolean exec() {
 			while (!stack.empty()) {
-				int temp = id;
-				while(temp > 1){
-					System.out.print("                  ");
-					temp--;
+				synchronized (Lock.printLock) {
+					int temp = id;
+					while(temp > 1){
+						System.out.print("                  ");
+						temp--;
+					}
+					System.out.println("thread" + id);
 				}
-				System.out.println("thread" + id);
 				// if other thread finds a cycle violation or a state that
 				// satisfies the predicate, this thread
 				// should stop.
@@ -389,12 +421,14 @@ public class ConcurrentDfsSearcher2<STATE, TRANSITION, TRANSITIONSEQUENCE> {
 					STATE newState = p.getRight();
 					// TODO, change enablerIF, remove a transition from
 					// transitionSequence
-					int temp2 = id-1;
-					while(temp2 > 1){
-						System.out.print("                  ");
-						temp2--;
+					synchronized (Lock.printLock) {
+						int temp2 = id-1;
+						while(temp2 > 1){
+							System.out.print("                  ");
+							temp2--;
+						}
+						System.out.println("new branch");
 					}
-					System.out.println("new branch");
 					enabler.removeTransition(id -1 , transitionSequence, p);
 					// clone the this.stack (deep clone)
 					@SuppressWarnings("unchecked")
@@ -428,6 +462,14 @@ public class ConcurrentDfsSearcher2<STATE, TRANSITION, TRANSITIONSEQUENCE> {
 				// TODO change StateManagerIF
 				// setFullyExplored(STATE state, boolean value)
 				manager.setFullyExplored(currentState, true);
+				synchronized (Lock.printLock) {
+					int temp = id;
+					while(temp > 1){
+						System.out.print("                  ");
+						temp--;
+					}
+					System.out.println("state popped.");
+				}
 				this.stack.pop();
 				manager.setOnStack(currentState, id, false);
 			}
