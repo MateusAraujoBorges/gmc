@@ -481,6 +481,11 @@ public class ConcurrentDfsSearcher2<STATE, TRANSITION, TRANSITIONSEQUENCE> {
 	 * TRANSITIONs in unvisited set first and then from visited set until both
 	 * sets become empty.
 	 * 
+	 * TODO: Initialize a TransitionSelector every time when moving to a new
+	 * state may not be efficient. Maybe just randomly pick one TRANSITION from
+	 * TRANSITIONSEQUENCE or do a constant time of random picking?
+	 * TransitionSelector can achieve an evenly burden share, but it may take some cost.
+	 * 
 	 * @author yanyihao
 	 *
 	 */
