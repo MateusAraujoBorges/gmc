@@ -18,13 +18,19 @@ public class ConcurrentDfsSearcher2<STATE, TRANSITION, TRANSITIONSEQUENCE> {
 	 */
 	private int N;
 
+	/**
+	 * True iff a state in which the predicate holds is found.
+	 */
 	private boolean predicateHold;
 
+	/**
+	 * Thread pool to manage the threads.
+	 */
 	private ForkJoinPool pool;
 
 	/**
 	 * The enabler, used to determine the set of enabled transitions at any
-	 * state, among other things.
+	 * state, among other things. Also used for other transitionSequence issues.
 	 */
 	private ConcurrentEnablerIF<STATE, TRANSITION, TRANSITIONSEQUENCE> enabler;
 
@@ -57,22 +63,25 @@ public class ConcurrentDfsSearcher2<STATE, TRANSITION, TRANSITIONSEQUENCE> {
 	 */
 	private int totalNumTransitions = 0;
 
-	private Object transitionsLock = new Object();
-
 	/**
 	 * The number of states encountered which are recognized as having already
 	 * been seen earlier in the search.
 	 */
 	private int totalNumStatesMatched = 0;
 
-	private Object matchedLock = new Object();
-
 	/**
 	 * The number of states seen in this search.
 	 */
 	private int totalNumStatesSeen = 1;
 
-	private Object seenLock = new Object();
+	/**
+	 * locks used to do statistics.
+	 */
+	// private Object transitionsLock = new Object();
+	//
+	// private Object matchedLock = new Object();
+	//
+	// private Object seenLock = new Object();
 
 	private Object threadNumLock = new Object();
 
@@ -149,10 +158,10 @@ public class ConcurrentDfsSearcher2<STATE, TRANSITION, TRANSITIONSEQUENCE> {
 	}
 
 	/**
-	 * start a concurrent dfs task from a given state
+	 * Start a concurrent dfs task from a given state
 	 * 
 	 * @param initialState
-	 * @return
+	 *            The state the search starts from.
 	 */
 	public void search(STATE initialState) {
 		if (predicate.holdsAt(initialState)) {
@@ -160,14 +169,12 @@ public class ConcurrentDfsSearcher2<STATE, TRANSITION, TRANSITIONSEQUENCE> {
 			return;
 		}
 		TRANSITIONSEQUENCE transitionSequence = enabler.enabledTransitions(initialState);
-		// System.out.println("size:"+enabler.size(transitionSequence));
 		Stack<TRANSITIONSEQUENCE> stack = new Stack<>();
 		SequentialDfsSearchTask task = new SequentialDfsSearchTask(stack);
 
 		task.stack.push(transitionSequence);
 		manager.setOnStack(initialState, task.getId(), true);
 		pool.submit(task);
-
 		while (!pool.isQuiescent()) {
 		}
 		pool.shutdown();
@@ -203,6 +210,9 @@ public class ConcurrentDfsSearcher2<STATE, TRANSITION, TRANSITIONSEQUENCE> {
 	}
 
 	private class SequentialDfsSearchTask extends ForkJoinTask<Integer> {
+
+		private static final long serialVersionUID = -2011438813013648270L;
+
 		private int id;
 
 		/**
@@ -292,40 +302,38 @@ public class ConcurrentDfsSearcher2<STATE, TRANSITION, TRANSITIONSEQUENCE> {
 				STATE newState = p.getRight();
 
 				enabler.removeTransition(id, transitionSequence, p);
-
-				if (predicate.holdsAt(newState))
+				if (predicate.holdsAt(newState)) {
 					predicateHold = true;
-
+					return false;
+				}
 				if (manager.onStack(newState, id) && reportCycleAsViolation) {
 					cycleFound = true;
 					return false;
 				}
 				// TODO, change stateManagerIF. onStack(STATE state, threadId)
-				// to indicate
-				// whether state is on the thread's stack. Use bit vector to
-				// implement it.
-				// TODO, change stateManagerIF. Add fullyExplored(STATE, state)
+				// to indicate whether state is on the thread's stack. Use bit
+				// vector to implement it.
+				// TODO, change stateManagerIF. Add fullyExplored(STATE, state).
 				if (!manager.onStack(newState, id) && !manager.fullyExplored(newState)) {
 					TRANSITIONSEQUENCE newTransitionSequence = enabler.enabledTransitions(newState);
 
 					this.stack.push(newTransitionSequence);
 					manager.setOnStack(newState, id, true);
 					return true;
-				}else{
+				} else {
 					// debug
 					synchronized (Lock.printLock) {
-						if(manager.onStack(newState, id)){
+						if (manager.onStack(newState, id)) {
 							int temp = id;
-							while(temp > 1){
+							while (temp > 1) {
 								System.out.print("                  ");
 								temp--;
 							}
 							System.out.println("on stack, backtrack");
 						}
-						
-						if(manager.fullyExplored(newState)){
+						if (manager.fullyExplored(newState)) {
 							int temp = id;
-							while(temp > 1){
+							while (temp > 1) {
 								System.out.print("                  ");
 								temp--;
 							}
@@ -334,7 +342,6 @@ public class ConcurrentDfsSearcher2<STATE, TRANSITION, TRANSITIONSEQUENCE> {
 					}
 				}
 			}
-
 			// TODO change enablerIF.expanded(TRANSITIONSEUQNECE)
 			// TODO change enablerIF.successorIterator(TRANSITIONSEUQNECE):
 			if (!enabler.fullyExpanded(transitionSequence)) {
@@ -356,7 +363,7 @@ public class ConcurrentDfsSearcher2<STATE, TRANSITION, TRANSITIONSEQUENCE> {
 					// TODO change EnablerIF add expand(TRANSITIONSEQUENCE)
 					synchronized (Lock.printLock) {
 						int temp = id;
-						while(temp > 1){
+						while (temp > 1) {
 							System.out.print("                  ");
 							temp--;
 						}
@@ -386,59 +393,50 @@ public class ConcurrentDfsSearcher2<STATE, TRANSITION, TRANSITIONSEQUENCE> {
 			while (!stack.empty()) {
 				synchronized (Lock.printLock) {
 					int temp = id;
-					while(temp > 1){
+					while (temp > 1) {
 						System.out.print("                  ");
 						temp--;
 					}
 					System.out.println("thread" + id);
 				}
 				// if other thread finds a cycle violation or a state that
-				// satisfies the predicate, this thread
-				// should stop.
+				// satisfies the predicate, this thread should stop.
 				if (cycleFound || predicateHold) {
 					this.stack.clear();
 					return true;
 				}
-
 				TRANSITIONSEQUENCE transitionSequence = stack.peek();
 				STATE currentState = enabler.source(transitionSequence);
 
 				manager.setSeen(id, currentState, true);
 				// TODO change enabler interface
 				int size = enabler.size(transitionSequence);
-				/**
-				 * TransitionSelector is designed to pick branches to be dealt
-				 * with by other threads. It should pick those branch who has
-				 * not been visited first.
-				 */
 				TransitionSelector selector = new TransitionSelector(transitionSequence, currentState);
 
-				/**
+				/*
 				 * this while loop is to spawn new threads to run new branches.
 				 */
 				while (size > 1 && N > 0) {
 					Pair<TRANSITION, STATE> p = selector.next();
 					STATE newState = p.getRight();
-					// TODO, change enablerIF, remove a transition from
-					// transitionSequence
+
 					synchronized (Lock.printLock) {
-						int temp2 = id-1;
-						while(temp2 > 1){
+						int temp2 = id - 1;
+						while (temp2 > 1) {
 							System.out.print("                  ");
 							temp2--;
 						}
 						System.out.println("new branch");
 					}
-					enabler.removeTransition(id -1 , transitionSequence, p);
+					// TODO, change enablerIF, remove a transition from
+					// transitionSequence
+					enabler.removeTransition(id - 1, transitionSequence, p);
 					// clone the this.stack (deep clone)
 					@SuppressWarnings("unchecked")
 					Stack<TRANSITIONSEQUENCE> stackClone = (Stack<TRANSITIONSEQUENCE>) this.stack.clone();
 					// TODO change enablerIF, add a transition to
 					// transitionSequence
 					enabler.addTransition(transitionSequence, p);
-
-					// TODO, change enablerIF, get the transitionSequence with
-					// POR
 					SequentialDfsSearchTask task = new SequentialDfsSearchTask(stackClone);
 					TRANSITIONSEQUENCE newTransitionSequence = enabler.enabledTransitions(newState);
 
@@ -450,10 +448,8 @@ public class ConcurrentDfsSearcher2<STATE, TRANSITION, TRANSITIONSEQUENCE> {
 
 				if (proceedToNewState(currentState, transitionSequence))
 					continue;
-
 				// if this thread finds a cycle violation or a state that
-				// satisfies the predicate
-				// this thread should stop.
+				// satisfies the predicate this thread should stop.
 				if (cycleFound || predicateHold) {
 					this.stack.clear();
 					return true;
@@ -464,7 +460,7 @@ public class ConcurrentDfsSearcher2<STATE, TRANSITION, TRANSITIONSEQUENCE> {
 				manager.setFullyExplored(currentState, true);
 				synchronized (Lock.printLock) {
 					int temp = id;
-					while(temp > 1){
+					while (temp > 1) {
 						System.out.print("                  ");
 						temp--;
 					}
@@ -477,6 +473,17 @@ public class ConcurrentDfsSearcher2<STATE, TRANSITION, TRANSITIONSEQUENCE> {
 		}
 	}
 
+	/**
+	 * TransitionSelector is like an iterator of TRANSITIONSEQUENCE, but it will
+	 * split TRANSITIONs in TRANSITIONSEQUENCE into two parts: visited (those
+	 * that have been seen before by any thread) and unvisited (those that have
+	 * not been seen before). TransitionSelector will randomly pick from
+	 * TRANSITIONs in unvisited set first and then from visited set until both
+	 * sets become empty.
+	 * 
+	 * @author yanyihao
+	 *
+	 */
 	class TransitionSelector {
 		private List<Pair<TRANSITION, STATE>> visited;
 		private List<Pair<TRANSITION, STATE>> unvisited;
@@ -487,7 +494,6 @@ public class ConcurrentDfsSearcher2<STATE, TRANSITION, TRANSITIONSEQUENCE> {
 			Iterator<Pair<TRANSITION, STATE>> iter = enabler.iterator(transitionSequence);
 
 			while (iter.hasNext()) {
-
 				Pair<TRANSITION, STATE> p = iter.next();
 				TRANSITION t = p.getLeft();
 				STATE s = p.getRight();
@@ -495,10 +501,10 @@ public class ConcurrentDfsSearcher2<STATE, TRANSITION, TRANSITIONSEQUENCE> {
 				if (s == null) {
 					s = manager.nextState(state, t).getFinalState();
 					p.setRight(s);
-					//TODO change enablerIF: add addSuccessor(TRANSITIONSEQUENCE, STATE)
+					// TODO change enablerIF: add
+					// addSuccessor(TRANSITIONSEQUENCE, STATE)
 					enabler.addSuccessor(transitionSequence, s);
 				}
-
 				if (manager.seen(s))
 					visited.add(p);
 				else
@@ -526,7 +532,6 @@ public class ConcurrentDfsSearcher2<STATE, TRANSITION, TRANSITIONSEQUENCE> {
 
 				return visited.remove(pick);
 			}
-
 			return null;
 		}
 	}
