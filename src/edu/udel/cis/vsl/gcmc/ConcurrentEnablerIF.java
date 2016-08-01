@@ -3,6 +3,7 @@ package edu.udel.cis.vsl.gcmc;
 import java.util.Iterator;
 
 import edu.udel.cis.vsl.gcmc.util.Pair;
+import edu.udel.cis.vsl.gmc.intermediate.SequentialEnablerIF;
 
 /**
  * Note: Even though ConcurrentEnablerIF extends SequentialEnablerIF, but the
