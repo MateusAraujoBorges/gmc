@@ -137,10 +137,7 @@ public interface SequentialEnablerIF<STATE, TRANSITION, TRANSITIONSEQUENCE> {
 	/************************ methods added *********************************/
 
 	/**
-	 * TRANSITIONSEQUENCE{ Set selection; Set notInAmpleSet; }
-	 * 
-	 * expand a transition sequence by just move all transitions in
-	 * notInAmpleSet into selection set.
+	 * Expand a TRANSITIONSEQUENCE to full.
 	 */
 	void expand(TRANSITIONSEQUENCE sequence);
 	
