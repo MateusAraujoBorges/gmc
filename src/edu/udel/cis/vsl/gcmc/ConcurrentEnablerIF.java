@@ -6,9 +6,7 @@ import edu.udel.cis.vsl.gcmc.util.Pair;
 import edu.udel.cis.vsl.gmc.intermediate.SequentialEnablerIF;
 
 /**
- * Note: Even though ConcurrentEnablerIF extends SequentialEnablerIF, but the
- * methods (hasNext, next, peek) will not be used in a concurrentDfsSearcher. I
- * think that will be fine since many methods can be reused.
+ * 
  */
 public interface ConcurrentEnablerIF<STATE, TRANSITION, TRANSITIONSEQUENCE>
 		extends SequentialEnablerIF<STATE, TRANSITION, TRANSITIONSEQUENCE> {
@@ -27,8 +25,7 @@ public interface ConcurrentEnablerIF<STATE, TRANSITION, TRANSITIONSEQUENCE>
 	 * Remove TRANSITION t from TRANSITIONSEQUENCE ts
 	 * 
 	 * I need this method since I need to remove a random transition from
-	 * transitionSequence and then copy the stack and spawn new thread, but
-	 * after that I need to restore the transitionSequence.
+	 * transitionSequence.
 	 * 
 	 * @return true if ts contains t.
 	 */
@@ -37,7 +34,9 @@ public interface ConcurrentEnablerIF<STATE, TRANSITION, TRANSITIONSEQUENCE>
 	/**
 	 * Add TRANSITION t into TRANSITIONSEQUENCE ts
 	 * 
-	 * I need this method because when I spawn a new
+	 * I need this method because after I remove a TRANSITION from
+	 * TRANSITIONSEQUENCE, copy the stack and then spawn the new thread, I need
+	 * to restore the TRANSITIONSEQUENCE.
 	 * 
 	 * @return true if transitionSequence does not already contain transition.
 	 */

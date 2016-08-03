@@ -12,6 +12,24 @@ import edu.udel.cis.vsl.gcmc.util.Lock;
 import edu.udel.cis.vsl.gcmc.util.Pair;
 import edu.udel.cis.vsl.gmc.StatePredicateIF;
 
+/**
+ * This ConcurrentDfsSearcher is implemented based on Alfons Laarman's algorithm
+ * in paper "Partial-Order Reduction for Multi-Core LTL Model Checking", but
+ * there are improvements being made. Rather than a totally concurrent
+ * depth-first search, it may be more appropriate to say that the algorithm
+ * consists of multiple sequential depth-first search that are synchronized to
+ * some extent.
+ * 
+ * The basic idea is using multiple threads to search through the state space,
+ * each of them starts a depth-first search with its own stack. And try to make
+ * them search different parts of the state space.
+ * 
+ * @author yanyihao
+ *
+ * @param <STATE>
+ * @param <TRANSITION>
+ * @param <TRANSITIONSEQUENCE>
+ */
 public class ConcurrentDfsSearcher2<STATE, TRANSITION, TRANSITIONSEQUENCE> {
 	/**
 	 * The # of threads which can be used in the concurrent searcher.
@@ -385,7 +403,6 @@ public class ConcurrentDfsSearcher2<STATE, TRANSITION, TRANSITIONSEQUENCE> {
 		@Override
 		protected void setRawResult(Integer value) {
 			// TODO Auto-generated method stub
-
 		}
 
 		@Override
@@ -484,7 +501,8 @@ public class ConcurrentDfsSearcher2<STATE, TRANSITION, TRANSITIONSEQUENCE> {
 	 * TODO: Initialize a TransitionSelector every time when moving to a new
 	 * state may not be efficient. Maybe just randomly pick one TRANSITION from
 	 * TRANSITIONSEQUENCE or do a constant time of random picking?
-	 * TransitionSelector can achieve an evenly burden share, but it may take some cost.
+	 * TransitionSelector can achieve an evenly burden share, but it may take
+	 * some cost.
 	 * 
 	 * @author yanyihao
 	 *
