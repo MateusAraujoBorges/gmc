@@ -21,27 +21,15 @@ public class Enabler implements ConcurrentEnablerIF<State, Transition, Transitio
 		} catch (InterruptedException e) {
 			e.printStackTrace();
 		}
-		
 		List<Pair<Transition, State>> selection = new LinkedList<>();
 		
-//		if(rand.nextInt(6) % 2 == 0){
-//			System.out.println("offset1:"+offset1);
-//			System.out.println("offset2:"+offset2);
 		selection.add(new Pair<Transition, State>(new Transition((int)time%2 + 1), null));
 		selection.add(new Pair<Transition, State>(new Transition((int)time%2*-1 - 1), null));
-//		selection.add(new Pair<Transition, State>(new Transition(100), null));
-//		}else{
-//			System.out.println("offset2:"+offset2);
-//			System.out.println("offset1:"+offset1);
-//			transitions.add(new Transition(offset2));
-//			transitions.add(new Transition(offset1));
-//		}
-		
 		transitionSequence.addSelection(selection);
 		
 		List<Pair<Transition, State>> notInAmpleSet = new LinkedList<>();
-		notInAmpleSet.add(new Pair<Transition, State>(new Transition(1), null));
-		notInAmpleSet.add(new Pair<Transition, State>(new Transition(-1), null));
+		notInAmpleSet.add(new Pair<Transition, State>(new Transition(3), null));
+		notInAmpleSet.add(new Pair<Transition, State>(new Transition(-3), null));
 		transitionSequence.addNotInAmpleSet(notInAmpleSet);
 		
 		return transitionSequence;
