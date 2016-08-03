@@ -329,14 +329,6 @@ public class DfsSearcher2<STATE, TRANSITION, TRANSITIONSEQUENCE> {
 				TraceStepIF<TRANSITION, STATE> traceStep = manager.nextState(currentState, transition);
 				STATE newState = traceStep.getFinalState();
 				
-				/*
-				 * TRANSITIONSEQUENCE{
-				 * 		List selection;
-				 * 		List notInAmpleSet;
-				 * }
-				 * 
-				 * When doing expand, just link notInAmpleset onto selection;
-				 */
 				if(manager.onStack(newState) && !enabler.fullyExpanded(sequence)){
 					//cycle condition
 					enabler.expand(sequence);
