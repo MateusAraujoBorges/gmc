@@ -1,6 +1,6 @@
 package edu.udel.cis.vsl.gmc.simplemc;
 
-import edu.udel.cis.vsl.gmc.concurrent.ConcurrentDfsSearcher2;
+import edu.udel.cis.vsl.gmc.concurrent.ConcurrentDfsSearcher;
 
 public class UserInterface {
 	public static void main(String[] args) {
@@ -17,8 +17,8 @@ public class UserInterface {
 //		endTime = System.currentTimeMillis();
 //		System.out.println("sequential time: "+ (endTime - startTime));
 //		
-		ConcurrentDfsSearcher2<State, Transition, TransitionSequence>
-			cdfs = new ConcurrentDfsSearcher2<>(enabler, manager, predicate, 3);
+		ConcurrentDfsSearcher<State, Transition, TransitionSequence>
+			cdfs = new ConcurrentDfsSearcher<>(enabler, manager, predicate, 3);
 		startTime = System.currentTimeMillis();
 		cdfs.search(initState);
 		endTime = System.currentTimeMillis();
