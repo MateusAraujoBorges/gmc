@@ -143,6 +143,7 @@ public interface SequentialEnablerIF<STATE, TRANSITION, TRANSITIONSEQUENCE> {
 	
 	/**
 	 * tell whether a TRANSITIONSEQUENCE is fully expanded by telling whether notInAmpleSet is empty.
+	 * 
 	 */
 	boolean fullyExpanded(TRANSITIONSEQUENCE sequence);
 

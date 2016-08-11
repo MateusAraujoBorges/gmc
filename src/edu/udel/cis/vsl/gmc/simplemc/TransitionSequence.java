@@ -5,7 +5,7 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Set;
 
-import edu.udel.cis.vsl.gcmc.util.Pair;
+import edu.udel.cis.vsl.gmc.concurrent.util.Pair;
 
 public class TransitionSequence {
 	private Set<Pair<Transition, State>> selection;

@@ -1,9 +1,10 @@
 package edu.udel.cis.vsl.gmc.simplemc;
 
 import java.io.PrintStream;
-import edu.udel.cis.vsl.gcmc.ConcurrentStateManagerIF;
-import edu.udel.cis.vsl.gcmc.util.Lock;
+
 import edu.udel.cis.vsl.gmc.TraceStepIF;
+import edu.udel.cis.vsl.gmc.concurrent.ConcurrentStateManagerIF;
+import edu.udel.cis.vsl.gmc.concurrent.util.Lock;
 
 public class StateManager implements ConcurrentStateManagerIF<State, Transition>{
 	private Object inviolableCASLock = new Object();

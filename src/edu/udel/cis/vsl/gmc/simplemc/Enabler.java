@@ -5,9 +5,9 @@ import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 
-import edu.udel.cis.vsl.gcmc.ConcurrentEnablerIF;
-import edu.udel.cis.vsl.gcmc.util.Lock;
-import edu.udel.cis.vsl.gcmc.util.Pair;
+import edu.udel.cis.vsl.gmc.concurrent.ConcurrentEnablerIF;
+import edu.udel.cis.vsl.gmc.concurrent.util.Lock;
+import edu.udel.cis.vsl.gmc.concurrent.util.Pair;
 
 public class Enabler implements ConcurrentEnablerIF<State, Transition, TransitionSequence>{
 

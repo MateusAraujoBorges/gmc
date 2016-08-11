@@ -1,6 +1,6 @@
 package edu.udel.cis.vsl.gmc.simplemc;
 
-import edu.udel.cis.vsl.gcmc.ConcurrentDfsSearcher2;
+import edu.udel.cis.vsl.gmc.concurrent.ConcurrentDfsSearcher2;
 
 public class UserInterface {
 	public static void main(String[] args) {
