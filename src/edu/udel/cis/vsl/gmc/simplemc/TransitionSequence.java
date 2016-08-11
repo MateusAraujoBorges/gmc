@@ -1,75 +1,63 @@
 package edu.udel.cis.vsl.gmc.simplemc;
 
-import java.util.Collection;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.Set;
-
-import edu.udel.cis.vsl.gmc.concurrent.util.Pair;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Random;
 
 public class TransitionSequence {
-	private Set<Pair<Transition, State>> selection;
-	private Set<Pair<Transition, State>> notInAmpleSet;
-	private Set<State> successors;
 	private State state;
+	private List<Transition> transitions;
 	
 	public TransitionSequence(State state){
 		this.state = state;
-		selection = new HashSet<>();
-		notInAmpleSet = new HashSet<>();
-		successors = new HashSet<>();
+		this.transitions = new ArrayList<>();
 	}
 	
 	public State state() {
 		return state;
 	}
 	
-	public boolean addSelection(Collection<Pair<Transition, State>> pairs) {
-		return this.selection.addAll(pairs);
+	public boolean hasNext(){
+		return transitions.size() > 0;
 	}
 	
-	public boolean addNotInAmpleSet(Collection<Pair<Transition, State>> pairs){
-		return this.notInAmpleSet.addAll(pairs);
+	public Transition next(){
+		return transitions.remove(transitions.size() - 1);
 	}
 	
-	public int size() {
-		return this.selection.size();
+	public int size(){
+		return transitions.size();
 	}
 	
-	public boolean isEmpty() {
-		return this.selection.isEmpty();
+	public Transition randomNext(){
+		int size = transitions.size();
+		Random r = new Random();
+		int index = r.nextInt(size);
+		
+		return transitions.remove(index);
 	}
 	
-	public Iterator<Pair<Transition, State>> iterator(){
-		return selection.iterator();
+	public Transition[] randomPeekN(int n){
+		Transition[] ts = new Transition[n];
+		int index = 0;
+		
+		while(index < n){
+			ts[index++] = this.randomNext();
+		}
+		return ts;
 	}
 	
-	public Collection<Pair<Transition, State>> transitions() {
-		return selection;
+	public void addTransitions(Transition... transitions){
+		for(Transition t : transitions){
+			this.transitions.add(t);
+		}
 	}
 	
-	public boolean remove(Pair<Transition, State> p){
-		return selection.remove(p);
+	public List<Transition> getTransitions(){
+		return transitions;
 	}
 	
-	public boolean add(Pair<Transition, State> p){
-		return this.selection.add(p);
-	}
-	
-	public boolean isNotInAmpleSetEmpty(){
-		return notInAmpleSet.isEmpty();
-	}
-	
-	public void putAllInSelection(){
-		selection.addAll(notInAmpleSet);
-		notInAmpleSet.clear();
-	}
-	
-	public void addSuccessor(State s){
-		successors.add(s);
-	}
-	
-	public Iterator<State> successorIter(){
-		return successors.iterator();
+	public void addTransitionSequence(TransitionSequence transitionSequence){
+		this.transitions.addAll(transitionSequence.getTransitions());
 	}
 }

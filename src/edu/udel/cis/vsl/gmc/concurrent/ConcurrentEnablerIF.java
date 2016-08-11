@@ -1,83 +1,87 @@
 package edu.udel.cis.vsl.gmc.concurrent;
 
-import java.util.Iterator;
+public interface ConcurrentEnablerIF<STATE, TRANSITION, TRANSITIONSEQUENCE> {
 
-import edu.udel.cis.vsl.gmc.concurrent.util.Pair;
-import edu.udel.cis.vsl.gmc.intermediate.SequentialEnablerIF;
-
-public interface ConcurrentEnablerIF<STATE, TRANSITION, TRANSITIONSEQUENCE>
-		extends SequentialEnablerIF<STATE, TRANSITION, TRANSITIONSEQUENCE> {
+	/**
+	 * Get the ample set of a given STATE.
+	 * 
+	 * @param source
+	 *            source state
+	 * @return the ample set of a given STATE
+	 */
+	TRANSITIONSEQUENCE enabledTransitions(STATE source);
+	
+	/**
+	 * Get the source STATE of a TRANSITIONSEQUENCE.
+	 * 
+	 * @param transitionSequence
+	 * 
+	 * @return the source STATE of a TRANSITIONSEQUENCE.
+	 */
+	STATE source(TRANSITIONSEQUENCE transitionSequence);
 
 	/**
 	 * Return the size of a TRANSITIONSEQUENCE
 	 * 
-	 * I need this method because when I spawn new threads to work on different
-	 * branches, I need to know the size of the transitionSequence.
+	 * I need to know the size of a TRANSITIONSEQUENCE when I spawn new threads.
+	 * I also need to know the size of the notInAmpleSet when I check the stack
+	 * proviso.
 	 * 
-	 * @return the size of transition sequence
+	 * @return the size of TRANSITIONSEQUENCE
 	 */
 	int size(TRANSITIONSEQUENCE transitionSequence);
 
 	/**
-	 * Remove TRANSITION t from TRANSITIONSEQUENCE ts
+	 * Tell whether a TRANSITIONSEQUENCE contains at least one TRANSITION.
 	 * 
-	 * I need this method since I need to remove a random transition from
-	 * transitionSequence.
+	 * @param transitionSequence
 	 * 
-	 * Note that TRANSITIONSEQUENCE should store Pair<TRANSITION, STATE> because
-	 * of the design of TransitionSelector. When picking a successor,
-	 * TransitionSelector will try to pick one randomly from those who has not
-	 * been visited by any thread, if there are not any, then randomly pick one
-	 * from those who has been ever visited. During the process, all the
-	 * successor states will be computed, then store the pair will avoid
-	 * repetitive work. But this design is not necessary it the algorithm just
-	 * randomly pick a successor regardless of whether the successor state has
-	 * ever been visited.
- 	 * 
-	 * @return true if ts contains t.
+	 * @return true iff there are at least one TRANSITION in the
+	 *         TRANSITIONSEQUENCE.
 	 */
-	boolean removeTransition(int id, TRANSITIONSEQUENCE ts, Pair<TRANSITION, STATE> transition);
+	boolean hasNext(TRANSITIONSEQUENCE transitionSequence);
 
 	/**
-	 * TODO remove the transition after copy. this method may not be needed.
-	 * Add TRANSITION t into TRANSITIONSEQUENCE ts
+	 * Get the next TRANSITION randomly.
 	 * 
-	 * I need this method because after I remove a TRANSITION from
-	 * TRANSITIONSEQUENCE, copy the stack and then spawn the new thread, I need
-	 * to restore the TRANSITIONSEQUENCE.
+	 * @param transitionSequence
 	 * 
-	 * @return true if transitionSequence does not already contain transition.
+	 * @return the next TRANSITION randomly.
 	 */
-	boolean addTransition(TRANSITIONSEQUENCE transitionSequence, Pair<TRANSITION, STATE> transition);
+	TRANSITION randomNext(TRANSITIONSEQUENCE transitionSequence);
+	
+	/**
+	 * Peek n TRANSITIONs form a give TRANSITIONSEQUENCE.
+	 * 
+	 * @param transitionSequence
+	 * 
+	 * @return an array that contains the n TRANSITIONs that are peeked from a given TRANSITIONSEQUENCE.
+	 */
+	TRANSITION[] randomPeekN(TRANSITIONSEQUENCE transitionSequence, int n);
 
 	/**
-	 * Add a successor state into TransitionSequence.
-	 *
-	 * Store the successor states in Transition Sequence such that when I apply
-	 * the stack proviso (all successor needs to on the stack), I don't need to
-	 * get those successor states again.
+	 * Get the transitions that are not in the ample set of a give STATE.
 	 * 
-	 * Note: this method is not necessary, it is here for efficiency purpose.
-	 * With this method, the algorithm does not need to compute ample set again
-	 * when checking stack proviso.
+	 * @param s
+	 *            source STATE
+	 * @return transitions that are not in the ample set of a give STATE.
 	 */
-	void addSuccessor(TRANSITIONSEQUENCE transitionSequence, STATE state);
+	TRANSITIONSEQUENCE transitionsNotInAmpleSet(STATE s);
 
 	/**
-	 * boolean allSuccessorsOnStack()?
-	 * @return the iterator to iterate the successor Set in TransitionSequence.
+	 * Get the next TRANSITION.
 	 * 
+	 * @param transitionSequence
+	 * 
+	 * @return the next TRANSIRION.
 	 */
-	Iterator<STATE> successorIterator(TRANSITIONSEQUENCE transitionSequence);
+	TRANSITION next(TRANSITIONSEQUENCE transitionSequence);
 
 	/**
-	 * @return the iterator of transitionSequence
+	 * Put those TRANSITIONS that are not in the ample set into the
+	 * TRANSITIONSEQUENCE.
 	 * 
-	 *         I need to iterate the transitionSequence to initialize the
-	 *         TransitionSelector. The original interface (hasNext(), next(),
-	 *         peek()) can not to iterate TransitionSequence without modifying
-	 *         the TransitionSequence.
-	 *         
+	 * @param transitionSequence
 	 */
-	Iterator<Pair<TRANSITION, STATE>> iterator(TRANSITIONSEQUENCE transitionSequence);
+	void expandToFull(TRANSITIONSEQUENCE transitionSequence);
 }
