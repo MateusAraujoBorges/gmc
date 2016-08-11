@@ -30,7 +30,7 @@ import edu.udel.cis.vsl.gmc.concurrent.util.Pair;
  * @param <TRANSITION>
  * @param <TRANSITIONSEQUENCE>
  */
-public class ConcurrentDfsSearcher2<STATE, TRANSITION, TRANSITIONSEQUENCE> {
+public class ConcurrentDfsSearcher<STATE, TRANSITION, TRANSITIONSEQUENCE> {
 	/**
 	 * The # of threads which can be used in the concurrent searcher.
 	 */
@@ -121,7 +121,7 @@ public class ConcurrentDfsSearcher2<STATE, TRANSITION, TRANSITIONSEQUENCE> {
 	 */
 	private boolean minimize = false;
 
-	public ConcurrentDfsSearcher2(ConcurrentEnablerIF<STATE, TRANSITION, TRANSITIONSEQUENCE> enabler,
+	public ConcurrentDfsSearcher(ConcurrentEnablerIF<STATE, TRANSITION, TRANSITIONSEQUENCE> enabler,
 			ConcurrentStateManagerIF<STATE, TRANSITION> manager, StatePredicateIF<STATE> predicate, int N) {
 
 		if (enabler == null) {
