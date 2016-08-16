@@ -2,12 +2,12 @@ package edu.udel.cis.vsl.gmc.simplemc;
 
 import edu.udel.cis.vsl.gmc.TraceStepIF;
 import edu.udel.cis.vsl.gmc.concurrent.ConcurrentStateManagerIF;
-import edu.udel.cis.vsl.gmc.concurrent.util.Lock;
 import edu.udel.cis.vsl.gmc.concurrent.util.Log;
 import edu.udel.cis.vsl.gmc.concurrent.util.Transaction;
 
 public class StateManager implements ConcurrentStateManagerIF<State, Transition>{
 	private Object inviolableCASLock = new Object();
+	private Object onStackLock = new Object();
 	
 	/**
 	 * transactionId = 1 : spawn new thread
@@ -23,26 +23,13 @@ public class StateManager implements ConcurrentStateManagerIF<State, Transition>
 	}
 
 	@Override
-	public void setSeen(int id, State state, boolean value) {
-		synchronized (Lock.printLock) {
-			int temp = id;
-			while(temp > 1){
-				System.out.print("                  ");
-				temp--;
-			}
-			System.out.println("state:"+state.getValue()+" ");
-		}
-		state.setSeen(value);
-	}
-
-	@Override
 	public boolean onStack(State state, int id) {
 		return state.isOnStack(id);
 	}
 	
 	@Override
 	public void setOnStack(State state, int id, boolean value) {
-		synchronized (this) {
+		synchronized (onStackLock) {
 			state.setOnStack(id, value);
 		}
 	}

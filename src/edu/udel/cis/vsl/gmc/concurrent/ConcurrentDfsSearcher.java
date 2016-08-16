@@ -1,5 +1,6 @@
 package edu.udel.cis.vsl.gmc.concurrent;
 
+import java.util.Enumeration;
 import java.util.Stack;
 import java.util.concurrent.ForkJoinPool;
 import java.util.concurrent.ForkJoinTask;
@@ -183,10 +184,9 @@ public class ConcurrentDfsSearcher<STATE, TRANSITION, TRANSITIONSEQUENCE> {
 
 		TRANSITIONSEQUENCE transitionSequence = enabler.enabledTransitions(initialState);
 		Stack<TRANSITIONSEQUENCE> stack = new Stack<>();
-		SequentialDfsSearchTask task = new SequentialDfsSearchTask(stack);
-
-		task.stack.push(transitionSequence);
-		manager.setOnStack(initialState, task.getId(), true);
+		stack.push(transitionSequence);
+		SequentialDfsSearchTask task = new SequentialDfsSearchTask(stack, N);
+		
 		pool.submit(task);
 		while (!pool.isQuiescent())
 			;
@@ -264,11 +264,16 @@ public class ConcurrentDfsSearcher<STATE, TRANSITION, TRANSITIONSEQUENCE> {
 		 */
 		private boolean minimize = false;
 
-		public SequentialDfsSearchTask(Stack<TRANSITIONSEQUENCE> stack) {
+		public SequentialDfsSearchTask(Stack<TRANSITIONSEQUENCE> stack, int id) {
 			this.stack = stack;
-			synchronized (threadNumLock) {
-				id = N;
-				N--;
+			this.id = id;
+			
+			Enumeration<TRANSITIONSEQUENCE> elements = stack.elements();
+			while(elements.hasMoreElements()){
+				TRANSITIONSEQUENCE transitionSequence = elements.nextElement();
+				STATE state = enabler.source(transitionSequence);
+				
+				manager.setOnStack(state, id, true);
 			}
 		}
 
@@ -340,16 +345,26 @@ public class ConcurrentDfsSearcher<STATE, TRANSITION, TRANSITIONSEQUENCE> {
 					 */
 					for (TRANSITION t : transitions) {
 						STATE newState = manager.nextState(id, 1, currentState, t).getFinalState();
+						
+						// if newStack is already on stack, then don't spawn new thread to process it.
+						if(manager.onStack(newState, id))
+							continue;
 						// clone the this.stack (deep clone)
 						@SuppressWarnings("unchecked")
 						Stack<TRANSITIONSEQUENCE> stackClone = (Stack<TRANSITIONSEQUENCE>) this.stack.clone();
-						SequentialDfsSearchTask task = new SequentialDfsSearchTask(stackClone);
-						TRANSITIONSEQUENCE newTransitionSequence = enabler.enabledTransitions(newState);
-
-						task.stack.push(newTransitionSequence);
-						manager.setOnStack(newState, task.getId(), true);
-						pool.submit(task);
-						size--;
+						
+						synchronized (threadNumLock) {
+							N--;
+							if(N > 0){
+								TRANSITIONSEQUENCE newTransitionSequence = enabler.enabledTransitions(newState);
+								stackClone.push(newTransitionSequence);
+								SequentialDfsSearchTask task = new SequentialDfsSearchTask(stackClone, N);
+								
+								pool.submit(task);
+								size--;
+							}else
+								break;
+						}
 					}
 				}
 

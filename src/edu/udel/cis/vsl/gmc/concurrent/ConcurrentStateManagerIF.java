@@ -46,10 +46,4 @@ public interface ConcurrentStateManagerIF<STATE, TRANSITION> {
 	 * Tell whether a state is inviolable or not.
 	 */
 	int isInviolable(STATE state);
-
-	/**
-	 * This method is used for debug and can be replaced by setSeen(STATE,
-	 * boolean).
-	 */
-	void setSeen(int id, STATE state, boolean value);
 }

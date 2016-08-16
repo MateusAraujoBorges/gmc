@@ -2,29 +2,33 @@ package edu.udel.cis.vsl.gmc.simplemc;
 
 import edu.udel.cis.vsl.gmc.concurrent.ConcurrentEnablerIF;
 
-public class Enabler implements ConcurrentEnablerIF<State, Transition, TransitionSequence>{
+public class Enabler implements ConcurrentEnablerIF<State, Transition, TransitionSequence> {
 
 	@Override
 	public TransitionSequence enabledTransitions(State source) {
+		TransitionSequence transitionSequence = Cache.getAmpleSet(source);
+
+		if (transitionSequence != null)
+			return transitionSequence;
+
 		long time = System.currentTimeMillis();
-		TransitionSequence transitionSequence = new TransitionSequence(source);
+		transitionSequence = new TransitionSequence(source);
 		int random;
 		try {
 			Thread.sleep(1);
 		} catch (InterruptedException e) {
 			e.printStackTrace();
 		}
-		if(time % 2 == 1){
+		if (time % 2 == 1) {
 			random = 1;
-		}else{
+		} else {
 			random = 0;
 		}
-		Transition t1 = new Transition(random + 1);
-		Transition t2 = new Transition(random-1 - 1);
-		transitionSequence.addTransitions(t1
-				, t2
-				);
-		
+		Transition t1 = new Transition(random + 2);
+		Transition t2 = new Transition(random * (-1) - 2);
+		transitionSequence.addTransitions(t1, t2);
+		Cache.addAmpleSetCache(source, transitionSequence);
+
 		return transitionSequence;
 	}
 
@@ -42,6 +46,7 @@ public class Enabler implements ConcurrentEnablerIF<State, Transition, Transitio
 	public Transition next(TransitionSequence sequence) {
 		return sequence.next();
 	}
+
 	@Override
 	public int size(TransitionSequence transitionSequence) {
 		return transitionSequence.size();
@@ -59,11 +64,17 @@ public class Enabler implements ConcurrentEnablerIF<State, Transition, Transitio
 
 	@Override
 	public TransitionSequence transitionsNotInAmpleSet(State s) {
-		TransitionSequence ts = new TransitionSequence(s);
-		Transition t1 = new Transition(-3);
-		Transition t2 = new Transition(3);
-		
+		TransitionSequence ts = Cache.getNotInAmpleSet(s);
+		if (ts != null) {
+			return ts;
+		}
+
+		ts = new TransitionSequence(s);
+		Transition t1 = new Transition(-1);
+		Transition t2 = new Transition(1);
+
 		ts.addTransitions(t1, t2);
+		Cache.addNotInAmpleSetCache(s, ts);
 		return ts;
 	}
 

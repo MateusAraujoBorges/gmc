@@ -9,7 +9,7 @@ public class UserInterface {
 		Enabler enabler = new Enabler();
 		StateManager manager = new StateManager();
 		StatePredicate predicate = new StatePredicate();
-		State initState = new State(0);
+		State initState = StateFactory.getState(0);
 		ConcurrentDfsSearcher<State, Transition, TransitionSequence>
 			cdfs = new ConcurrentDfsSearcher<>(enabler, manager, predicate, 3);
 		

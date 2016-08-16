@@ -4,7 +4,6 @@ import java.util.BitSet;
 
 public class State {
 	private int  value;
-	private boolean seen;
 //	private boolean onStack;
 	private int depth;
 	private boolean finalState;
@@ -16,7 +15,6 @@ public class State {
 	
 	public State(int value){
 		this.value = value;
-		seen = false;
 		onStack = new BitSet();
 		depth = 0;
 		finalState = false;
@@ -31,15 +29,7 @@ public class State {
 	public void setValue(int value) {
 		this.value = value;
 	}
-
-	public boolean isSeen() {
-		return seen;
-	}
-
-	public void setSeen(boolean seen) {
-		this.seen = seen;
-	}
-
+	
 //	public boolean isOnStack() {
 //		return onStack;
 //	}
@@ -86,5 +76,10 @@ public class State {
 
 	public void setInviolable(int inviolable) {
 		this.inviolable = inviolable;
+	}
+	
+	@Override
+	public int hashCode() {
+		return this.value;
 	}
 }
