@@ -1,18 +1,24 @@
 package edu.udel.cis.vsl.gmc.simplemc;
 
-import java.io.PrintStream;
-
 import edu.udel.cis.vsl.gmc.TraceStepIF;
 import edu.udel.cis.vsl.gmc.concurrent.ConcurrentStateManagerIF;
 import edu.udel.cis.vsl.gmc.concurrent.util.Lock;
+import edu.udel.cis.vsl.gmc.concurrent.util.Log;
+import edu.udel.cis.vsl.gmc.concurrent.util.Transaction;
 
 public class StateManager implements ConcurrentStateManagerIF<State, Transition>{
 	private Object inviolableCASLock = new Object();
-
+	
+	/**
+	 * transactionId = 1 : spawn new thread
+	 * transactionId = 2 : proceed depth first search
+	 * transactionId = 3 : check stack proviso
+	 */
 	@Override
-	public TraceStepIF<Transition, State> nextState(State state, Transition transition) {
+	public TraceStepIF<Transition, State> nextState(int threadId, int transactionId, State state, Transition transition) {
 		State newState = StateFactory.getState(state.getValue() + transition.getOffset());
-		
+		Transaction transaction = new Transaction(threadId, transactionId, state, transition, newState);
+		Log.add(transaction);
 		return new TraceStep(newState);
 	}
 
@@ -27,80 +33,6 @@ public class StateManager implements ConcurrentStateManagerIF<State, Transition>
 			System.out.println("state:"+state.getValue()+" ");
 		}
 		state.setSeen(value);
-	}
-
-	@Override
-	public boolean seen(State state) {
-		return state.isSeen();
-	}
-
-//	@Override
-//	public void setOnStack(State state, boolean value) {
-//		state.setOnStack(value);
-//	}
-
-//	@Override
-//	public boolean onStack(State state) {
-//		return state.isOnStack();
-//	}
-
-	@Override
-	public void printStateShort(PrintStream out, State state) {
-		// TODO Auto-generated method stub
-		
-	}
-
-	@Override
-	public void printStateLong(PrintStream out, State state) {
-		// TODO Auto-generated method stub
-		
-	}
-
-	@Override
-	public void printTransitionShort(PrintStream out, Transition transition) {
-		// TODO Auto-generated method stub
-		
-	}
-
-	@Override
-	public void printTransitionLong(PrintStream out, Transition transition) {
-		// TODO Auto-generated method stub
-		
-	}
-
-	@Override
-	public void printAllStatesShort(PrintStream out) {
-		// TODO Auto-generated method stub
-		
-	}
-
-	@Override
-	public void printAllStatesLong(PrintStream out) {
-		// TODO Auto-generated method stub
-		
-	}
-
-	@Override
-	public int getDepth(State state) {
-		return state.getDepth();
-	}
-
-	@Override
-	public void setDepth(State state, int value) {
-		state.setDepth(value);
-	}
-	
-	// remove
-	@Override
-	public boolean setseen(State state) {
-		synchronized (this) {
-			if(state.isSeen())
-				return false;
-			else{
-				state.setSeen(true);
-				return true;
-			}
-		}
 	}
 
 	@Override
@@ -137,23 +69,5 @@ public class StateManager implements ConcurrentStateManagerIF<State, Transition>
 	@Override
 	public int isInviolable(State state) {
 		return state.getInviolable();
-	}
-
-	@Override
-	public void setSeen(State state, boolean value) {
-		// TODO Auto-generated method stub
-		
-	}
-
-	@Override
-	public void setOnStack(State state, boolean value) {
-		// TODO Auto-generated method stub
-		
-	}
-
-	@Override
-	public boolean onStack(State state) {
-		// TODO Auto-generated method stub
-		return false;
 	}
 }

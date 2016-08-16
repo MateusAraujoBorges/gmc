@@ -306,50 +306,7 @@ public class ConcurrentDfsSearcher<STATE, TRANSITION, TRANSITIONSEQUENCE> {
 		public int getId() {
 			return id;
 		}
-
-		private boolean proceedToNewState(STATE s, TRANSITIONSEQUENCE transitionSequence) {
-			while (enabler.hasNext(transitionSequence)) {
-				TRANSITION t = enabler.randomNext(transitionSequence);
-				STATE newState = manager.nextState(s, t).getFinalState();
-
-				if (predicate.holdsAt(newState)) {
-					predicateHold = true;
-					return false;
-				}
-				if (manager.onStack(newState, id) && reportCycleAsViolation) {
-					cycleFound = true;
-					return false;
-				}
-				if (!manager.onStack(newState, id) && !manager.fullyExplored(newState)) {
-					TRANSITIONSEQUENCE newTransitionSequence = enabler.enabledTransitions(newState);
-
-					this.stack.push(newTransitionSequence);
-					manager.setOnStack(newState, id, true);
-					return true;
-				}
-			}
-			if (manager.isInviolable(s) == 0 && enabler.size(enabler.transitionsNotInAmpleSet(s)) > 0) {
-				boolean successorsOnStack = true;
-				TRANSITIONSEQUENCE ampleSet = enabler.enabledTransitions(s);
-
-				while (enabler.hasNext(ampleSet)) {
-					TRANSITION t = enabler.next(ampleSet);
-					STATE newState = manager.nextState(s, t).getFinalState();
-
-					if (!manager.onStack(newState, id)) {
-						successorsOnStack = false;
-						break;
-					}
-				}
-				manager.setInviolableCAS(s, successorsOnStack ? 1 : -1);
-				if (manager.isInviolable(s) == 1) {
-					enabler.expandToFull(transitionSequence);
-					return true;
-				}
-			}
-			return false;
-		}
-
+		
 		@Override
 		public Integer getRawResult() {
 			// TODO Auto-generated method stub
@@ -375,27 +332,30 @@ public class ConcurrentDfsSearcher<STATE, TRANSITION, TRANSITIONSEQUENCE> {
 				int size = enabler.size(transitionSequence);
 				// the # of new threads
 				int n = (size - 1) > N ? N : size - 1;
-				TRANSITION[] transitions = enabler.randomPeekN(transitionSequence, n);
+				if (n > 0) {
+					TRANSITION[] transitions = enabler.randomPeekN(transitionSequence, n);
+					/*
+					 * this while loop is to spawn new threads to run new
+					 * branches.
+					 */
+					for (TRANSITION t : transitions) {
+						STATE newState = manager.nextState(id, 1, currentState, t).getFinalState();
+						// clone the this.stack (deep clone)
+						@SuppressWarnings("unchecked")
+						Stack<TRANSITIONSEQUENCE> stackClone = (Stack<TRANSITIONSEQUENCE>) this.stack.clone();
+						SequentialDfsSearchTask task = new SequentialDfsSearchTask(stackClone);
+						TRANSITIONSEQUENCE newTransitionSequence = enabler.enabledTransitions(newState);
 
-				/*
-				 * this while loop is to spawn new threads to run new branches.
-				 */
-				for (TRANSITION t : transitions) {
-					STATE newState = manager.nextState(currentState, t).getFinalState();
-					// clone the this.stack (deep clone)
-					@SuppressWarnings("unchecked")
-					Stack<TRANSITIONSEQUENCE> stackClone = (Stack<TRANSITIONSEQUENCE>) this.stack.clone();
-					SequentialDfsSearchTask task = new SequentialDfsSearchTask(stackClone);
-					TRANSITIONSEQUENCE newTransitionSequence = enabler.enabledTransitions(newState);
-
-					task.stack.push(newTransitionSequence);
-					manager.setOnStack(newState, task.getId(), true);
-					pool.submit(task);
-					size--;
+						task.stack.push(newTransitionSequence);
+						manager.setOnStack(newState, task.getId(), true);
+						pool.submit(task);
+						size--;
+					}
 				}
 
-				if (proceedToNewState(currentState, transitionSequence))
+				if (proceedToNewState(currentState, transitionSequence)) {
 					continue;
+				}
 				// if this thread finds a cycle violation or a state that
 				// satisfies the predicate this thread should stop.
 				if (cycleFound || predicateHold) {
@@ -408,6 +368,50 @@ public class ConcurrentDfsSearcher<STATE, TRANSITION, TRANSITIONSEQUENCE> {
 				manager.setOnStack(currentState, id, false);
 			}
 			return true;
+		}
+		
+		private boolean proceedToNewState(STATE s, TRANSITIONSEQUENCE transitionSequence) {
+			while (enabler.hasNext(transitionSequence)) {
+				TRANSITION t = enabler.randomNext(transitionSequence);
+				STATE newState;
+				newState = manager.nextState(id, 2, s, t).getFinalState();
+
+				if (predicate.holdsAt(newState)) {
+					predicateHold = true;
+					return false;
+				}
+				if (manager.onStack(newState, id) && reportCycleAsViolation) {
+					cycleFound = true;
+					return false;
+				}
+				if (!manager.onStack(newState, id) && !manager.fullyExplored(newState)) {
+					TRANSITIONSEQUENCE newTransitionSequence = enabler.enabledTransitions(newState);
+
+					this.stack.push(newTransitionSequence);
+					manager.setOnStack(newState, id, true);
+					return true;
+				}
+			}
+			if (manager.isInviolable(s) == 0 && enabler.size(enabler.transitionsNotInAmpleSet(s)) > 0) {
+				boolean successorsOnStack = true;
+				TRANSITIONSEQUENCE ampleSet = enabler.enabledTransitions(s);
+
+				while (enabler.hasNext(ampleSet)) {
+					TRANSITION t = enabler.next(ampleSet);
+					STATE newState = manager.nextState(id, 3, s, t).getFinalState();
+
+					if (!manager.onStack(newState, id)) {
+						successorsOnStack = false;
+						break;
+					}
+				}
+				manager.setInviolableCAS(s, successorsOnStack ? 1 : -1);
+				if (manager.isInviolable(s) == 1) {
+					enabler.expandToFull(transitionSequence);
+					return true;
+				}
+			}
+			return false;
 		}
 	}
 }

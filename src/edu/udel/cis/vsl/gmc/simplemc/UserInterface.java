@@ -1,6 +1,7 @@
 package edu.udel.cis.vsl.gmc.simplemc;
 
 import edu.udel.cis.vsl.gmc.concurrent.ConcurrentDfsSearcher;
+import edu.udel.cis.vsl.gmc.concurrent.util.Log;
 
 public class UserInterface {
 	public static void main(String[] args) {
@@ -8,20 +9,16 @@ public class UserInterface {
 		Enabler enabler = new Enabler();
 		StateManager manager = new StateManager();
 		StatePredicate predicate = new StatePredicate();
-//		DfsSearcher<State, Transition, TransitionSequence> dfsSearch 
-//			= new DfsSearcher<>(enabler, manager, predicate);
-		
 		State initState = new State(0);
-//		startTime = System.currentTimeMillis();
-//		dfsSearch.search(initState);
-//		endTime = System.currentTimeMillis();
-//		System.out.println("sequential time: "+ (endTime - startTime));
-//		
 		ConcurrentDfsSearcher<State, Transition, TransitionSequence>
 			cdfs = new ConcurrentDfsSearcher<>(enabler, manager, predicate, 3);
+		
 		startTime = System.currentTimeMillis();
 		cdfs.search(initState);
 		endTime = System.currentTimeMillis();
 		System.out.println("concurrent time:" + (endTime - startTime));
+		
+		System.out.println("log size:"+ Log.transactions.size());
+		Log.analyzeLog();
 	}
 }

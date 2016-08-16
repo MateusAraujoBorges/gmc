@@ -8,14 +8,21 @@ public class Enabler implements ConcurrentEnablerIF<State, Transition, Transitio
 	public TransitionSequence enabledTransitions(State source) {
 		long time = System.currentTimeMillis();
 		TransitionSequence transitionSequence = new TransitionSequence(source);
-		
+		int random;
 		try {
 			Thread.sleep(1);
 		} catch (InterruptedException e) {
 			e.printStackTrace();
 		}
-		transitionSequence.addTransitions(new Transition((int)time%2 + 1)
-				, new Transition((int)time%2*-1 - 1)
+		if(time % 2 == 1){
+			random = 1;
+		}else{
+			random = 0;
+		}
+		Transition t1 = new Transition(random + 1);
+		Transition t2 = new Transition(random-1 - 1);
+		transitionSequence.addTransitions(t1
+				, t2
 				);
 		
 		return transitionSequence;
@@ -62,7 +69,6 @@ public class Enabler implements ConcurrentEnablerIF<State, Transition, Transitio
 
 	@Override
 	public void expandToFull(TransitionSequence transitionSequence) {
-		System.out.println("expand full!");
 		State state = source(transitionSequence);
 		TransitionSequence ts = transitionsNotInAmpleSet(state);
 		transitionSequence.addTransitionSequence(ts);

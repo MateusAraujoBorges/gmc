@@ -1,13 +1,14 @@
 package edu.udel.cis.vsl.gmc.concurrent;
 
-import edu.udel.cis.vsl.gmc.StateManagerIF;
+import edu.udel.cis.vsl.gmc.TraceStepIF;
 
 /**
  * Note methods setOnStack(STATE state, boolean value), onStack(STATE state)
  * will not be used in a concurrentDfsSearcher.
  */
-public interface ConcurrentStateManagerIF<STATE, TRANSITION> extends StateManagerIF<STATE, TRANSITION> {
-
+public interface ConcurrentStateManagerIF<STATE, TRANSITION> {
+	
+	public TraceStepIF<TRANSITION, STATE> nextState(int threadId, int transaction, STATE state, TRANSITION transition);
 	/**
 	 * Indicate whether a STATE is on the stack of the thread with certain id.
 	 * 

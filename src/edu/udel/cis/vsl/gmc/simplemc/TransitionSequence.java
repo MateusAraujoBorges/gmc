@@ -44,6 +44,9 @@ public class TransitionSequence {
 		while(index < n){
 			ts[index++] = this.randomNext();
 		}
+		
+		for(Transition t : ts)
+			this.transitions.add(t);
 		return ts;
 	}
 	
