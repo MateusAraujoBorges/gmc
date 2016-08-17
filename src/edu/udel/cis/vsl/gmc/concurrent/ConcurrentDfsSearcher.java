@@ -186,7 +186,7 @@ public class ConcurrentDfsSearcher<STATE, TRANSITION, TRANSITIONSEQUENCE> {
 		Stack<TRANSITIONSEQUENCE> stack = new Stack<>();
 		stack.push(transitionSequence);
 		SequentialDfsSearchTask task = new SequentialDfsSearchTask(stack, N);
-		
+
 		pool.submit(task);
 		while (!pool.isQuiescent())
 			;
@@ -267,12 +267,12 @@ public class ConcurrentDfsSearcher<STATE, TRANSITION, TRANSITIONSEQUENCE> {
 		public SequentialDfsSearchTask(Stack<TRANSITIONSEQUENCE> stack, int id) {
 			this.stack = stack;
 			this.id = id;
-			
+
 			Enumeration<TRANSITIONSEQUENCE> elements = stack.elements();
-			while(elements.hasMoreElements()){
+			while (elements.hasMoreElements()) {
 				TRANSITIONSEQUENCE transitionSequence = elements.nextElement();
 				STATE state = enabler.source(transitionSequence);
-				
+
 				manager.setOnStack(state, id, true);
 			}
 		}
@@ -311,7 +311,7 @@ public class ConcurrentDfsSearcher<STATE, TRANSITION, TRANSITIONSEQUENCE> {
 		public int getId() {
 			return id;
 		}
-		
+
 		@Override
 		public Integer getRawResult() {
 			// TODO Auto-generated method stub
@@ -321,6 +321,17 @@ public class ConcurrentDfsSearcher<STATE, TRANSITION, TRANSITIONSEQUENCE> {
 		@Override
 		protected void setRawResult(Integer value) {
 			// TODO Auto-generated method stub
+		}
+
+		private Stack<TRANSITIONSEQUENCE> cloneStack(Stack<TRANSITIONSEQUENCE> stack) {
+			Stack<TRANSITIONSEQUENCE> stackClone = new Stack<>();
+			Enumeration<TRANSITIONSEQUENCE> elements = stack.elements();
+
+			while (elements.hasMoreElements()) {
+				TRANSITIONSEQUENCE ts = elements.nextElement();
+				stackClone.push(enabler.clone(ts));
+			}
+			return stackClone;
 		}
 
 		@Override
@@ -345,24 +356,24 @@ public class ConcurrentDfsSearcher<STATE, TRANSITION, TRANSITIONSEQUENCE> {
 					 */
 					for (TRANSITION t : transitions) {
 						STATE newState = manager.nextState(id, 1, currentState, t).getFinalState();
-						
-						// if newStack is already on stack, then don't spawn new thread to process it.
-						if(manager.onStack(newState, id))
+
+						// if newStack is already on stack, then don't spawn new
+						// thread to process it.
+						if (manager.onStack(newState, id))
 							continue;
-						// clone the this.stack (deep clone)
-						@SuppressWarnings("unchecked")
-						Stack<TRANSITIONSEQUENCE> stackClone = (Stack<TRANSITIONSEQUENCE>) this.stack.clone();
 						
+						Stack<TRANSITIONSEQUENCE> stackClone = cloneStack(this.stack);
+
 						synchronized (threadNumLock) {
 							N--;
-							if(N > 0){
+							if (N > 0) {
 								TRANSITIONSEQUENCE newTransitionSequence = enabler.enabledTransitions(newState);
 								stackClone.push(newTransitionSequence);
 								SequentialDfsSearchTask task = new SequentialDfsSearchTask(stackClone, N);
-								
+
 								pool.submit(task);
 								size--;
-							}else
+							} else
 								break;
 						}
 					}
@@ -384,7 +395,7 @@ public class ConcurrentDfsSearcher<STATE, TRANSITION, TRANSITIONSEQUENCE> {
 			}
 			return true;
 		}
-		
+
 		private boolean proceedToNewState(STATE s, TRANSITIONSEQUENCE transitionSequence) {
 			while (enabler.hasNext(transitionSequence)) {
 				TRANSITION t = enabler.randomNext(transitionSequence);

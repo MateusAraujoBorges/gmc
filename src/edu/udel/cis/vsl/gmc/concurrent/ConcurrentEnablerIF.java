@@ -84,4 +84,6 @@ public interface ConcurrentEnablerIF<STATE, TRANSITION, TRANSITIONSEQUENCE> {
 	 * @param transitionSequence
 	 */
 	void expandToFull(TRANSITIONSEQUENCE transitionSequence);
+	
+	TRANSITIONSEQUENCE clone(TRANSITIONSEQUENCE transitionSequence);
 }
