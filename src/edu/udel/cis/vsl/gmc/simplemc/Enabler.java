@@ -27,10 +27,10 @@ public class Enabler implements ConcurrentEnablerIF<State, Transition, Transitio
 //		transitionSequence.addTransitions(t1, t2);
 //		Cache.addAmpleSetCache(source, transitionSequence);
 		
-		Transition t1 = new Transition(2);
-		Transition t2 = new Transition(-2);
-		Transition t3 = new Transition(3);
-		Transition t4 = new Transition(-3);
+		Transition t1 = new Transition(3);
+		Transition t2 = new Transition(-3);
+		Transition t3 = new Transition(5);
+		Transition t4 = new Transition(-5);
 		transitionSequence = new TransitionSequence(source);
 		transitionSequence.addTransitions(t1, t2, t3, t4);
 		
