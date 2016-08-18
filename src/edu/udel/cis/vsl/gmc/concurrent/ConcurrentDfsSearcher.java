@@ -186,7 +186,8 @@ public class ConcurrentDfsSearcher<STATE, TRANSITION, TRANSITIONSEQUENCE> {
 		Stack<TRANSITIONSEQUENCE> stack = new Stack<>();
 		stack.push(transitionSequence);
 		SequentialDfsSearchTask task = new SequentialDfsSearchTask(stack, N);
-
+		
+		N--;
 		pool.submit(task);
 		while (!pool.isQuiescent())
 			;
@@ -365,7 +366,6 @@ public class ConcurrentDfsSearcher<STATE, TRANSITION, TRANSITIONSEQUENCE> {
 						Stack<TRANSITIONSEQUENCE> stackClone = cloneStack(this.stack);
 
 						synchronized (threadNumLock) {
-							N--;
 							if (N > 0) {
 								TRANSITIONSEQUENCE newTransitionSequence = enabler.enabledTransitions(newState);
 								stackClone.push(newTransitionSequence);
@@ -373,6 +373,7 @@ public class ConcurrentDfsSearcher<STATE, TRANSITION, TRANSITIONSEQUENCE> {
 
 								pool.submit(task);
 								size--;
+								N--;
 							} else
 								break;
 						}
