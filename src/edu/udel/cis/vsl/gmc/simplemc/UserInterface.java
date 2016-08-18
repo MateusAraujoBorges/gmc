@@ -11,14 +11,15 @@ public class UserInterface {
 		StatePredicate predicate = new StatePredicate();
 		State initState = StateFactory.getState(0);
 		ConcurrentDfsSearcher<State, Transition, TransitionSequence>
-			cdfs = new ConcurrentDfsSearcher<>(enabler, manager, predicate, 1);
+			cdfs = new ConcurrentDfsSearcher<>(enabler, manager, predicate, 5);
 		
 		startTime = System.currentTimeMillis();
 		cdfs.search(initState);
 		endTime = System.currentTimeMillis();
-		System.out.println("concurrent time:" + (endTime - startTime));
+		long timePassed = endTime - startTime;
 		
 		System.out.println("log size:"+ Log.transactions.size());
 		Log.analyzeLog();
+		System.out.println("concurrent time:"+timePassed);
 	}
 }

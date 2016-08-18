@@ -6,7 +6,7 @@ public class Enabler implements ConcurrentEnablerIF<State, Transition, Transitio
 
 	@Override
 	public TransitionSequence enabledTransitions(State source) {
-		if(source.getValue() >= 10 || source.getValue() <= -10){
+		if(source.getValue() >= 1000 || source.getValue() <= -1000){
 			return new TransitionSequence(source);
 		}
 		TransitionSequence transitionSequence = Cache.getAmpleSet(source);
@@ -14,18 +14,25 @@ public class Enabler implements ConcurrentEnablerIF<State, Transition, Transitio
 		if (transitionSequence != null)
 			return transitionSequence;
 
-		long time = System.currentTimeMillis();
+//		long time = System.currentTimeMillis();
+//		transitionSequence = new TransitionSequence(source);
+//		int random;
+//		if (time % 2 == 1) {
+//			random = 1;
+//		} else {
+//			random = 0;
+//		}
+//		Transition t1 = new Transition(random + 2);
+//		Transition t2 = new Transition(random * (-1) - 2);
+//		transitionSequence.addTransitions(t1, t2);
+//		Cache.addAmpleSetCache(source, transitionSequence);
+		
+		Transition t1 = new Transition(2);
+		Transition t2 = new Transition(-2);
+		Transition t3 = new Transition(3);
+		Transition t4 = new Transition(-3);
 		transitionSequence = new TransitionSequence(source);
-		int random;
-		if (time % 2 == 1) {
-			random = 1;
-		} else {
-			random = 0;
-		}
-		Transition t1 = new Transition(random + 2);
-		Transition t2 = new Transition(random * (-1) - 2);
-		transitionSequence.addTransitions(t1, t2);
-		Cache.addAmpleSetCache(source, transitionSequence);
+		transitionSequence.addTransitions(t1, t2, t3, t4);
 		
 		try {
 			Thread.sleep(1);
@@ -68,7 +75,7 @@ public class Enabler implements ConcurrentEnablerIF<State, Transition, Transitio
 
 	@Override
 	public TransitionSequence transitionsNotInAmpleSet(State s) {
-		if(s.getValue() >= 10 || s.getValue() <= -10){
+		if(s.getValue() >= 1000 || s.getValue() <= -1000){
 			return new TransitionSequence(s);
 		}
 		
