@@ -6,7 +6,7 @@ public class Enabler implements ConcurrentEnablerIF<State, Transition, Transitio
 
 	@Override
 	public TransitionSequence enabledTransitions(State source) {
-		if(source.getValue() >= 1000 || source.getValue() <= -1000){
+		if(source.getValue() >= 10 || source.getValue() <= -10){
 			return new TransitionSequence(source);
 		}
 		TransitionSequence transitionSequence = Cache.getAmpleSet(source);
@@ -75,7 +75,7 @@ public class Enabler implements ConcurrentEnablerIF<State, Transition, Transitio
 
 	@Override
 	public TransitionSequence transitionsNotInAmpleSet(State s) {
-		if(s.getValue() >= 1000 || s.getValue() <= -1000){
+		if(s.getValue() >= 10 || s.getValue() <= -10){
 			return new TransitionSequence(s);
 		}
 		
