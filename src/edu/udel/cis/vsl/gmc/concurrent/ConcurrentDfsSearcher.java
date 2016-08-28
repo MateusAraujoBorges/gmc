@@ -90,11 +90,6 @@ public class ConcurrentDfsSearcher<STATE, TRANSITION, TRANSITIONSEQUENCE> {
 	/**
 	 * locks used to do statistics.
 	 */
-	// private Object transitionsLock = new Object();
-	//
-	// private Object matchedLock = new Object();
-	//
-	// private Object seenLock = new Object();
 
 	private Object threadNumLock = new Object();
 
@@ -109,7 +104,6 @@ public class ConcurrentDfsSearcher<STATE, TRANSITION, TRANSITIONSEQUENCE> {
 	 * bound on the number of stack entries (starting from the top and moving
 	 * down) that will be printed.
 	 */
-	// private int summaryCutOff = 5;
 
 	/**
 	 * Are we searching for a minimal counterexample?
@@ -181,12 +175,8 @@ public class ConcurrentDfsSearcher<STATE, TRANSITION, TRANSITIONSEQUENCE> {
 			predicateHold = true;
 			return;
 		}
+		SequentialDfsSearchTask task = new SequentialDfsSearchTask(initialState, N);
 
-		TRANSITIONSEQUENCE transitionSequence = enabler.enabledTransitions(initialState);
-		Stack<TRANSITIONSEQUENCE> stack = new Stack<>();
-		stack.push(transitionSequence);
-		SequentialDfsSearchTask task = new SequentialDfsSearchTask(stack, N);
-		
 		N--;
 		pool.submit(task);
 		while (!pool.isQuiescent())
@@ -265,17 +255,13 @@ public class ConcurrentDfsSearcher<STATE, TRANSITION, TRANSITIONSEQUENCE> {
 		 */
 		private boolean minimize = false;
 
-		public SequentialDfsSearchTask(Stack<TRANSITIONSEQUENCE> stack, int id) {
-			this.stack = stack;
+		public SequentialDfsSearchTask(STATE initState, int id) {
+			TRANSITIONSEQUENCE ts = enabler.enabledTransitions(initState);
+
 			this.id = id;
-
-			Enumeration<TRANSITIONSEQUENCE> elements = stack.elements();
-			while (elements.hasMoreElements()) {
-				TRANSITIONSEQUENCE transitionSequence = elements.nextElement();
-				STATE state = enabler.source(transitionSequence);
-
-				manager.setOnStack(state, id, true);
-			}
+			this.stack = new Stack<>();
+			this.stack.push(ts);
+			manager.setOnStack(initState, id, true);
 		}
 
 		public StatePredicateIF<STATE> predicate() {
@@ -324,17 +310,6 @@ public class ConcurrentDfsSearcher<STATE, TRANSITION, TRANSITIONSEQUENCE> {
 			// TODO Auto-generated method stub
 		}
 
-		private Stack<TRANSITIONSEQUENCE> cloneStack(Stack<TRANSITIONSEQUENCE> stack) {
-			Stack<TRANSITIONSEQUENCE> stackClone = new Stack<>();
-			Enumeration<TRANSITIONSEQUENCE> elements = stack.elements();
-
-			while (elements.hasMoreElements()) {
-				TRANSITIONSEQUENCE ts = elements.nextElement();
-				stackClone.push(enabler.clone(ts));
-			}
-			return stackClone;
-		}
-
 		@Override
 		protected boolean exec() {
 			while (!stack.empty()) {
@@ -362,15 +337,19 @@ public class ConcurrentDfsSearcher<STATE, TRANSITION, TRANSITIONSEQUENCE> {
 						// thread to process it.
 						if (manager.onStack(newState, id))
 							continue;
-						
-						Stack<TRANSITIONSEQUENCE> stackClone = cloneStack(this.stack);
 
 						synchronized (threadNumLock) {
 							if (N > 0) {
-								TRANSITIONSEQUENCE newTransitionSequence = enabler.enabledTransitions(newState);
-								stackClone.push(newTransitionSequence);
-								SequentialDfsSearchTask task = new SequentialDfsSearchTask(stackClone, N);
+								SequentialDfsSearchTask task = new SequentialDfsSearchTask(newState, N);
 
+								int newId = task.getId();
+								Enumeration<TRANSITIONSEQUENCE> elements = stack.elements();
+								while (elements.hasMoreElements()) {
+									TRANSITIONSEQUENCE ts = elements.nextElement();
+									STATE state = enabler.source(ts);
+
+									manager.setOnStack(state, newId, true);
+								}
 								pool.submit(task);
 								size--;
 								N--;
