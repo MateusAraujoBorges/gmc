@@ -99,9 +99,4 @@ public class Enabler implements ConcurrentEnablerIF<State, Transition, Transitio
 		TransitionSequence ts = transitionsNotInAmpleSet(state);
 		transitionSequence.addTransitionSequence(ts);
 	}
-
-	@Override
-	public TransitionSequence clone(TransitionSequence transitionSequence) {
-		return transitionSequence.clone();
-	}
 }
