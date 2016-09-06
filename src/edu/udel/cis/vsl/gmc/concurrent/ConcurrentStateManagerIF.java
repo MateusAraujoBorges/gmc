@@ -40,10 +40,10 @@ public interface ConcurrentStateManagerIF<STATE, TRANSITION> {
 	/**
 	 * Set the inviolable field of a state using atomic CAS operation.
 	 */
-	void setInviolableCAS(STATE state, int value);
+	void setProvCAS(STATE state, int value);
 
 	/**
 	 * Tell whether a state is inviolable or not.
 	 */
-	int isInviolable(STATE state);
+	int prov(STATE state);
 }

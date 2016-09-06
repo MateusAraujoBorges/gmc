@@ -45,16 +45,16 @@ public class StateManager implements ConcurrentStateManagerIF<State, Transition>
 	}
 
 	@Override
-	public void setInviolableCAS(State state, int value) {
+	public void setProvCAS(State state, int value) {
 		synchronized (inviolableCASLock) {
-			if(state.getInviolable() == 0){
-				state.setInviolable(value);
+			if(state.prov() == 0){
+				state.setProv(value);
 			}
 		}	
 	}
 
 	@Override
-	public int isInviolable(State state) {
-		return state.getInviolable();
+	public int prov(State state) {
+		return state.prov();
 	}
 }

@@ -2,8 +2,8 @@ package edu.udel.cis.vsl.gmc.concurrent;
 
 import java.util.Enumeration;
 import java.util.Stack;
-import java.util.concurrent.ForkJoinPool;
 import java.util.concurrent.ForkJoinTask;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import edu.udel.cis.vsl.gmc.StatePredicateIF;
 
@@ -25,7 +25,9 @@ import edu.udel.cis.vsl.gmc.StatePredicateIF;
  * @param <TRANSITION>
  * @param <TRANSITIONSEQUENCE>
  */
-public class ConcurrentDfsSearcher<STATE, TRANSITION, TRANSITIONSEQUENCE> {
+public class ConcurrentDfsSearcher<STATE, TRANSITION> {
+	private int threadId = 0;
+	private Object threadIdGeneratorLock = new Object();
 	/**
 	 * The # of threads which can be used in the concurrent searcher.
 	 */
@@ -39,13 +41,13 @@ public class ConcurrentDfsSearcher<STATE, TRANSITION, TRANSITIONSEQUENCE> {
 	/**
 	 * Thread pool to manage the threads.
 	 */
-	private ForkJoinPool pool;
+	private MyThreadPool pool;
 
 	/**
 	 * The enabler, used to determine the set of enabled transitions at any
 	 * state, among other things. Also used for other transitionSequence issues.
 	 */
-	private ConcurrentEnablerIF<STATE, TRANSITION, TRANSITIONSEQUENCE> enabler;
+	private ConcurrentEnablerIF<STATE, TRANSITION> enabler;
 
 	/**
 	 * The state manager, used to determine the next state, given a state and
@@ -88,12 +90,6 @@ public class ConcurrentDfsSearcher<STATE, TRANSITION, TRANSITIONSEQUENCE> {
 	private int totalNumStatesSeen = 1;
 
 	/**
-	 * locks used to do statistics.
-	 */
-
-	private Object threadNumLock = new Object();
-
-	/**
 	 * A name to give this searcher, used only for printing out messages about
 	 * the search, such as in debugging.
 	 */
@@ -110,7 +106,7 @@ public class ConcurrentDfsSearcher<STATE, TRANSITION, TRANSITIONSEQUENCE> {
 	 */
 	private boolean minimize = false;
 
-	public ConcurrentDfsSearcher(ConcurrentEnablerIF<STATE, TRANSITION, TRANSITIONSEQUENCE> enabler,
+	public ConcurrentDfsSearcher(ConcurrentEnablerIF<STATE, TRANSITION> enabler,
 			ConcurrentStateManagerIF<STATE, TRANSITION> manager, StatePredicateIF<STATE> predicate, int N) {
 
 		if (enabler == null) {
@@ -124,7 +120,7 @@ public class ConcurrentDfsSearcher<STATE, TRANSITION, TRANSITIONSEQUENCE> {
 		this.predicate = predicate;
 		this.N = N;
 		this.predicateHold = false;
-		this.pool = new ForkJoinPool(N);
+		this.pool = new MyThreadPool(N);
 	}
 
 	public StatePredicateIF<STATE> predicate() {
@@ -175,9 +171,7 @@ public class ConcurrentDfsSearcher<STATE, TRANSITION, TRANSITIONSEQUENCE> {
 			predicateHold = true;
 			return;
 		}
-		SequentialDfsSearchTask task = new SequentialDfsSearchTask(initialState, N);
-
-		N--;
+		SequentialDfsSearchTask task = new SequentialDfsSearchTask(initialState, generateThreadId(), null);
 		pool.submit(task);
 		while (!pool.isQuiescent())
 			;
@@ -217,7 +211,13 @@ public class ConcurrentDfsSearcher<STATE, TRANSITION, TRANSITIONSEQUENCE> {
 
 		private static final long serialVersionUID = -2011438813013648270L;
 
+		private Object waitObject = new Object();
+
+		private SequentialDfsSearchTask parent = null;
+
 		private int id;
+
+		private AtomicInteger numOfRunningChildren = new AtomicInteger(0);
 
 		/**
 		 * The depth-first search stack. An element in this stack in a
@@ -225,7 +225,8 @@ public class ConcurrentDfsSearcher<STATE, TRANSITION, TRANSITIONSEQUENCE> {
 		 * transitions enabled at that state which have not yet been completely
 		 * explored.
 		 */
-		protected Stack<TRANSITIONSEQUENCE> stack;
+		private Stack<TransitionIterator<STATE, TRANSITION>> stack;
+
 		/**
 		 * The number of transitions executed since the beginning of the search.
 		 */
@@ -255,13 +256,45 @@ public class ConcurrentDfsSearcher<STATE, TRANSITION, TRANSITIONSEQUENCE> {
 		 */
 		private boolean minimize = false;
 
-		public SequentialDfsSearchTask(STATE initState, int id) {
-			TRANSITIONSEQUENCE ts = enabler.enabledTransitions(initState);
-
+		public SequentialDfsSearchTask(STATE initState, int id, SequentialDfsSearchTask parent) {
+			System.out.println(id+"-here19");
+			TransitionSet<STATE, TRANSITION> ts = enabler.enabledTransitions(initState);
+			TransitionIterator<STATE, TRANSITION> iter = ts.randomIterator();
+			System.out.println(id+"-here20");
+			this.parent = parent;
 			this.id = id;
 			this.stack = new Stack<>();
-			this.stack.push(ts);
+			this.stack.push(iter);
 			manager.setOnStack(initState, id, true);
+			System.out.println(id+"-here21");
+			/*
+			 * those on the stack of parent should also be regarded as on the
+			 * stack of the children for two reasons: 1) those on the stack of
+			 * parent are ancestors of those on children's stack 2) parent will
+			 * wait for children to finish, but, if not on children's stack,
+			 * children may wait for parent to finish, then, there is a
+			 * deadlock.
+			 */
+			System.out.println(id+"-here22");
+			if (parent != null) {
+				System.out.println(id+"-here23");
+				Stack<TransitionIterator<STATE, TRANSITION>> parentStack = parent.stack();
+				Enumeration<TransitionIterator<STATE, TRANSITION>> elements = parentStack.elements();
+				while (elements.hasMoreElements()) {
+					STATE s = elements.nextElement().getTransitionSet().source();
+
+					manager.setOnStack(s, id, true);
+				}
+				System.out.println(id+"-here24");
+			}
+		}
+
+		public AtomicInteger getNumOfRunningChildren() {
+			return numOfRunningChildren;
+		}
+
+		public Object getWaitObject() {
+			return waitObject;
 		}
 
 		public StatePredicateIF<STATE> predicate() {
@@ -295,8 +328,8 @@ public class ConcurrentDfsSearcher<STATE, TRANSITION, TRANSITIONSEQUENCE> {
 			return minimize;
 		}
 
-		public int getId() {
-			return id;
+		public Stack<TransitionIterator<STATE, TRANSITION>> stack() {
+			return stack;
 		}
 
 		@Override
@@ -312,112 +345,168 @@ public class ConcurrentDfsSearcher<STATE, TRANSITION, TRANSITIONSEQUENCE> {
 
 		@Override
 		protected boolean exec() {
+			System.out.println(id+"-here15");
+			Stack<Boolean> allOnStack = new Stack<>();
+			allOnStack.push(true);
 			while (!stack.empty()) {
+				System.out.println(id+"-here1");
+				boolean aos = allOnStack.pop();
 				// if other thread finds a cycle violation or a state that
 				// satisfies the predicate, this thread should stop.
 				if (cycleFound || predicateHold) {
 					this.stack.clear();
 					return true;
 				}
-				TRANSITIONSEQUENCE transitionSequence = stack.peek();
-				STATE currentState = enabler.source(transitionSequence);
-				int size = enabler.size(transitionSequence);
-				// the # of new threads
-				int n = (size - 1) > N ? N : size - 1;
-				if (n > 0) {
-					TRANSITION[] transitions = enabler.randomPeekN(transitionSequence, n);
-					/*
-					 * this while loop is to spawn new threads to run new
-					 * branches.
-					 */
-					for (TRANSITION t : transitions) {
-						STATE newState = manager.nextState(id, 1, currentState, t).getFinalState();
 
-						// if newStack is already on stack, then don't spawn new
-						// thread to process it.
-						if (manager.onStack(newState, id))
-							continue;
+				TransitionIterator<STATE, TRANSITION> iterator = stack.peek();
+				TransitionSet<STATE, TRANSITION> transitionSet = iterator.getTransitionSet();
+				STATE currentState = transitionSet.source();
+				TRANSITION transition = null;
+				System.out.println(id+"-here2");
+				/*
+				 * spawn new threads
+				 */
+				while (iterator.hasNext()) {
+					transition = iterator.next();
+					System.out.println(id+"-here3");
+					if (iterator.hasNext()) {
+						System.out.println(id+"-here4");
+						synchronized (pool) {
+							System.out.println("activeNum:"+pool.getActiveNum());
+							System.out.println("N:"+N);
+							System.out.println("running num:"+pool.getRunningNum());
+							if (pool.getActiveNum() < N && pool.getRunningNum() < pool.getMaxNumOfThread()) {
+								System.out.println(id+"-here19");
+								STATE newState = manager.nextState(id, 1, currentState, transition).getFinalState();
 
-						synchronized (threadNumLock) {
-							if (N > 0) {
-								SequentialDfsSearchTask task = new SequentialDfsSearchTask(newState, N);
-
-								int newId = task.getId();
-								Enumeration<TRANSITIONSEQUENCE> elements = stack.elements();
-								while (elements.hasMoreElements()) {
-									TRANSITIONSEQUENCE ts = elements.nextElement();
-									STATE state = enabler.source(ts);
-
-									manager.setOnStack(state, newId, true);
+								if (predicate.holdsAt(newState)) {
+									predicateHold = true;
+									return true;
 								}
-								pool.submit(task);
-								size--;
-								N--;
-							} else
+								if (!manager.onStack(newState, id)) {
+									aos = false;
+									if (!manager.fullyExplored(newState)) {
+										System.out.println(id+"-here14");
+										SequentialDfsSearchTask newTask = new SequentialDfsSearchTask(newState,
+												generateThreadId(), this);
+										System.out.println(id+"-here16");
+										numOfRunningChildren.incrementAndGet();
+										System.out.println(id+"-here17");
+										pool.submit(newTask);
+										System.out.println(id+"-here18");
+									}
+								} else {
+									// newState is on the stack, then there is a
+									// cycle
+									if (reportCycleAsViolation) {
+										cycleFound = true;
+										return true;
+									}
+								}
+							} else {
 								break;
+							}
 						}
+					} else {
+						break;
 					}
 				}
+				System.out.println(id+"-here5");
+				// move on to next state
+				boolean continueDFS = false;
+				do {
+					if (transition != null) {
+						STATE newState = manager.nextState(id, 2, currentState, transition).getFinalState();
 
-				if (proceedToNewState(currentState, transitionSequence)) {
+						if (predicate.holdsAt(newState)) {
+							predicateHold = true;
+							return true;
+						}
+						if (!manager.onStack(newState, id)) {
+							aos = false;
+							if (!manager.fullyExplored(newState)) {
+								TransitionSet<STATE, TRANSITION> newTransitionSet = enabler
+										.enabledTransitions(newState);
+
+								this.stack.push(newTransitionSet.randomIterator());
+								manager.setOnStack(newState, id, true);
+								continueDFS = true;
+								allOnStack.push(aos);
+								allOnStack.push(true);
+								break;
+							}
+						} else {
+							if (reportCycleAsViolation) {
+								cycleFound = true;
+								return true;
+							}
+						}
+					}
+					if (iterator.hasNext())
+						transition = iterator.next();
+				} while (iterator.hasNext());
+				System.out.println(id+"-here6");
+				if (continueDFS)
+					continue;
+				System.out.println(id+"-here7");
+				if (checkStackProviso(transitionSet, currentState, aos)){
+					allOnStack.push(aos);
 					continue;
 				}
-				// if this thread finds a cycle violation or a state that
-				// satisfies the predicate this thread should stop.
-				if (cycleFound || predicateHold) {
-					this.stack.clear();
-					return true;
+				System.out.println(id+"-here8");
+				synchronized (waitObject) {
+					System.out.println(id+"-here9");
+					
+					System.out.println(id+"-here10");
+					while (numOfRunningChildren.get() > 0)
+						try {
+							System.out.println(id+"-here13");
+							pool.incrementWaiting();
+							waitObject.wait();
+							pool.decrementWaiting();
+						} catch (InterruptedException e) {
+							e.printStackTrace();
+						}
+					System.out.println(id+"-here11");
+					
 				}
-
+				System.out.println(id+"-here12");
 				manager.setFullyExplored(currentState, true);
 				this.stack.pop();
 				manager.setOnStack(currentState, id, false);
 			}
+			if (parent != null) {
+				Object wo = parent.getWaitObject();
+				parent.getNumOfRunningChildren().decrementAndGet();
+				synchronized (wo) {
+					parent.getWaitObject().notify();
+				}
+			}
 			return true;
 		}
 
-		private boolean proceedToNewState(STATE s, TRANSITIONSEQUENCE transitionSequence) {
-			while (enabler.hasNext(transitionSequence)) {
-				TRANSITION t = enabler.randomNext(transitionSequence);
-				STATE newState;
-				newState = manager.nextState(id, 2, s, t).getFinalState();
-
-				if (predicate.holdsAt(newState)) {
-					predicateHold = true;
-					return false;
-				}
-				if (manager.onStack(newState, id) && reportCycleAsViolation) {
-					cycleFound = true;
-					return false;
-				}
-				if (!manager.onStack(newState, id) && !manager.fullyExplored(newState)) {
-					TRANSITIONSEQUENCE newTransitionSequence = enabler.enabledTransitions(newState);
-
-					this.stack.push(newTransitionSequence);
-					manager.setOnStack(newState, id, true);
-					return true;
-				}
-			}
-			if (manager.isInviolable(s) == 0 && enabler.size(enabler.transitionsNotInAmpleSet(s)) > 0) {
-				boolean successorsOnStack = true;
-				TRANSITIONSEQUENCE ampleSet = enabler.enabledTransitions(s);
-
-				while (enabler.hasNext(ampleSet)) {
-					TRANSITION t = enabler.next(ampleSet);
-					STATE newState = manager.nextState(id, 3, s, t).getFinalState();
-
-					if (!manager.onStack(newState, id)) {
-						successorsOnStack = false;
-						break;
+		private boolean checkStackProviso(TransitionSet<STATE, TRANSITION> transitionSet, STATE currentState,
+				boolean allOnStack) {
+			if (manager.prov(currentState) == 0) {
+				manager.setProvCAS(currentState, (allOnStack ? 1 : -1));
+				if(manager.prov(currentState) == 1){
+					TransitionSet<STATE, TRANSITION> ampleComplement = enabler.ampleSetComplement(currentState);
+					TransitionIterator<STATE, TRANSITION> iter = ampleComplement.randomIterator();
+	
+					if (iter.hasNext()) {
+						stack.pop();
+						stack.push(iter);
+						return true;
 					}
-				}
-				manager.setInviolableCAS(s, successorsOnStack ? 1 : -1);
-				if (manager.isInviolable(s) == 1) {
-					enabler.expandToFull(transitionSequence);
-					return true;
 				}
 			}
 			return false;
+		}
+	}
+
+	private int generateThreadId() {
+		synchronized (threadIdGeneratorLock) {
+			return threadId++;
 		}
 	}
 }

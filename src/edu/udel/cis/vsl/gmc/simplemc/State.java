@@ -11,7 +11,7 @@ public class State {
 	// all the descendants in the graph are explored
 	private boolean fullyExplored;
 	// 1 means inviolable, -1 means violable and 0 means unknown.
-	private int inviolable;
+	private int prov;
 	
 	public State(int value){
 		this.value = value;
@@ -19,7 +19,7 @@ public class State {
 		depth = 0;
 		finalState = false;
 		fullyExplored = false;
-		inviolable = 0;
+		prov = 0;
 	}
 
 	public int getValue() {
@@ -70,14 +70,13 @@ public class State {
 		this.fullyExplored = fullyExplored;
 	}
 
-	public int getInviolable() {
-		return inviolable;
+	public int prov() {
+		return prov;
 	}
 
-	public void setInviolable(int inviolable) {
-		this.inviolable = inviolable;
+	public void setProv(int prov) {
+		this.prov = prov;
 	}
-	
 	@Override
 	public int hashCode() {
 		return this.value;

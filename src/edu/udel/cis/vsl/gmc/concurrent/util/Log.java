@@ -24,7 +24,7 @@ public class Log {
 			State desState = transaction.getDesState();
 			int id = transaction.getThreadId();
 			int temp = id;
-			while(temp > 1){
+			while(temp > 0){
 				System.out.print("                              ");
 				temp--;
 			}

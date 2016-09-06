@@ -9,18 +9,18 @@ public class Cache {
 	
 	// TODO using hashtable, then no need to synchronize?
 	public static void addAmpleSetCache(State source, TransitionSequence ampleSet){
-		ampleSetCache.put(source, ampleSet.clone());
+		ampleSetCache.put(source, ampleSet);
 	}
 	
 	public static void addNotInAmpleSetCache(State source, TransitionSequence notInAmpleSet){
-		notInAmpleSetCache.put(source, notInAmpleSet.clone());
+		notInAmpleSetCache.put(source, notInAmpleSet);
 	}
 	
 	public static TransitionSequence getAmpleSet(State state){
 		TransitionSequence ampleSet = ampleSetCache.get(state);
 		
 		if(ampleSet != null)
-			return ampleSet.clone();
+			return ampleSet;
 		else return null;
 	}
 	
@@ -28,7 +28,7 @@ public class Cache {
 		TransitionSequence notInAmpleSet = notInAmpleSetCache.get(state);
 		
 		if(notInAmpleSet != null)
-			return notInAmpleSet.clone();
+			return notInAmpleSet;
 		else return null;
 	}
 }
