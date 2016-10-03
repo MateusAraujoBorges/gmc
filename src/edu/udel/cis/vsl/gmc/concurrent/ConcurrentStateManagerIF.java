@@ -4,8 +4,9 @@ import edu.udel.cis.vsl.gmc.TraceStepIF;
 
 /**
  * <p>
- * A StateManagerIF provides part of a generic interface to a state-transition
- * system. There are two major responsibilities of a ConcurrentStateManagerIF :
+ * A ConcurrentStateManagerIF provides part of a generic interface to a
+ * state-transition system. There are two major responsibilities of a
+ * ConcurrentStateManagerIF :
  * <ul>
  * <li>1. Method {@link #nextState(int, int, Object, Object)} return the next
  * STATE given a source STATE and a TRANSITION.</li>

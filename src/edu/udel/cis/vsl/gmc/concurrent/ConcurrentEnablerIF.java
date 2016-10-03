@@ -2,13 +2,14 @@ package edu.udel.cis.vsl.gmc.concurrent;
 
 /**
  * <p>
- * An EnablerIF tells you which transitions should be explored from a given
- * state. An ConcurrentEnabler should be shared by all threads, so all methods
- * in this interface should be thread safe.
+ * An ConcurrentEnablerIF tells you which transitions should be explored from a
+ * given state. An ConcurrentEnablerIF should be shared by all threads, so all
+ * methods in this interface should be thread safe.
  * </p>
  * <p>
  * The result {@link TransitionSet} may be cached to improve performance.
  * </p>
+ * 
  * @author yanyihao
  *
  * @param <STATE>
