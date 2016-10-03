@@ -1,12 +1,13 @@
 package edu.udel.cis.vsl.gmc.simplemc;
 
 import edu.udel.cis.vsl.gmc.concurrent.ConcurrentEnablerIF;
+import edu.udel.cis.vsl.gmc.concurrent.TransitionSet;
 
 public class Enabler implements ConcurrentEnablerIF<State, Transition> {
 
 	@Override
-	public TransitionSequence enabledTransitions(State source) {
-		if(source.getValue() >= 100 || source.getValue() <= -100){
+	public TransitionSequence ampleSet(State source) {
+		if(source.getValue() >= 2000 || source.getValue() <= -2000){
 			return new TransitionSequence(source);
 		}
 		TransitionSequence transitionSequence = Cache.getAmpleSet(source);
@@ -28,11 +29,11 @@ public class Enabler implements ConcurrentEnablerIF<State, Transition> {
 //		Cache.addAmpleSetCache(source, transitionSequence);
 		
 		Transition t1 = new Transition(3);
-//		Transition t2 = new Transition(-3);
+		Transition t2 = new Transition(-3);
 		Transition t3 = new Transition(5);
-//		Transition t4 = new Transition(-5);
+		Transition t4 = new Transition(-5);
 		transitionSequence = new TransitionSequence(source);
-		transitionSequence.addTransitions(t1, t3);
+		transitionSequence.addTransitions(t1, t2, t3, t4);
 		
 		try {
 			Thread.sleep(1);
@@ -45,7 +46,7 @@ public class Enabler implements ConcurrentEnablerIF<State, Transition> {
 	
 	@Override
 	public TransitionSequence ampleSetComplement(State s) {
-		if(s.getValue() >= 100 || s.getValue() <= -100){
+		if(s.getValue() >= 2000 || s.getValue() <= -2000){
 			return new TransitionSequence(s);
 		}
 		
@@ -55,11 +56,17 @@ public class Enabler implements ConcurrentEnablerIF<State, Transition> {
 		}
 
 		ts = new TransitionSequence(s);
-//		Transition t1 = new Transition(-1);
+		Transition t1 = new Transition(-1);
 		Transition t2 = new Transition(1);
 
-		ts.addTransitions(t2);
+		ts.addTransitions(t1, t2);
 		Cache.addNotInAmpleSetCache(s, ts);
 		return ts;
+	}
+
+	@Override
+	public TransitionSet<State, Transition> allEnabledTransitions(State state) {
+		// TODO Auto-generated method stub
+		return null;
 	}
 }

@@ -8,25 +8,30 @@ import java.util.concurrent.atomic.AtomicInteger;
 import edu.udel.cis.vsl.gmc.StatePredicateIF;
 
 /**
+ * <p>
  * This ConcurrentDfsSearcher is implemented based on Alfons Laarman's algorithm
  * in paper "Partial-Order Reduction for Multi-Core LTL Model Checking", but
  * there are improvements being made. Rather than a totally concurrent
  * depth-first search, it may be more appropriate to say that the algorithm
  * consists of multiple sequential depth-first search that are synchronized to
  * some extent.
- * 
+ * </p>
+ * <p>
  * The basic idea is using multiple threads to search through the state space,
  * each of them starts a depth-first search with its own stack. And try to make
  * them search different parts of the state space.
+ * </p>
  * 
  * @author yanyihao
  *
  * @param <STATE>
  * @param <TRANSITION>
- * @param <TRANSITIONSEQUENCE>
  */
 public class ConcurrentDfsSearcher<STATE, TRANSITION> {
 	private int threadId = 0;
+	/**
+	 * The lock object used to generate the thread Id.
+	 */
 	private Object threadIdGeneratorLock = new Object();
 	/**
 	 * The # of threads which can be used in the concurrent searcher.
@@ -44,8 +49,8 @@ public class ConcurrentDfsSearcher<STATE, TRANSITION> {
 	private MyThreadPool pool;
 
 	/**
-	 * The enabler, used to determine the set of enabled transitions at any
-	 * state, among other things. Also used for other transitionSequence issues.
+	 * A ConcurrentEnablerIF used to compute ampleSet, ampleSetComplement and
+	 * allEnabledTransitions of a STATE.
 	 */
 	private ConcurrentEnablerIF<STATE, TRANSITION> enabler;
 
@@ -56,7 +61,7 @@ public class ConcurrentDfsSearcher<STATE, TRANSITION> {
 	private ConcurrentStateManagerIF<STATE, TRANSITION> manager;
 
 	/**
-	 * The predicate on states. This searching is searching for state that
+	 * The predicate on states. This searcher is searching for state that
 	 * satisfies this predicate. Typically, this predicate describes something
 	 * "bad", like deadlock.
 	 */
@@ -94,12 +99,6 @@ public class ConcurrentDfsSearcher<STATE, TRANSITION> {
 	 * the search, such as in debugging.
 	 */
 	private String name = null;
-
-	/**
-	 * When the stack is being summarized in debugging output, this is the upper
-	 * bound on the number of stack entries (starting from the top and moving
-	 * down) that will be printed.
-	 */
 
 	/**
 	 * Are we searching for a minimal counterexample?
@@ -161,24 +160,6 @@ public class ConcurrentDfsSearcher<STATE, TRANSITION> {
 	}
 
 	/**
-	 * Start a concurrent dfs task from a given state
-	 * 
-	 * @param initialState
-	 *            The state the search starts from.
-	 */
-	public void search(STATE initialState) {
-		if (predicate.holdsAt(initialState)) {
-			predicateHold = true;
-			return;
-		}
-		SequentialDfsSearchTask task = new SequentialDfsSearchTask(initialState, generateThreadId(), null);
-		pool.submit(task);
-		while (!pool.isQuiescent())
-			;
-		pool.shutdown();
-	}
-
-	/**
 	 * The number of states seen in this search.
 	 * 
 	 * @return the number of states seen so far
@@ -207,23 +188,35 @@ public class ConcurrentDfsSearcher<STATE, TRANSITION> {
 		return totalNumStatesMatched;
 	}
 
+	/**
+	 * Start a concurrent dfs task from a given state
+	 * 
+	 * @param initialState
+	 *            The state the search starts from.
+	 */
+	public void search(STATE initialState) {
+		if (predicate.holdsAt(initialState)) {
+			predicateHold = true;
+			return;
+		}
+		SequentialDfsSearchTask task = new SequentialDfsSearchTask(initialState, generateThreadId(), null, null);
+		pool.submit(task);
+		while (!pool.isQuiescent())
+			;
+		pool.shutdown();
+	}
+
 	private class SequentialDfsSearchTask extends ForkJoinTask<Integer> {
 
 		private static final long serialVersionUID = -2011438813013648270L;
 
-		private Object waitObject = new Object();
-
-		private SequentialDfsSearchTask parent = null;
+		private AtomicInteger parentCounter = null;
 
 		private int id;
 
-		private AtomicInteger numOfRunningChildren = new AtomicInteger(0);
-
 		/**
-		 * The depth-first search stack. An element in this stack in a
-		 * transition sequence, which encapsulates a state together with the
-		 * transitions enabled at that state which have not yet been completely
-		 * explored.
+		 * Each thread will have its own stack and elements in the stack are
+		 * {@link TransitionIterator}.
 		 */
 		private Stack<TransitionIterator<STATE, TRANSITION>> stack;
 
@@ -231,6 +224,7 @@ public class ConcurrentDfsSearcher<STATE, TRANSITION> {
 		 * The number of transitions executed since the beginning of the search.
 		 */
 		private int numTransitions = 0;
+
 		/**
 		 * The number of states encountered which are recognized as having
 		 * already been seen earlier in the search.
@@ -241,6 +235,7 @@ public class ConcurrentDfsSearcher<STATE, TRANSITION> {
 		 * The number of states seen in this search.
 		 */
 		private int numStatesSeen = 1;
+
 		/**
 		 * Upper bound on stack depth.
 		 */
@@ -256,47 +251,28 @@ public class ConcurrentDfsSearcher<STATE, TRANSITION> {
 		 */
 		private boolean minimize = false;
 
-		public SequentialDfsSearchTask(STATE initState, int id, SequentialDfsSearchTask parent) {
-			System.out.println(id+"-here19");
-			TransitionSet<STATE, TRANSITION> ts = enabler.enabledTransitions(initState);
+		public SequentialDfsSearchTask(STATE initState, int id, SequentialDfsSearchTask parent, AtomicInteger counter) {
+			TransitionSet<STATE, TRANSITION> ts = enabler.ampleSet(initState);
 			TransitionIterator<STATE, TRANSITION> iter = ts.randomIterator();
-			System.out.println(id+"-here20");
-			this.parent = parent;
+
 			this.id = id;
+			this.parentCounter = counter;
 			this.stack = new Stack<>();
 			this.stack.push(iter);
 			manager.setOnStack(initState, id, true);
-			System.out.println(id+"-here21");
-			/*
-			 * those on the stack of parent should also be regarded as on the
-			 * stack of the children for two reasons: 1) those on the stack of
-			 * parent are ancestors of those on children's stack 2) parent will
-			 * wait for children to finish, but, if not on children's stack,
-			 * children may wait for parent to finish, then, there is a
-			 * deadlock.
-			 */
-			System.out.println(id+"-here22");
+
 			if (parent != null) {
-				System.out.println(id+"-here23");
 				Stack<TransitionIterator<STATE, TRANSITION>> parentStack = parent.stack();
 				Enumeration<TransitionIterator<STATE, TRANSITION>> elements = parentStack.elements();
+
 				while (elements.hasMoreElements()) {
 					STATE s = elements.nextElement().getTransitionSet().source();
 
 					manager.setOnStack(s, id, true);
 				}
-				System.out.println(id+"-here24");
 			}
 		}
-
-		public AtomicInteger getNumOfRunningChildren() {
-			return numOfRunningChildren;
-		}
-
-		public Object getWaitObject() {
-			return waitObject;
-		}
-
+		
 		public StatePredicateIF<STATE> predicate() {
 			return predicate;
 		}
@@ -334,23 +310,24 @@ public class ConcurrentDfsSearcher<STATE, TRANSITION> {
 
 		@Override
 		public Integer getRawResult() {
-			// TODO Auto-generated method stub
 			return null;
 		}
 
 		@Override
 		protected void setRawResult(Integer value) {
-			// TODO Auto-generated method stub
 		}
-
+		
 		@Override
 		protected boolean exec() {
-			System.out.println(id+"-here15");
 			Stack<Boolean> allOnStack = new Stack<>();
+			Stack<AtomicInteger> counters = new Stack<>();
+
 			allOnStack.push(true);
+			counters.push(null);
 			while (!stack.empty()) {
-				System.out.println(id+"-here1");
 				boolean aos = allOnStack.pop();
+				AtomicInteger counter = counters.peek();
+
 				// if other thread finds a cycle violation or a state that
 				// satisfies the predicate, this thread should stop.
 				if (cycleFound || predicateHold) {
@@ -362,21 +339,15 @@ public class ConcurrentDfsSearcher<STATE, TRANSITION> {
 				TransitionSet<STATE, TRANSITION> transitionSet = iterator.getTransitionSet();
 				STATE currentState = transitionSet.source();
 				TRANSITION transition = null;
-				System.out.println(id+"-here2");
+				
 				/*
 				 * spawn new threads
 				 */
 				while (iterator.hasNext()) {
 					transition = iterator.next();
-					System.out.println(id+"-here3");
 					if (iterator.hasNext()) {
-						System.out.println(id+"-here4");
 						synchronized (pool) {
-							System.out.println("activeNum:"+pool.getActiveNum());
-							System.out.println("N:"+N);
-							System.out.println("running num:"+pool.getRunningNum());
 							if (pool.getActiveNum() < N && pool.getRunningNum() < pool.getMaxNumOfThread()) {
-								System.out.println(id+"-here19");
 								STATE newState = manager.nextState(id, 1, currentState, transition).getFinalState();
 
 								if (predicate.holdsAt(newState)) {
@@ -386,14 +357,16 @@ public class ConcurrentDfsSearcher<STATE, TRANSITION> {
 								if (!manager.onStack(newState, id)) {
 									aos = false;
 									if (!manager.fullyExplored(newState)) {
-										System.out.println(id+"-here14");
+										if (counter == null) {
+											counter = new AtomicInteger(1);
+										} else {
+											counter.incrementAndGet();
+										}
+
 										SequentialDfsSearchTask newTask = new SequentialDfsSearchTask(newState,
-												generateThreadId(), this);
-										System.out.println(id+"-here16");
-										numOfRunningChildren.incrementAndGet();
-										System.out.println(id+"-here17");
+												generateThreadId(), this, counter);
+										// numOfRunningChildren.incrementAndGet();
 										pool.submit(newTask);
-										System.out.println(id+"-here18");
 									}
 								} else {
 									// newState is on the stack, then there is a
@@ -411,9 +384,9 @@ public class ConcurrentDfsSearcher<STATE, TRANSITION> {
 						break;
 					}
 				}
-				System.out.println(id+"-here5");
 				// move on to next state
 				boolean continueDFS = false;
+				
 				do {
 					if (transition != null) {
 						STATE newState = manager.nextState(id, 2, currentState, transition).getFinalState();
@@ -425,14 +398,14 @@ public class ConcurrentDfsSearcher<STATE, TRANSITION> {
 						if (!manager.onStack(newState, id)) {
 							aos = false;
 							if (!manager.fullyExplored(newState)) {
-								TransitionSet<STATE, TRANSITION> newTransitionSet = enabler
-										.enabledTransitions(newState);
+								TransitionSet<STATE, TRANSITION> newTransitionSet = enabler.ampleSet(newState);
 
 								this.stack.push(newTransitionSet.randomIterator());
 								manager.setOnStack(newState, id, true);
 								continueDFS = true;
 								allOnStack.push(aos);
 								allOnStack.push(true);
+								counters.push(null);
 								break;
 							}
 						} else {
@@ -445,41 +418,36 @@ public class ConcurrentDfsSearcher<STATE, TRANSITION> {
 					if (iterator.hasNext())
 						transition = iterator.next();
 				} while (iterator.hasNext());
-				System.out.println(id+"-here6");
 				if (continueDFS)
 					continue;
-				System.out.println(id+"-here7");
-				if (checkStackProviso(transitionSet, currentState, aos)){
+				if (checkStackProviso(transitionSet, currentState, aos)) {
 					allOnStack.push(aos);
 					continue;
 				}
-				System.out.println(id+"-here8");
-				synchronized (waitObject) {
-					System.out.println(id+"-here9");
-					
-					System.out.println(id+"-here10");
-					while (numOfRunningChildren.get() > 0)
-						try {
-							System.out.println(id+"-here13");
-							pool.incrementWaiting();
-							waitObject.wait();
-							pool.decrementWaiting();
-						} catch (InterruptedException e) {
-							e.printStackTrace();
+
+				if (counter != null) {
+					synchronized (counter) {
+						while (counter.intValue() > 0) {
+							try {
+								System.out.println("waiting...");
+								pool.incrementWaiting();
+								counter.wait();
+								pool.decrementWaiting();
+							} catch (InterruptedException e) {
+								e.printStackTrace();
+							}
 						}
-					System.out.println(id+"-here11");
-					
+					}
 				}
-				System.out.println(id+"-here12");
 				manager.setFullyExplored(currentState, true);
 				this.stack.pop();
 				manager.setOnStack(currentState, id, false);
+				counters.pop();
 			}
-			if (parent != null) {
-				Object wo = parent.getWaitObject();
-				parent.getNumOfRunningChildren().decrementAndGet();
-				synchronized (wo) {
-					parent.getWaitObject().notify();
+			if (parentCounter != null) {
+				synchronized (parentCounter) {
+					parentCounter.decrementAndGet();
+					parentCounter.notify();
 				}
 			}
 			return true;
@@ -487,12 +455,12 @@ public class ConcurrentDfsSearcher<STATE, TRANSITION> {
 
 		private boolean checkStackProviso(TransitionSet<STATE, TRANSITION> transitionSet, STATE currentState,
 				boolean allOnStack) {
-			if (manager.prov(currentState) == 0) {
-				manager.setProvCAS(currentState, (allOnStack ? 1 : -1));
-				if(manager.prov(currentState) == 1){
+			if (manager.proviso(currentState) == ProvisoValue.UNKNOWN) {
+				manager.setProvisoCAS(currentState, (allOnStack ? ProvisoValue.TRUE : ProvisoValue.FALSE));
+				if (manager.proviso(currentState) == ProvisoValue.TRUE) {
 					TransitionSet<STATE, TRANSITION> ampleComplement = enabler.ampleSetComplement(currentState);
 					TransitionIterator<STATE, TRANSITION> iter = ampleComplement.randomIterator();
-	
+
 					if (iter.hasNext()) {
 						stack.pop();
 						stack.push(iter);

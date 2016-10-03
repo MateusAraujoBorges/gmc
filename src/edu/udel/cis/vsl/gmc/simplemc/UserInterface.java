@@ -11,7 +11,7 @@ public class UserInterface {
 		StatePredicate predicate = new StatePredicate();
 		State initState = StateFactory.getState(0);
 		ConcurrentDfsSearcher<State, Transition>
-			cdfs = new ConcurrentDfsSearcher<>(enabler, manager, predicate, 4);
+			cdfs = new ConcurrentDfsSearcher<>(enabler, manager, predicate, 3);
 		
 		startTime = System.currentTimeMillis();
 		cdfs.search(initState);

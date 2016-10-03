@@ -2,6 +2,7 @@ package edu.udel.cis.vsl.gmc.simplemc;
 
 import edu.udel.cis.vsl.gmc.TraceStepIF;
 import edu.udel.cis.vsl.gmc.concurrent.ConcurrentStateManagerIF;
+import edu.udel.cis.vsl.gmc.concurrent.ProvisoValue;
 import edu.udel.cis.vsl.gmc.concurrent.util.Log;
 import edu.udel.cis.vsl.gmc.concurrent.util.Transaction;
 
@@ -45,16 +46,16 @@ public class StateManager implements ConcurrentStateManagerIF<State, Transition>
 	}
 
 	@Override
-	public void setProvCAS(State state, int value) {
+	public void setProvisoCAS(State state, ProvisoValue value) {
 		synchronized (inviolableCASLock) {
-			if(state.prov() == 0){
+			if(state.prov() == ProvisoValue.UNKNOWN){
 				state.setProv(value);
 			}
 		}	
 	}
 
 	@Override
-	public int prov(State state) {
+	public ProvisoValue proviso(State state) {
 		return state.prov();
 	}
 }

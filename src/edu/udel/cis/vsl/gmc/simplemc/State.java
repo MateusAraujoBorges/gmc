@@ -1,6 +1,7 @@
 package edu.udel.cis.vsl.gmc.simplemc;
 
 import java.util.BitSet;
+import edu.udel.cis.vsl.gmc.concurrent.ProvisoValue;
 
 public class State {
 	private int  value;
@@ -10,8 +11,7 @@ public class State {
 	private BitSet onStack;
 	// all the descendants in the graph are explored
 	private boolean fullyExplored;
-	// 1 means inviolable, -1 means violable and 0 means unknown.
-	private int prov;
+	private ProvisoValue prov;
 	
 	public State(int value){
 		this.value = value;
@@ -19,7 +19,7 @@ public class State {
 		depth = 0;
 		finalState = false;
 		fullyExplored = false;
-		prov = 0;
+		prov = ProvisoValue.UNKNOWN;
 	}
 
 	public int getValue() {
@@ -70,11 +70,11 @@ public class State {
 		this.fullyExplored = fullyExplored;
 	}
 
-	public int prov() {
+	public ProvisoValue prov() {
 		return prov;
 	}
 
-	public void setProv(int prov) {
+	public void setProv(ProvisoValue prov) {
 		this.prov = prov;
 	}
 	@Override
