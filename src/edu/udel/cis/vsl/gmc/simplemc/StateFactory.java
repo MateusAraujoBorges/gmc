@@ -4,20 +4,26 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class StateFactory {
-	private static Map<Integer, State> states = new HashMap<>();
+	private static Map<String, State> states = new HashMap<>();
 	private static int stateNum = 0;
 	
-	public static synchronized State getState(int value){
-		boolean finalState = stateNum >= 1000000 ? true : false;
+	public static synchronized State getState(int[] value){
+		StringBuilder sb = new StringBuilder();
+		for(int i=0; i<4; i++){
+			if(i != 3){
+				sb.append(value[i] + " ");
+			}else
+				sb.append(value[i]);
+		}
 		
-		if(states.containsKey(new Integer(value))){
-			State state = states.get(value);
-			state.setFinalState(finalState);
+		String key = sb.toString();
+		
+		if(states.containsKey(key)){
+			State state = states.get(key);
 			return state;
 		}else{
 			State state = new State(value);
-			state.setFinalState(finalState);
-			states.put(value, state);
+			states.put(key, state);
 			stateNum ++;
 			return state;
 		}

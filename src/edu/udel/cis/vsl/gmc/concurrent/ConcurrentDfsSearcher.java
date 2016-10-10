@@ -272,7 +272,7 @@ public class ConcurrentDfsSearcher<STATE, TRANSITION> {
 				}
 			}
 		}
-		
+
 		public StatePredicateIF<STATE> predicate() {
 			return predicate;
 		}
@@ -316,7 +316,7 @@ public class ConcurrentDfsSearcher<STATE, TRANSITION> {
 		@Override
 		protected void setRawResult(Integer value) {
 		}
-		
+
 		@Override
 		protected boolean exec() {
 			Stack<Boolean> allOnStack = new Stack<>();
@@ -339,7 +339,7 @@ public class ConcurrentDfsSearcher<STATE, TRANSITION> {
 				TransitionSet<STATE, TRANSITION> transitionSet = iterator.getTransitionSet();
 				STATE currentState = transitionSet.source();
 				TRANSITION transition = null;
-				
+
 				/*
 				 * spawn new threads
 				 */
@@ -386,7 +386,7 @@ public class ConcurrentDfsSearcher<STATE, TRANSITION> {
 				}
 				// move on to next state
 				boolean continueDFS = false;
-				
+
 				do {
 					if (transition != null) {
 						STATE newState = manager.nextState(id, 2, currentState, transition).getFinalState();
@@ -415,9 +415,10 @@ public class ConcurrentDfsSearcher<STATE, TRANSITION> {
 							}
 						}
 					}
+					transition = null;
 					if (iterator.hasNext())
 						transition = iterator.next();
-				} while (iterator.hasNext());
+				} while (transition != null);
 				if (continueDFS)
 					continue;
 				if (checkStackProviso(transitionSet, currentState, aos)) {

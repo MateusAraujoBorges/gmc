@@ -31,26 +31,28 @@ public class Log {
 			String outPut = "";
 			switch (transactionType){
 				case 1: 
-				{
+				{	
+					
 					// spawn new thread
 					outPut = "thread" + id + " spaws new thread ("
-						+ sourceState.getValue() + "__" + transition.getOffset() + "-->"
-						+ desState.getValue() + ")";
+						+ sourceState.toString() + "__" + transition.getId() + "-->"
+						+ desState.toString() + ")";
 					break;
 				}
 				case 2:
 				{
+//					System.out.println(desState);
 					// proceed depth first search
 					outPut = "thread" + id + ":"
-							+ sourceState.getValue() + "__" + transition.getOffset() + "-->"
-							+ desState.getValue();
+							+ sourceState.toString() + "__" + transition.getId() + "-->"
+							+ desState.toString();
 					break;
 				}
 				case 3:
 					// check stack proviso
 					outPut = "thread" + id + " checks stack proviso ("
-							+ sourceState.getValue() + "__" + transition.getOffset() + "-->"
-							+ desState.getValue() + ")";
+							+ sourceState.toString() + "__" + transition.getId() + "-->"
+							+ desState.toString() + ")";
 					break;
 				default:
 					outPut = "undefined behavior!";

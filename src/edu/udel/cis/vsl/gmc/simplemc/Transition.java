@@ -1,22 +1,18 @@
 package edu.udel.cis.vsl.gmc.simplemc;
 
 public class Transition{
-	private int offset;
+	private int id;
 	
-	public Transition(int offset){
-		this.offset = offset;
+	public Transition(int id){
+		this.id = id;
 	}
 
-	public int getOffset() {
-		return offset;
-	}
-
-	public void setOffset(int offset) {
-		this.offset = offset;
+	public int getId() {
+		return id;
 	}
 	
 	@Override
 	public int hashCode() {
-		return offset;
+		return id;
 	}
 }
