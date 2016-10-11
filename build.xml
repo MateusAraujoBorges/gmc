@@ -23,6 +23,7 @@
 	<property name="javadoc.dir" value="${basedir}/doc/javadoc" />
 	<property name="jar-name" value="gmc.jar" />
 	<property name="jar-path" value="${basedir}/${jar-name}" />
+	<property name="main-class" value="edu.udel.cis.vsl.gmc.simplemc.UserInterface"/>
 
 	<!-- Junit and JaCoCo Coverage  -->
 
@@ -53,6 +54,7 @@
 			<fileset dir="${bin.dir}" />
 			<manifest>
 				<attribute name="Built-By" value="${user.name}" />
+				<attribute name="Main-Class" value="${main-class}" />
 			</manifest>
 		</jar>
 	</target>
