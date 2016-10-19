@@ -21,4 +21,7 @@ public interface TransitionSet<STATE, TRANSITION> extends Iterable<TRANSITION> {
 	 *         random manner.
 	 */
 	TransitionIterator<STATE, TRANSITION> randomIterator();
+	
+	@Override
+	TransitionIterator<STATE, TRANSITION> iterator();
 }

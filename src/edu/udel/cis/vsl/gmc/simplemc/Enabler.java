@@ -23,7 +23,7 @@ public class Enabler implements ConcurrentEnablerIF<State, Transition> {
 		
 		// below simulating the computation of ample set
 		int count = 0;
-		while (count < 10000) {
+		while (count < 4000) {
 			double rd = r.nextDouble();
 			computeErrorRate(13.0 + rd, 11.0 + rd, 2.0 + rd);
 			count++;

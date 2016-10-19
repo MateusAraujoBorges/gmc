@@ -1,7 +1,6 @@
 package edu.udel.cis.vsl.gmc.simplemc;
 
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
 
 import edu.udel.cis.vsl.gmc.concurrent.TransitionIterator;
@@ -50,7 +49,7 @@ public class TransitionSequence implements TransitionSet<State, Transition> {
 	}
 
 	@Override
-	public Iterator<Transition> iterator() {
+	public TransitionIterator<State, Transition> iterator() {
 		// TODO Auto-generated method stub
 		return null;
 	}

@@ -40,14 +40,15 @@ public interface ConcurrentStateManagerIF<STATE, TRANSITION> {
 	 *            an execution which is enabled at the given state
 	 * @return the trace step after executing the transition at the given state.
 	 */
-	public TraceStepIF<TRANSITION, STATE> nextState(int threadId, int transaction, STATE state, TRANSITION transition);
+	public TraceStepIF<TRANSITION, STATE> nextState(int tid,
+			int transaction, STATE state, TRANSITION transition);
 
 	/**
 	 * Indicate whether a STATE is on the stack of the thread with certain id.
 	 * 
 	 * @return true if state is on the stack of the thread(id).
 	 */
-	boolean onStack(STATE state, int id);
+	boolean onStack(STATE state, int tid);
 
 	/**
 	 * Indicate whether a STATE is fully explored (all its descendants have been
@@ -74,7 +75,7 @@ public interface ConcurrentStateManagerIF<STATE, TRANSITION> {
 	 *            The if of the Thread
 	 * @param value
 	 */
-	void setOnStack(STATE state, int id, boolean value);
+	void setOnStack(STATE state, int tid, boolean value);
 
 	/**
 	 * Set the proviso field of a state using atomic CAS operation.

@@ -5,7 +5,7 @@ import java.util.Map;
 
 public class StateFactory {
 	private static Map<String, State> states = new HashMap<>();
-	private static int stateNum = 0;
+//	private static int stateNum = 0;
 	
 	public static synchronized State getState(int[] value){
 		StringBuilder sb = new StringBuilder();
@@ -24,7 +24,7 @@ public class StateFactory {
 		}else{
 			State state = new State(value);
 			states.put(key, state);
-			stateNum ++;
+//			stateNum ++;
 			return state;
 		}
 	}

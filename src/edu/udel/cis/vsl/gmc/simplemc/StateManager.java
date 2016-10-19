@@ -3,9 +3,11 @@ package edu.udel.cis.vsl.gmc.simplemc;
 import edu.udel.cis.vsl.gmc.TraceStepIF;
 import edu.udel.cis.vsl.gmc.concurrent.ConcurrentStateManagerIF;
 import edu.udel.cis.vsl.gmc.concurrent.ProvisoValue;
+import edu.udel.cis.vsl.gmc.concurrent.util.Log;
+import edu.udel.cis.vsl.gmc.concurrent.util.Transaction;
 
 public class StateManager implements ConcurrentStateManagerIF<State, Transition> {
-	private final int CONSTANT = 20;
+	private final int CONSTANT = 15;
 	private Object inviolableCASLock = new Object();
 	private Object onStackLock = new Object();
 
@@ -42,9 +44,9 @@ public class StateManager implements ConcurrentStateManagerIF<State, Transition>
 
 		State newState = StateFactory.getState(newValue);
 
-		// Transaction transaction = new Transaction(threadId, transactionId,
-		// state, transition, newState);
-		// Log.add(transaction);
+		 Transaction transaction = new Transaction(threadId, transactionId,
+		 state, transition, newState);
+		 Log.add(transaction);
 
 		return new TraceStep(newState);
 	}
