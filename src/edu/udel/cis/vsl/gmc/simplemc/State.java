@@ -3,6 +3,7 @@ package edu.udel.cis.vsl.gmc.simplemc;
 import java.util.BitSet;
 
 import edu.udel.cis.vsl.gmc.concurrent.ProvisoValue;
+import edu.udel.cis.vsl.gmc.concurrent.util.Configuration;
 
 public class State {
 	private int[] value;
@@ -13,10 +14,14 @@ public class State {
 	// all the descendants in the graph are explored
 	private boolean fullyExplored;
 	private ProvisoValue prov;
+	private int vectorLen;
 
 	public State() {
-		this.value = new int[4];
-		value[0] = value[1] = value[2] = value[3] = 1;
+		vectorLen = Configuration.lengthOfVector;
+		this.value = new int[vectorLen];
+		for (int i = 0; i < vectorLen; i++) {
+			value[i] = 1;
+		}
 		onStack = new BitSet();
 		depth = 0;
 		finalState = false;
@@ -25,6 +30,7 @@ public class State {
 	}
 
 	public State(int[] value) {
+		vectorLen = Configuration.lengthOfVector;
 		this.value = value;
 		onStack = new BitSet();
 		depth = 0;
@@ -38,8 +44,8 @@ public class State {
 	}
 
 	public int[] setValue(int index, int v) {
-		int[] newValue = new int[4];
-		for (int i = 0; i < 4; i++) {
+		int[] newValue = new int[vectorLen];
+		for (int i = 0; i < vectorLen; i++) {
 			if (i != index) {
 				newValue[i] = value[i];
 			} else {
@@ -96,29 +102,29 @@ public class State {
 	public void setProv(ProvisoValue prov) {
 		this.prov = prov;
 	}
-	
+
 	@Override
 	public String toString() {
 		StringBuilder sb = new StringBuilder();
-		for(int i=0; i<4; i++){
-			if(i != 3){
+		for (int i = 0; i < vectorLen; i++) {
+			if (i != vectorLen - 1) {
 				sb.append(value[i] + " ");
-			}else
+			} else
 				sb.append(value[i]);
 		}
-		
+
 		return sb.toString();
 	}
 
-//	@Override
-//	public int hashCode() {
-//		int code = 0;
-//		int len = value.length;
-//
-//		while (len > 0) {
-//			code *= 31;
-//			code += value[len - 1];
-//		}
-//		return code;
-//	}
+	// @Override
+	// public int hashCode() {
+	// int code = 0;
+	// int len = value.length;
+	//
+	// while (len > 0) {
+	// code *= 31;
+	// code += value[len - 1];
+	// }
+	// return code;
+	// }
 }

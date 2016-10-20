@@ -3,11 +3,13 @@ package edu.udel.cis.vsl.gmc.simplemc;
 import edu.udel.cis.vsl.gmc.TraceStepIF;
 import edu.udel.cis.vsl.gmc.concurrent.ConcurrentStateManagerIF;
 import edu.udel.cis.vsl.gmc.concurrent.ProvisoValue;
+import edu.udel.cis.vsl.gmc.concurrent.util.Configuration;
 import edu.udel.cis.vsl.gmc.concurrent.util.Log;
 import edu.udel.cis.vsl.gmc.concurrent.util.Transaction;
 
-public class StateManager implements ConcurrentStateManagerIF<State, Transition> {
-	private final int CONSTANT = 15;
+public class StateManager
+		implements
+			ConcurrentStateManagerIF<State, Transition> {
 	private Object inviolableCASLock = new Object();
 	private Object onStackLock = new Object();
 
@@ -16,37 +18,30 @@ public class StateManager implements ConcurrentStateManagerIF<State, Transition>
 	 * first search transactionId = 3 : check stack proviso
 	 */
 	@Override
-	public TraceStepIF<Transition, State> nextState(int threadId, int transactionId, State state,
-			Transition transition) {
+	public TraceStepIF<Transition, State> nextState(int threadId,
+			int transactionId, State state, Transition transition) {
+		int BOUND = Configuration.bound;
+		int ampleSize = Configuration.ampleSetSize;
 		int[] newValue = null;
 		int[] value = state.getValue();
-		int ele1 = value[0];
-		int ele2 = value[1];
-		int ele3 = value[2];
-		int ele4 = value[3];
+		int transitionId = transition.getId();
 
-		switch (transition.getId()) {
-		case 0:
-			newValue = state.setValue(0, (ele1 + ele2) % CONSTANT);
-			break;
-		case 1:
-			newValue = state.setValue(1, (ele1 + ele2) % CONSTANT);
-			break;
-		case 2:
-			newValue = state.setValue(2, (ele3 + 1) % CONSTANT);
-			break;
-		case 3:
-			newValue = state.setValue(3, (ele4 + 1) % CONSTANT);
-			break;
-		default:
-			System.out.println("Error! no such transition.");
+		if (transitionId < ampleSize) {
+			newValue = state
+					.setValue(transitionId,
+							(value[transitionId]
+									+ value[(transitionId + 1) % ampleSize])
+									% BOUND);
+
+		} else {
+			newValue = state.setValue(transitionId,
+					(value[transitionId] + 1) % BOUND);
 		}
 
 		State newState = StateFactory.getState(newValue);
-
-		 Transaction transaction = new Transaction(threadId, transactionId,
-		 state, transition, newState);
-		 Log.add(transaction);
+		Transaction transaction = new Transaction(threadId, transactionId,
+				state, transition, newState);
+		Log.add(transaction);
 
 		return new TraceStep(newState);
 	}

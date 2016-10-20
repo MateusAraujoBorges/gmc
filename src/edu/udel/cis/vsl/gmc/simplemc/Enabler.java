@@ -1,9 +1,9 @@
 package edu.udel.cis.vsl.gmc.simplemc;
 
 import java.util.Random;
-
 import edu.udel.cis.vsl.gmc.concurrent.ConcurrentEnablerIF;
 import edu.udel.cis.vsl.gmc.concurrent.TransitionSet;
+import edu.udel.cis.vsl.gmc.concurrent.util.Configuration;
 
 public class Enabler implements ConcurrentEnablerIF<State, Transition> {
 
@@ -14,17 +14,21 @@ public class Enabler implements ConcurrentEnablerIF<State, Transition> {
 
 		if (transitionSequence != null)
 			return transitionSequence;
-
-		Transition t1 = new Transition(0);
-		Transition t2 = new Transition(1);
 		transitionSequence = new TransitionSequence(source);
-		transitionSequence.addTransitions(t1, t2);
+		int ampleSize = Configuration.ampleSetSize;
+
+		for (int i = 0; i < ampleSize; i++) {
+			Transition t = new Transition(i);
+
+			transitionSequence.addTransitions(t);
+		}
 		Cache.addAmpleSetCache(source, transitionSequence);
-		
+
 		// below simulating the computation of ample set
 		int count = 0;
 		while (count < 4000) {
 			double rd = r.nextDouble();
+
 			computeErrorRate(13.0 + rd, 11.0 + rd, 2.0 + rd);
 			count++;
 		}
@@ -34,16 +38,20 @@ public class Enabler implements ConcurrentEnablerIF<State, Transition> {
 
 	@Override
 	public TransitionSequence ampleSetComplement(State s) {
+		int totalSize = Configuration.lengthOfVector;
+		int ampleSetSize = Configuration.ampleSetSize;
 		TransitionSequence ts = Cache.getNotInAmpleSet(s);
+
 		if (ts != null) {
 			return ts;
 		}
-
 		ts = new TransitionSequence(s);
-		Transition t1 = new Transition(2);
-		Transition t2 = new Transition(3);
+		for (int i = ampleSetSize; i < totalSize; i++) {
+			Transition t = new Transition(i);
 
-		ts.addTransitions(t1, t2);
+			ts.addTransitions(t);
+		}
+
 		Cache.addNotInAmpleSetCache(s, ts);
 		return ts;
 	}
