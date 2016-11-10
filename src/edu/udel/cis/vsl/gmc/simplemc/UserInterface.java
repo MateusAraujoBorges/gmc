@@ -13,7 +13,8 @@ public class UserInterface {
 		StatePredicate predicate = new StatePredicate();
 		int vectorLen = Configuration.lengthOfVector;
 		int[] initVector = new int[vectorLen];
-		int numOfCore = paraLen == 0 ? 2 : Integer.parseInt(args[0]);
+		int numOfCore = paraLen == 0 ? 4 : Integer.parseInt(args[0]);
+		
 		for (int i = 0; i < vectorLen; i++) {
 			initVector[i] = 1;
 		}
@@ -26,10 +27,10 @@ public class UserInterface {
 		endTime = System.currentTimeMillis();
 		long timePassed = endTime - startTime;
 
-		if (paraLen == 0) {
-			Log.analyzeLog();
-			System.out.println("log size:" + Log.transactions.size());
-		}
+//		if (paraLen == 0) {
+//			Log.analyzeLog();
+//			System.out.println("log size:" + Log.transactions.size());
+//		}
 		System.out.println(
 				"concurrent time with " + numOfCore + " cores: " + timePassed);
 	}

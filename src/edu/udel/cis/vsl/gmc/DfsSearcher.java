@@ -124,7 +124,8 @@ public class DfsSearcher<STATE, TRANSITION, TRANSITIONSEQUENCE> {
 	 *            output will be printing to this stream
 	 */
 	public DfsSearcher(EnablerIF<STATE, TRANSITION, TRANSITIONSEQUENCE> enabler,
-			StateManagerIF<STATE, TRANSITION> manager, StatePredicateIF<STATE> predicate, PrintStream debugOut) {
+			StateManagerIF<STATE, TRANSITION> manager,
+			StatePredicateIF<STATE> predicate, PrintStream debugOut) {
 
 		if (enabler == null) {
 			throw new NullPointerException("null enabler");
@@ -147,7 +148,8 @@ public class DfsSearcher<STATE, TRANSITION, TRANSITIONSEQUENCE> {
 	}
 
 	public DfsSearcher(EnablerIF<STATE, TRANSITION, TRANSITIONSEQUENCE> enabler,
-			StateManagerIF<STATE, TRANSITION> manager, StatePredicateIF<STATE> predicate) {
+			StateManagerIF<STATE, TRANSITION> manager,
+			StatePredicateIF<STATE> predicate) {
 		this(enabler, manager, predicate, null);
 	}
 
@@ -284,12 +286,14 @@ public class DfsSearcher<STATE, TRANSITION, TRANSITIONSEQUENCE> {
 					debug("Cycle found in state space.");
 					return true;
 				}
-				debug("Search complete: predicate " + predicate + " does not hold at " + "any reachable state of "
+				debug("Search complete: predicate " + predicate
+						+ " does not hold at " + "any reachable state of "
 						+ name + ".\n");
 				return false;
 			}
 		}
-		debug("Predicate " + predicate + " holds at current state of " + name + ": terminating search.\n");
+		debug("Predicate " + predicate + " holds at current state of " + name
+				+ ": terminating search.\n");
 		return true;
 	}
 
@@ -320,16 +324,26 @@ public class DfsSearcher<STATE, TRANSITION, TRANSITIONSEQUENCE> {
 			TRANSITIONSEQUENCE sequence = stack.peek();
 			STATE currentState = enabler.source(sequence);
 
-			while ((!stackIsBounded || stack.size() < depthBound) && enabler.hasNext(sequence)) {
+			while ((!stackIsBounded || stack.size() < depthBound)
+					&& enabler.hasNext(sequence)) {
 				TRANSITION transition = enabler.peek(sequence);
-				TraceStepIF<TRANSITION, STATE> traceStep = manager.nextState(currentState, transition);
+				TraceStepIF<TRANSITION, STATE> traceStep = manager
+						.nextState(currentState, transition);
 				STATE newState = traceStep.getFinalState();
+				
+				//check cycle condition
+				if (manager.onStack(newState)
+						&& !enabler.expanded(sequence)) {
+					enabler.expandTransitionSequence(sequence);
+				}
 
 				numTransitions++;
-				if (!manager.seen(newState) || (minimize && stack.size() < manager.getDepth(newState))) {
+				if (!manager.seen(newState) || (minimize
+						&& stack.size() < manager.getDepth(newState))) {
 					assert !manager.onStack(newState);
 					if (debugging) {
-						debugOut.println("New state of " + name + " is " + newState + ":");
+						debugOut.println("New state of " + name + " is "
+								+ newState + ":");
 						debugOut.println();
 						manager.printStateLong(debugOut, newState);
 						debugOut.println();
@@ -341,7 +355,8 @@ public class DfsSearcher<STATE, TRANSITION, TRANSITIONSEQUENCE> {
 					manager.setSeen(newState, true);
 					manager.setOnStack(newState, true);
 					numStatesSeen++;
-					debugPrintStack("Pushed " + newState + " onto the stack " + name + ". ", false);
+					debugPrintStack("Pushed " + newState + " onto the stack "
+							+ name + ". ", false);
 					return true;
 				}
 				debug(newState + " seen before!  Moving to next transition.");
@@ -439,7 +454,8 @@ public class DfsSearcher<STATE, TRANSITION, TRANSITIONSEQUENCE> {
 	 *            entries from the top of the stack; otherwise print the whole
 	 *            stack
 	 */
-	public void printStack(PrintStream out, boolean longFormat, boolean summarize) {
+	public void printStack(PrintStream out, boolean longFormat,
+			boolean summarize) {
 		int size = stack.size();
 
 		if (size == 0) {

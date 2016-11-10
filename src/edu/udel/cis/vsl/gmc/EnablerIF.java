@@ -142,5 +142,8 @@ public interface EnablerIF<STATE, TRANSITION, TRANSITIONSEQUENCE> {
 	 * @return the number of transitions removed
 	 */
 	int numRemoved(TRANSITIONSEQUENCE sequence);
-
+	
+	void expandTransitionSequence(TRANSITIONSEQUENCE sequence);
+	
+	boolean expanded(TRANSITIONSEQUENCE sequence);
 }

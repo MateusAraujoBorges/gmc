@@ -162,5 +162,4 @@ public interface StateManagerIF<STATE, TRANSITION> {
 	void setDepth(STATE state, int value);
 
 	boolean setseen(STATE state);
-
 }
