@@ -9,6 +9,7 @@ import java.io.PrintStream;
  * at creation.
  * 
  * @author Stephen F. Siegel, University of Delaware
+ * @author yanyihao
  */
 public interface EnablerIF<STATE, TRANSITION, TRANSITIONSEQUENCE> {
 
@@ -142,8 +143,25 @@ public interface EnablerIF<STATE, TRANSITION, TRANSITIONSEQUENCE> {
 	 * @return the number of transitions removed
 	 */
 	int numRemoved(TRANSITIONSEQUENCE sequence);
-	
+
+	/**
+	 * Modifies the transition sequence by adding to it all enabled transitions
+	 * that are not in the ample set.
+	 * 
+	 * Precondition: sequence must not have been expanded previously
+	 * 
+	 * @param sequence
+	 *            the transition sequence to expand
+	 */
 	void expandTransitionSequence(TRANSITIONSEQUENCE sequence);
-	
+
+	/**
+	 * Whether the transitionSequence has been expanded? I.e., has
+	 * {@link #expandTransitionSequence(Object)} been called?
+	 * 
+	 * @param sequence
+	 *            The target transition sequence.
+	 * @return true iff the sequence has been expanded.
+	 */
 	boolean expanded(TRANSITIONSEQUENCE sequence);
 }

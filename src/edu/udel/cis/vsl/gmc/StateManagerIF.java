@@ -155,11 +155,31 @@ public interface StateManagerIF<STATE, TRANSITION> {
 	 */
 	void printAllStatesLong(PrintStream out);
 
+	/**
+	 * Set the "all-successors-on-stack" flag of a state to the given value. If
+	 * this flag is true, this state is supposed to be expanded.
+	 * 
+	 * @param state
+	 *            the target state
+	 * @param value
+	 *            the boolean value that is going to be assigned to the
+	 *            "all-successors-on-stack" flag
+	 */
+	void setAllSuccessorsOnStack(STATE state, boolean value);
+
+	/**
+	 * Get the value of the "all-successors-on-stack" flag of a state.
+	 * 
+	 * @param state
+	 *            the target state
+	 * @return the value for "all-successors-on-stack" flag
+	 */
+	boolean allSuccessorsOnStack(STATE state);
+
 	// optional methods for minimal DFS algorithm
 
 	int getDepth(STATE state);
 
 	void setDepth(STATE state, int value);
 
-	boolean setseen(STATE state);
 }

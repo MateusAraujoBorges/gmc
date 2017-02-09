@@ -11,6 +11,7 @@ import java.util.Stack;
  * manager, a predicate, and a state from which to start the search.
  * 
  * @author Stephen F. Siegel, University of Delaware
+ * @author yanyihao
  */
 public class DfsSearcher<STATE, TRANSITION, TRANSITIONSEQUENCE> {
 
@@ -124,8 +125,7 @@ public class DfsSearcher<STATE, TRANSITION, TRANSITIONSEQUENCE> {
 	 *            output will be printing to this stream
 	 */
 	public DfsSearcher(EnablerIF<STATE, TRANSITION, TRANSITIONSEQUENCE> enabler,
-			StateManagerIF<STATE, TRANSITION> manager,
-			StatePredicateIF<STATE> predicate, PrintStream debugOut) {
+			StateManagerIF<STATE, TRANSITION> manager, StatePredicateIF<STATE> predicate, PrintStream debugOut) {
 
 		if (enabler == null) {
 			throw new NullPointerException("null enabler");
@@ -148,8 +148,7 @@ public class DfsSearcher<STATE, TRANSITION, TRANSITIONSEQUENCE> {
 	}
 
 	public DfsSearcher(EnablerIF<STATE, TRANSITION, TRANSITIONSEQUENCE> enabler,
-			StateManagerIF<STATE, TRANSITION> manager,
-			StatePredicateIF<STATE> predicate) {
+			StateManagerIF<STATE, TRANSITION> manager, StatePredicateIF<STATE> predicate) {
 		this(enabler, manager, predicate, null);
 	}
 
@@ -286,14 +285,12 @@ public class DfsSearcher<STATE, TRANSITION, TRANSITIONSEQUENCE> {
 					debug("Cycle found in state space.");
 					return true;
 				}
-				debug("Search complete: predicate " + predicate
-						+ " does not hold at " + "any reachable state of "
+				debug("Search complete: predicate " + predicate + " does not hold at " + "any reachable state of "
 						+ name + ".\n");
 				return false;
 			}
 		}
-		debug("Predicate " + predicate + " holds at current state of " + name
-				+ ": terminating search.\n");
+		debug("Predicate " + predicate + " holds at current state of " + name + ": terminating search.\n");
 		return true;
 	}
 
@@ -324,26 +321,21 @@ public class DfsSearcher<STATE, TRANSITION, TRANSITIONSEQUENCE> {
 			TRANSITIONSEQUENCE sequence = stack.peek();
 			STATE currentState = enabler.source(sequence);
 
-			while ((!stackIsBounded || stack.size() < depthBound)
-					&& enabler.hasNext(sequence)) {
+			while ((!stackIsBounded || stack.size() < depthBound) && enabler.hasNext(sequence)) {
 				TRANSITION transition = enabler.peek(sequence);
-				TraceStepIF<TRANSITION, STATE> traceStep = manager
-						.nextState(currentState, transition);
+				TraceStepIF<TRANSITION, STATE> traceStep = manager.nextState(currentState, transition);
 				STATE newState = traceStep.getFinalState();
-				
-				//check cycle condition
-				if (manager.onStack(newState)
-						&& !enabler.expanded(sequence)) {
-					enabler.expandTransitionSequence(sequence);
+
+				// check stack condition
+				if (!enabler.expanded(sequence) && !manager.onStack(newState)) {
+					manager.setAllSuccessorsOnStack(currentState, false);
 				}
 
 				numTransitions++;
-				if (!manager.seen(newState) || (minimize
-						&& stack.size() < manager.getDepth(newState))) {
+				if (!manager.seen(newState) || (minimize && stack.size() < manager.getDepth(newState))) {
 					assert !manager.onStack(newState);
 					if (debugging) {
-						debugOut.println("New state of " + name + " is "
-								+ newState + ":");
+						debugOut.println("New state of " + name + " is " + newState + ":");
 						debugOut.println();
 						manager.printStateLong(debugOut, newState);
 						debugOut.println();
@@ -351,12 +343,18 @@ public class DfsSearcher<STATE, TRANSITION, TRANSITIONSEQUENCE> {
 					}
 					if (minimize)
 						manager.setDepth(newState, stack.size());
-					stack.push(enabler.enabledTransitions(newState));
+
+					TRANSITIONSEQUENCE newSequence = enabler.enabledTransitions(newState);
+					
+					// if new state does not have any outgoing edges.
+					if (!enabler.hasNext(newSequence))
+						manager.setAllSuccessorsOnStack(newState, false);
+
+					stack.push(newSequence);
 					manager.setSeen(newState, true);
 					manager.setOnStack(newState, true);
 					numStatesSeen++;
-					debugPrintStack("Pushed " + newState + " onto the stack "
-							+ name + ". ", false);
+					debugPrintStack("Pushed " + newState + " onto the stack " + name + ". ", false);
 					return true;
 				}
 				debug(newState + " seen before!  Moving to next transition.");
@@ -367,9 +365,16 @@ public class DfsSearcher<STATE, TRANSITION, TRANSITIONSEQUENCE> {
 				numStatesMatched++;
 				enabler.next(sequence);
 			}
+			// If all successors are on stack, then expand the
+			// transition sequence
+			if (!enabler.expanded(sequence) && manager.allSuccessorsOnStack(currentState)) {
+				enabler.expandTransitionSequence(sequence);
+				continue;
+			}
+
 			manager.setOnStack(enabler.source(stack.pop()), false);
-			// in the above while loop, when push a state into the stack, the
-			// transition used to generate the state is not popped out from
+			// in the above while loop, when you push a state onto the stack, the
+			// transition used to generate the state is not removed from the
 			// transition sequence, so here, you need to pop the transition out
 			// from transition sequence.
 			if (!stack.isEmpty())
@@ -454,8 +459,7 @@ public class DfsSearcher<STATE, TRANSITION, TRANSITIONSEQUENCE> {
 	 *            entries from the top of the stack; otherwise print the whole
 	 *            stack
 	 */
-	public void printStack(PrintStream out, boolean longFormat,
-			boolean summarize) {
+	public void printStack(PrintStream out, boolean longFormat, boolean summarize) {
 		int size = stack.size();
 
 		if (size == 0) {
