@@ -37,11 +37,11 @@ public class Replayer<STATE, TRANSITION> {
 	 * replaying a trace.
 	 */
 	private PrintStream out;
-	
+
 	private PrintStream dump = new PrintStream(new OutputStream() {
 		@Override
 		public void write(int b) throws IOException {
-			//doing nothing
+			// doing nothing
 		}
 	});
 
@@ -50,7 +50,7 @@ public class Replayer<STATE, TRANSITION> {
 	 * initial and the final states will be printed.
 	 */
 	private boolean printAllStates = true;
-	
+
 	/**
 	 * If "-quiet" is used in the command?
 	 */
@@ -79,7 +79,8 @@ public class Replayer<STATE, TRANSITION> {
 	 *            stream to which the trace should be written in human-readable
 	 *            form
 	 */
-	public Replayer(StateManagerIF<STATE, TRANSITION> manager, PrintStream out) {
+	public Replayer(StateManagerIF<STATE, TRANSITION> manager,
+			PrintStream out) {
 		this.manager = manager;
 		this.out = out;
 	}
@@ -108,11 +109,11 @@ public class Replayer<STATE, TRANSITION> {
 			boolean[] print, STATE[] states) {
 		for (int i = 0; i < numStates; i++) {
 			if (print[i]) {
-				if(quiet){
+				if (quiet) {
 					dump.println();
 					manager.printStateLong(dump, states[i]);
 					dump.println();
-				}else{
+				} else {
 					out.println();
 					manager.printStateLong(out, states[i]);
 					out.println();
@@ -167,9 +168,9 @@ public class Replayer<STATE, TRANSITION> {
 			TransitionChooser<STATE, TRANSITION> chooser, boolean verbose)
 			throws MisguidedExecutionException {
 		@SuppressWarnings("unchecked")
-		STATE[] stateArray = (STATE[]) new Object[] { initialState };
-		boolean[] printArray = new boolean[] { true };
-		String[] names = new String[] { null };
+		STATE[] stateArray = (STATE[]) new Object[]{initialState};
+		boolean[] printArray = new boolean[]{true};
+		String[] names = new String[]{null};
 
 		return play(stateArray, printArray, names, chooser, verbose);
 	}
@@ -209,7 +210,7 @@ public class Replayer<STATE, TRANSITION> {
 		int numExecutions = states.length;
 		String[] executionNames = new String[1];
 		TRANSITION transition;
-		TraceStepIF<TRANSITION, STATE> traceStep;
+		TraceStepIF<STATE> traceStep;
 		Trace<TRANSITION, STATE>[] traces = new Trace[numExecutions];
 
 		for (int i = 0; i < numExecutions; i++) {
@@ -235,14 +236,14 @@ public class Replayer<STATE, TRANSITION> {
 					STATE state = traces[i].lastState();
 
 					if (predicate.holdsAt(state)) {
-							if(!quiet){
+						if (!quiet) {
 							if (!printAllStates) {
 								out.println();
 								manager.printStateLong(out, state);
 							}
 							out.println();
-							out.println("Violation of " + predicate + " found in "
-									+ state + ":");
+							out.println("Violation of " + predicate
+									+ " found in " + state + ":");
 							out.println(predicate.explanation());
 							out.println();
 						}
@@ -277,7 +278,7 @@ public class Replayer<STATE, TRANSITION> {
 			if (printAllStates)
 				printStates(step, 1, executionNames, print, newStates);
 		}
-		if(!quiet){
+		if (!quiet) {
 			out.println("Trace ends after " + step + " trace steps.");
 		}
 		return traces;
@@ -288,10 +289,10 @@ public class Replayer<STATE, TRANSITION> {
 			TransitionChooser<STATE, TRANSITION> chooser, boolean verbose)
 			throws MisguidedExecutionException {
 		@SuppressWarnings("unchecked")
-		STATE[] stateArray = (STATE[]) new Object[] { initialSymbolicState,
-				initialConcreteState };
-		boolean[] printArray = new boolean[] { printSymbolicStates, true };
-		String[] names = new String[] { "Symbolic", "Concrete" };
+		STATE[] stateArray = (STATE[]) new Object[]{initialSymbolicState,
+				initialConcreteState};
+		boolean[] printArray = new boolean[]{printSymbolicStates, true};
+		String[] names = new String[]{"Symbolic", "Concrete"};
 
 		return play(stateArray, printArray, names, chooser, verbose);
 	}

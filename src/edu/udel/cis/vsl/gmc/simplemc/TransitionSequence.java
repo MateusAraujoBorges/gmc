@@ -3,10 +3,10 @@ package edu.udel.cis.vsl.gmc.simplemc;
 import java.util.ArrayList;
 import java.util.List;
 
-import edu.udel.cis.vsl.gmc.concurrent.TransitionIterator;
-import edu.udel.cis.vsl.gmc.concurrent.TransitionSet;
+import edu.udel.cis.vsl.gmc.TransitionIteratorIF;
+import edu.udel.cis.vsl.gmc.TransitionSetIF;
 
-public class TransitionSequence implements TransitionSet<State, Transition> {
+public class TransitionSequence implements TransitionSetIF<State, Transition> {
 	private State state;
 	private List<Transition> transitions;
 
@@ -43,14 +43,26 @@ public class TransitionSequence implements TransitionSet<State, Transition> {
 	}
 
 	@Override
-	public TransitionIterator<State, Transition> randomIterator() {
+	public TransitionIteratorIF<State, Transition> randomIterator() {
 		
 		return new RandomTransitionIterator(this);
 	}
 
 	@Override
-	public TransitionIterator<State, Transition> iterator() {
+	public TransitionIteratorIF<State, Transition> iterator() {
 		// TODO Auto-generated method stub
 		return null;
+	}
+
+	@Override
+	public boolean hasMultiple() {
+		// TODO Auto-generated method stub
+		return false;
+	}
+
+	@Override
+	public int size() {
+		// TODO Auto-generated method stub
+		return 0;
 	}
 }

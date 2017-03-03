@@ -18,7 +18,7 @@ public class StateManager
 	 * first search transactionId = 3 : check stack proviso
 	 */
 	@Override
-	public TraceStepIF<Transition, State> nextState(int threadId,
+	public TraceStepIF<State> nextState(int threadId,
 			int transactionId, State state, Transition transition) {
 		int BOUND = Configuration.bound;
 		int ampleSize = Configuration.ampleSetSize;

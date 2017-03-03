@@ -4,23 +4,23 @@ import java.util.ArrayList;
 import java.util.Random;
 
 public class RandomTransitionChooser<STATE, TRANSITION, TRANSITIONSEQUENCE>
-		implements TransitionChooser<STATE, TRANSITION> {
+		implements
+			TransitionChooser<STATE, TRANSITION> {
 
 	private long seed;
 
-	private EnablerIF<STATE, TRANSITION, TRANSITIONSEQUENCE> enabler;
+	private EnablerIF<STATE, TRANSITION> enabler;
 
 	private Random generator;
 
-	public RandomTransitionChooser(
-			EnablerIF<STATE, TRANSITION, TRANSITIONSEQUENCE> enabler, long seed) {
+	public RandomTransitionChooser(EnablerIF<STATE, TRANSITION> enabler,
+			long seed) {
 		this.enabler = enabler;
 		this.seed = seed;
 		this.generator = new Random(seed);
 	}
 
-	public RandomTransitionChooser(
-			EnablerIF<STATE, TRANSITION, TRANSITIONSEQUENCE> enabler) {
+	public RandomTransitionChooser(EnablerIF<STATE, TRANSITION> enabler) {
 		this(enabler, System.currentTimeMillis());
 	}
 
@@ -28,11 +28,14 @@ public class RandomTransitionChooser<STATE, TRANSITION, TRANSITIONSEQUENCE>
 	public TRANSITION chooseEnabledTransition(STATE state)
 			throws MisguidedExecutionException {
 		ArrayList<TRANSITION> transitions = new ArrayList<TRANSITION>();
-		TRANSITIONSEQUENCE sequence = enabler.enabledTransitions(state);
+		TransitionSetIF<STATE, TRANSITION> transitionSet = enabler
+				.ampleSet(state);
+		TransitionIteratorIF<STATE, TRANSITION> iterator = transitionSet
+				.iterator();
 		int n, i;
 
-		while (enabler.hasNext(sequence))
-			transitions.add(enabler.next(sequence));
+		while (iterator.hasNext())
+			transitions.add(iterator.next());
 		n = transitions.size();
 		if (n == 0)
 			return null;

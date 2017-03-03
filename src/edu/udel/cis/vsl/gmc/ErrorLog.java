@@ -47,7 +47,7 @@ public class ErrorLog {
 	 * The searcher performing the search. May be null, in which case traces
 	 * won't be saved, etc.
 	 */
-	private DfsSearcher<?, ?, ?> searcher;
+	private DfsSearcher<?, ?> searcher;
 
 	/**
 	 * A canonical map used for storing and flyweighting the reported errors.
@@ -132,8 +132,8 @@ public class ErrorLog {
 			directory.mkdir();
 		}
 		if (!directory.isDirectory())
-			throw new IllegalArgumentException("No directory named "
-					+ directory);
+			throw new IllegalArgumentException(
+					"No directory named " + directory);
 		if (sessionName == null)
 			throw new IllegalArgumentException("Session name is null");
 		this.directory = directory;
@@ -217,11 +217,11 @@ public class ErrorLog {
 		stream.close();
 	}
 
-	public void setSearcher(DfsSearcher<?, ?, ?> searcher) {
+	public void setSearcher(DfsSearcher<?, ?> searcher) {
 		this.searcher = searcher;
 	}
 
-	public DfsSearcher<?, ?, ?> searcher() {
+	public DfsSearcher<?, ?> searcher() {
 		return searcher;
 	}
 
@@ -294,24 +294,26 @@ public class ErrorLog {
 		int length = searcher.stack().size();
 		LogEntry oldEntry = entryMap.get(entry);
 
-		if (minimalCounterexampleSize < 0 || length < minimalCounterexampleSize) {
+		if (minimalCounterexampleSize < 0
+				|| length < minimalCounterexampleSize) {
 			minimalCounterexampleSize = length;
 		}
-		if(!isQuiet){
-			out.println("\nViolation " + numErrors + " encountered at depth " + length
-					+ ":");
+		if (!isQuiet) {
+			out.println("\nViolation " + numErrors + " encountered at depth "
+					+ length + ":");
 			entry.printBody(out);
 		}
 		if (oldEntry != null) {
 			int id = oldEntry.getId();
 			File file = oldEntry.getTraceFile();
 			int oldLength = oldEntry.getLength();
-			if(!isQuiet){
-				out.println("New log entry is equivalent to previously encountered entry "
-						+ id);
+			if (!isQuiet) {
+				out.println(
+						"New log entry is equivalent to previously encountered entry "
+								+ id);
 			}
 			if (length < oldLength) {
-				if(!isQuiet){
+				if (!isQuiet) {
 					out.println("Length of new trace (" + length
 							+ ") is less than length of old (" + oldLength
 							+ "): replacing old with new...");
@@ -324,7 +326,7 @@ public class ErrorLog {
 				file.delete();
 				writeTraceFile(entry);
 			} else {
-				if(!isQuiet){
+				if (!isQuiet) {
 					out.println("Length of new trace (" + length
 							+ ") is greater than or equal to length of old ("
 							+ oldLength + "): ignoring new trace.");
@@ -333,7 +335,7 @@ public class ErrorLog {
 		} else {
 			int id = entryMap.size();
 			File file = traceFile(id);
-			if(!isQuiet){
+			if (!isQuiet) {
 				out.println("Logging new entry " + id + ", writing trace to "
 						+ file);
 			}
@@ -346,7 +348,7 @@ public class ErrorLog {
 		numErrors++;
 		if (minimize) {
 			searcher.restrictDepth();
-			if(!isQuiet){
+			if (!isQuiet) {
 				out.println("Restricting search depth to " + (length - 1));
 			}
 			out.flush();
@@ -363,7 +365,7 @@ public class ErrorLog {
 	 */
 	public void report(LogEntry entry) throws FileNotFoundException {
 		if (searcher == null) {
-			if(!entry.getConfiguration().isQuiet()){
+			if (!entry.getConfiguration().isQuiet()) {
 				out.println("Error " + numErrors + ":");
 				entry.printBody(out);
 			}

@@ -24,7 +24,7 @@ public class Trace<TRANSITION, STATE> {
 	/**
 	 * The list of trace steps contained by the trace.
 	 */
-	private List<TraceStepIF<TRANSITION, STATE>> traceSteps;
+	private List<TraceStepIF<STATE>> traceSteps;
 
 	/**
 	 * The name of the trace.
@@ -60,7 +60,7 @@ public class Trace<TRANSITION, STATE> {
 		StringBuffer result = new StringBuffer();
 
 		result.append(init);
-		for (TraceStepIF<TRANSITION, STATE> traceStep : traceSteps) {
+		for (TraceStepIF<STATE> traceStep : traceSteps) {
 			result.append("\n");
 			result.append(traceStep);
 		}
@@ -134,7 +134,7 @@ public class Trace<TRANSITION, STATE> {
 	 * @param traceStep
 	 *            The new trace step to be added.
 	 */
-	public void addTraceStep(TraceStepIF<TRANSITION, STATE> traceStep) {
+	public void addTraceStep(TraceStepIF<STATE> traceStep) {
 		this.traceSteps.add(traceStep);
 	}
 
@@ -143,7 +143,7 @@ public class Trace<TRANSITION, STATE> {
 	 * 
 	 * @return the list of trace steps contained in this trace.
 	 */
-	public List<TraceStepIF<TRANSITION, STATE>> traceSteps() {
+	public List<TraceStepIF<STATE>> traceSteps() {
 		return this.traceSteps;
 	}
 
@@ -154,7 +154,7 @@ public class Trace<TRANSITION, STATE> {
 	 *            The index of the trace step to be returned.
 	 * @return the i'th trace step of this trace.
 	 */
-	public TraceStepIF<TRANSITION, STATE> traceStep(int i) {
+	public TraceStepIF<STATE> traceStep(int i) {
 		return this.traceSteps.get(i);
 	}
 

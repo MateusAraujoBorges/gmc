@@ -13,6 +13,7 @@ import java.io.PrintStream;
  * printing information abou states.
  * 
  * @author Stephen F. Siegel
+ * @author Yihao Yan (yanyihao)
  * 
  * @param <STATE>
  *            the type used to represent states in the state-transition system
@@ -33,7 +34,7 @@ public interface StateManagerIF<STATE, TRANSITION> {
 	 *            an execution which is enabled at the given state
 	 * @return the trace step after executing the transition at the given state.
 	 */
-	TraceStepIF<TRANSITION, STATE> nextState(STATE state, TRANSITION transition);
+	TraceStepIF<STATE> nextState(STATE state, TRANSITION transition);
 
 	/**
 	 * Sets the "seen flag" in the given state to the given value. The method
@@ -90,6 +91,21 @@ public interface StateManagerIF<STATE, TRANSITION> {
 	 *         state
 	 */
 	boolean onStack(STATE state);
+
+	/**
+	 * @param state
+	 *            The target state.
+	 * @return true iff the target state has been expanded.
+	 */
+	boolean allSuccessorsVisited(STATE state);
+
+	/**
+	 * Set the expanded flag of the target state.
+	 * 
+	 * @param state
+	 *            The target state.
+	 */
+	void setAllSuccessorsVisited(STATE state, boolean value);
 
 	/**
 	 * Prints out a short human-readable representation of the state. This is
@@ -156,8 +172,8 @@ public interface StateManagerIF<STATE, TRANSITION> {
 	void printAllStatesLong(PrintStream out);
 
 	/**
-	 * Set the "all-successors-on-stack" flag of a state to the given value. If
-	 * this flag is true, this state is supposed to be expanded.
+	 * Set the "all-successors-on-stack" of a state to certain value. If this
+	 * flag is true, this state is supposed to be expanded.
 	 * 
 	 * @param state
 	 *            the target state

@@ -6,6 +6,8 @@ import java.util.concurrent.ForkJoinTask;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import edu.udel.cis.vsl.gmc.StatePredicateIF;
+import edu.udel.cis.vsl.gmc.TransitionIteratorIF;
+import edu.udel.cis.vsl.gmc.TransitionSetIF;
 
 /**
  * <p>
@@ -217,9 +219,9 @@ public class ConcurrentDfsSearcher<STATE, TRANSITION> {
 
 		/**
 		 * Each thread will have its own stack and elements in the stack are
-		 * {@link TransitionIterator}.
+		 * {@link TransitionIteratorIF}.
 		 */
-		private Stack<TransitionIterator<STATE, TRANSITION>> stack;
+		private Stack<TransitionIteratorIF<STATE, TRANSITION>> stack;
 
 		/**
 		 * The number of transitions executed since the beginning of the search.
@@ -254,8 +256,8 @@ public class ConcurrentDfsSearcher<STATE, TRANSITION> {
 
 		public SequentialDfsSearchTask(STATE initState, int id,
 				SequentialDfsSearchTask parent, AtomicInteger counter) {
-			TransitionSet<STATE, TRANSITION> ts = enabler.ampleSet(initState);
-			TransitionIterator<STATE, TRANSITION> iter = ts.randomIterator();
+			TransitionSetIF<STATE, TRANSITION> ts = enabler.ampleSet(initState);
+			TransitionIteratorIF<STATE, TRANSITION> iter = ts.randomIterator();
 
 			this.id = id;
 			this.parentCounter = counter;
@@ -264,9 +266,9 @@ public class ConcurrentDfsSearcher<STATE, TRANSITION> {
 			manager.setOnStack(initState, id, true);
 
 			if (parent != null) {
-				Stack<TransitionIterator<STATE, TRANSITION>> parentStack = parent
+				Stack<TransitionIteratorIF<STATE, TRANSITION>> parentStack = parent
 						.stack();
-				Enumeration<TransitionIterator<STATE, TRANSITION>> elements = parentStack
+				Enumeration<TransitionIteratorIF<STATE, TRANSITION>> elements = parentStack
 						.elements();
 
 				while (elements.hasMoreElements()) {
@@ -309,7 +311,7 @@ public class ConcurrentDfsSearcher<STATE, TRANSITION> {
 			return minimize;
 		}
 
-		public Stack<TransitionIterator<STATE, TRANSITION>> stack() {
+		public Stack<TransitionIteratorIF<STATE, TRANSITION>> stack() {
 			return stack;
 		}
 
@@ -340,8 +342,8 @@ public class ConcurrentDfsSearcher<STATE, TRANSITION> {
 					return true;
 				}
 
-				TransitionIterator<STATE, TRANSITION> iterator = stack.peek();
-				TransitionSet<STATE, TRANSITION> transitionSet = iterator
+				TransitionIteratorIF<STATE, TRANSITION> iterator = stack.peek();
+				TransitionSetIF<STATE, TRANSITION> transitionSet = iterator
 						.getTransitionSet();
 				STATE currentState = transitionSet.source();
 				TRANSITION transition = null;
@@ -409,7 +411,7 @@ public class ConcurrentDfsSearcher<STATE, TRANSITION> {
 						if (!manager.onStack(newState, id)) {
 							aos = false;
 							if (!manager.fullyExplored(newState)) {
-								TransitionSet<STATE, TRANSITION> newTransitionSet = enabler
+								TransitionSetIF<STATE, TRANSITION> newTransitionSet = enabler
 										.ampleSet(newState);
 
 								this.stack.push(
@@ -468,15 +470,15 @@ public class ConcurrentDfsSearcher<STATE, TRANSITION> {
 		}
 
 		private boolean checkStackProviso(
-				TransitionSet<STATE, TRANSITION> transitionSet,
+				TransitionSetIF<STATE, TRANSITION> transitionSet,
 				STATE currentState, boolean allOnStack) {
 			if (manager.proviso(currentState) == ProvisoValue.UNKNOWN) {
 				manager.setProvisoCAS(currentState,
 						(allOnStack ? ProvisoValue.TRUE : ProvisoValue.FALSE));
 				if (manager.proviso(currentState) == ProvisoValue.TRUE) {
-					TransitionSet<STATE, TRANSITION> ampleComplement = enabler
+					TransitionSetIF<STATE, TRANSITION> ampleComplement = enabler
 							.ampleSetComplement(currentState);
-					TransitionIterator<STATE, TRANSITION> iter = ampleComplement
+					TransitionIteratorIF<STATE, TRANSITION> iter = ampleComplement
 							.randomIterator();
 
 					if (iter.hasNext()) {

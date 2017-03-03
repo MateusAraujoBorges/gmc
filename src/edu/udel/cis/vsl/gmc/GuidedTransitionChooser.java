@@ -7,8 +7,18 @@ import java.io.IOException;
 import java.util.LinkedList;
 import java.util.List;
 
-public class GuidedTransitionChooser<STATE, TRANSITION, TRANSITIONSEQUENCE>
-		implements TransitionChooser<STATE, TRANSITION> {
+/**
+ * Transition Chooser which makes its choice using an explicit "guide". The
+ * guide is a sequence of integers whose length is the number of
+ * nondeterministic states encountered along the trace. (A nondeterministic
+ * state is one that has more than one enabled transition.)
+ *
+ * @param <STATE>
+ * @param <TRANSITION>
+ */
+public class GuidedTransitionChooser<STATE, TRANSITION>
+		implements
+			TransitionChooser<STATE, TRANSITION> {
 
 	static class Guide {
 		Guide(int length, int[] choices) {
@@ -21,21 +31,19 @@ public class GuidedTransitionChooser<STATE, TRANSITION, TRANSITIONSEQUENCE>
 		int[] choices; /* transitions to choose when more than 1 enabled */
 	}
 
-	private EnablerIF<STATE, TRANSITION, TRANSITIONSEQUENCE> enabler;
+	private EnablerIF<STATE, TRANSITION> enabler;
 
 	private Guide guide;
 
 	private int guideIndex = 0;
 
-	public GuidedTransitionChooser(
-			EnablerIF<STATE, TRANSITION, TRANSITIONSEQUENCE> enabler,
+	public GuidedTransitionChooser(EnablerIF<STATE, TRANSITION> enabler,
 			Guide guide) {
 		this.enabler = enabler;
 		this.guide = guide;
 	}
 
-	public GuidedTransitionChooser(
-			EnablerIF<STATE, TRANSITION, TRANSITIONSEQUENCE> enabler,
+	public GuidedTransitionChooser(EnablerIF<STATE, TRANSITION> enabler,
 			File traceFile) throws IOException, MisguidedExecutionException {
 		this.enabler = enabler;
 		this.guide = makeGuide(traceFile);
@@ -69,8 +77,8 @@ public class GuidedTransitionChooser<STATE, TRANSITION, TRANSITIONSEQUENCE>
 	 *             reader
 	 * @throws MisguidedExecutionException
 	 */
-	public static Guide makeGuide(BufferedReader reader) throws IOException,
-			MisguidedExecutionException {
+	public static Guide makeGuide(BufferedReader reader)
+			throws IOException, MisguidedExecutionException {
 		List<Integer> intList = new LinkedList<Integer>();
 		int numInts, count;
 		int length;
@@ -127,8 +135,8 @@ public class GuidedTransitionChooser<STATE, TRANSITION, TRANSITIONSEQUENCE>
 				}
 				intList.add(new Integer(theInt));
 			} catch (NumberFormatException e) {
-				throw new MisguidedExecutionException("Expected integer, saws "
-						+ line);
+				throw new MisguidedExecutionException(
+						"Expected integer, saws " + line);
 			}
 		}
 		reader.close();
@@ -154,37 +162,44 @@ public class GuidedTransitionChooser<STATE, TRANSITION, TRANSITIONSEQUENCE>
 	 *             file
 	 * @throws MisguidedExecutionException
 	 */
-	public static Guide makeGuide(File file) throws IOException,
-			MisguidedExecutionException {
+	public static Guide makeGuide(File file)
+			throws IOException, MisguidedExecutionException {
 		return makeGuide(new BufferedReader(new FileReader(file)));
 	}
 
+	/**
+	 * change the format of the file providing more information. 1 25:0 (25 0s
+	 * in the file) ac 3 36:0 (36 0s in the file)
+	 */
 	@Override
 	public TRANSITION chooseEnabledTransition(STATE state)
 			throws MisguidedExecutionException {
-		TRANSITIONSEQUENCE sequence = enabler.enabledTransitions(state);
+		TransitionSetIF<STATE, TRANSITION> transitionSet = enabler
+				.ampleSet(state);
+		TransitionIteratorIF<STATE, TRANSITION> iterator = transitionSet
+				.iterator();
 
-		if (!enabler.hasNext(sequence))
+		if (!iterator.hasNext())
 			return null;
-		if (!enabler.hasMultiple(sequence))
-			return enabler.next(sequence);
+		if (!transitionSet.hasMultiple())
+			return iterator.next();
 		else if (guideIndex < guide.length) {
 			int index = guide.choices[guideIndex];
 
 			guideIndex++;
 			for (int i = 0; i < index; i++) {
-				if (enabler.hasNext(sequence))
-					enabler.next(sequence);
+				if (iterator.hasNext())
+					iterator.next();
 				else
 					throw new MisguidedExecutionException(
 							"State has fewer enabled transitions than expected: "
 									+ state);
 			}
-			if (!enabler.hasNext(sequence))
+			if (!iterator.hasNext())
 				throw new MisguidedExecutionException(
 						"State has fewer enabled transitions than expected: "
 								+ state);
-			return enabler.next(sequence);
+			return iterator.next();
 		} else {
 			throw new MisguidedExecutionException(
 					"Trace file ends before trail is complete.");

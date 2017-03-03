@@ -3,86 +3,79 @@ package edu.udel.cis.vsl.gmc;
 import java.io.PrintStream;
 
 /**
+ * <p>
  * An EnablerIF tells you which transitions should be explored from a given
  * state. It might need to know things about the state of the search (such as
  * what states are currently on the DFS stack). Such information can be provided
  * at creation.
+ * </p>
+ * 
+ * <p>
+ * A transition is an edge in the state space which means that two transitions
+ * emanating from different states are different even if they originated from
+ * the same statement.
+ * </p>
+ * 
+ * @param <STATE>
+ *            the type used to represent states in the state-transition system
+ *            being analyzed
+ * @param <TRANSITION>
+ *            the type used to represent transitions in the state-transition
+ *            system being analyzed
  * 
  * @author Stephen F. Siegel, University of Delaware
- * @author yanyihao
+ * @author Yihao Yan (yanyihao)
  */
-public interface EnablerIF<STATE, TRANSITION, TRANSITIONSEQUENCE> {
+public interface EnablerIF<STATE, TRANSITION> {
 
 	/**
-	 * Returns TransitionSequence of enabled transitions departing from given
-	 * source state. This object encapsulates the given state and an ordered set
-	 * of transitions which are enabled at that state. The TRANSITIONSEQUENCE
-	 * object behaves similar to an iterator which iterates over those enabled
-	 * transitions. In particular, it has state.
+	 * <p>
+	 * Return the candidate ampleSet of transitions departing from a given state
+	 * by satisfying the following three conditions:
+	 * </p>
+	 * <ul>
+	 * <li>C0: ampleSet is not empty if the full enabled set is not empty.</li>
+	 * <li>C1: Along every path in the full state graph that starts at source
+	 * state, the following condition holds: a transition that is dependent on a
+	 * transition in ample(s) can not be executed without a transition in
+	 * ample(s) occurring first</li>
+	 * <li>C2: If source state is not fully expanded, then every transition in
+	 * ample(s) is invisible.</li>
+	 * </ul>
+	 * <p>
+	 * For detail information about how to compute the ample set of a state,
+	 * please refer to the book "Model Checking" by Edmund M. Clarke Jr.
+	 * </p>
 	 * 
-	 * @returns an object encompassing the enabled transitions at the given
-	 *          state, in some order, and including also the given state
+	 * @param source
+	 *            The target state.
+	 * @return The candidate ampleSet of transitions of the target state.
 	 */
-	TRANSITIONSEQUENCE enabledTransitions(STATE source);
+	TransitionSetIF<STATE, TRANSITION> ampleSet(STATE source);
 
 	/**
-	 * Returns the source state of the sequence, i.e., the state specified when
-	 * creating that sequence.
+	 * Computes the set of transitions which are enabled at the source state of
+	 * the given candidate {@code ampleSet} but were not included in
+	 * {@code ampleSet}.
 	 * 
-	 * @returns the source state of the sequence
+	 * @param ampleSet
+	 *            The candidate ample set returned by an earlier call to
+	 *            {@link #ampleSet(STATE)}.
+	 * @return the transitions that are enabled but not in {@code ampleSet}.
 	 */
-	STATE source(TRANSITIONSEQUENCE sequence);
+	TransitionSetIF<STATE, TRANSITION> ampleSetComplement(
+			TransitionSetIF<STATE, TRANSITION> ampleSet);
 
 	/**
-	 * Is there a next transition in the sequence?
+	 * TODO The set of all enabled emanating from a single state is ordered, and
+	 * these transitions are indexed starting from zero. All of the ample set
+	 * transitions start first followed by those transitions that are not in the
+	 * ample set.
 	 * 
-	 * @param sequence
-	 *            a transition sequence
-	 * @return true if there is a next state, false if the transitions form the
-	 *         sequence have been exhausted
+	 * @param transition
+	 * @return
 	 */
-	boolean hasNext(TRANSITIONSEQUENCE sequence);
-
-	/**
-	 * Moves to next transition in the sequence and returns that transition. If
-	 * there is no next transition, an exception should be thrown.
-	 * 
-	 * @param sequence
-	 *            a transition sequence
-	 * @return the next transition in the sequence
-	 */
-	TRANSITION next(TRANSITIONSEQUENCE sequence);
-
-	/**
-	 * Returns the same value returned by method {@link #next}, but does not
-	 * change the state of the sequence.
-	 * 
-	 * @param sequence
-	 *            a transition sequence
-	 * @return the current transition in that sequence
-	 */
-	TRANSITION peek(TRANSITIONSEQUENCE sequence);
-
-	/**
-	 * Prints the transition in some human-readable form to the given stream.
-	 * 
-	 * @param out
-	 *            a stream to which to print
-	 * @param sequence
-	 *            a transition sequence
-	 */
-	void print(PrintStream out, TRANSITIONSEQUENCE sequence);
-
-	/**
-	 * Prints some representation of the transitions in the sequence other than
-	 * the first (current) transition.
-	 * 
-	 * @param out
-	 *            stream to which to print
-	 * @param sequence
-	 *            a transition sequence
-	 */
-	void printRemaining(PrintStream out, TRANSITIONSEQUENCE sequence);
+	// int getTransitionIndex(TRANSITION transition);
 
 	/**
 	 * Set the debugging flag to the given value. When true, debugging output
@@ -117,51 +110,4 @@ public interface EnablerIF<STATE, TRANSITION, TRANSITIONSEQUENCE> {
 	 */
 	PrintStream getDebugOut();
 
-	/**
-	 * Prints the current first transition in the sequence, preceded by the
-	 * index of the transition within the sequence.
-	 * 
-	 * @param out
-	 *            the stream to which to print
-	 * @param sequence
-	 *            the transition sequence
-	 */
-	void printFirstTransition(PrintStream out, TRANSITIONSEQUENCE sequence);
-
-	/**
-	 * Did the original sequence (before any calls to next) have more than one
-	 * element?
-	 * 
-	 * @return true iff sequence had at least 2 elements when it was created
-	 */
-	boolean hasMultiple(TRANSITIONSEQUENCE sequence);
-
-	/**
-	 * Returns the number of transitions that have been removed from this
-	 * sequence since it was created.
-	 * 
-	 * @return the number of transitions removed
-	 */
-	int numRemoved(TRANSITIONSEQUENCE sequence);
-
-	/**
-	 * Modifies the transition sequence by adding to it all enabled transitions
-	 * that are not in the ample set.
-	 * 
-	 * Precondition: sequence must not have been expanded previously
-	 * 
-	 * @param sequence
-	 *            the transition sequence to expand
-	 */
-	void expandTransitionSequence(TRANSITIONSEQUENCE sequence);
-
-	/**
-	 * Whether the transitionSequence has been expanded? I.e., has
-	 * {@link #expandTransitionSequence(Object)} been called?
-	 * 
-	 * @param sequence
-	 *            The target transition sequence.
-	 * @return true iff the sequence has been expanded.
-	 */
-	boolean expanded(TRANSITIONSEQUENCE sequence);
 }

@@ -2,7 +2,7 @@ package edu.udel.cis.vsl.gmc.simplemc;
 
 import edu.udel.cis.vsl.gmc.TraceStepIF;
 
-public class TraceStep implements TraceStepIF<Transition, State>{
+public class TraceStep implements TraceStepIF<State>{
 	private State state;
 	
 	TraceStep(State state){

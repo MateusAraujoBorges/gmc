@@ -6,18 +6,19 @@ package edu.udel.cis.vsl.gmc;
  * 
  * @author Manchun Zheng
  * 
- * @param <TRANSITION>
- *            the type used to represent transitions in the state-transition
- *            system being analyzed
  * @param <STATE>
  *            the type used to represent states in the state-transition system
  *            being analyzed
+ * 
  */
-public interface TraceStepIF<TRANSITION, STATE> {
+public interface TraceStepIF<STATE> {
 	/**
 	 * Returns the resulting state of the trace step.
 	 * 
 	 * @return the resulting state of the trace step.
 	 */
 	STATE getFinalState();
+
+	@Override
+	String toString();
 }

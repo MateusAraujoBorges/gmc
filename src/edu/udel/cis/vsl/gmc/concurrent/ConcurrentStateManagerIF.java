@@ -40,7 +40,7 @@ public interface ConcurrentStateManagerIF<STATE, TRANSITION> {
 	 *            an execution which is enabled at the given state
 	 * @return the trace step after executing the transition at the given state.
 	 */
-	public TraceStepIF<TRANSITION, STATE> nextState(int tid,
+	public TraceStepIF<STATE> nextState(int tid,
 			int transaction, STATE state, TRANSITION transition);
 
 	/**

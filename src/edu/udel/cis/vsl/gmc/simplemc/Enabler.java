@@ -1,8 +1,9 @@
 package edu.udel.cis.vsl.gmc.simplemc;
 
 import java.util.Random;
+
+import edu.udel.cis.vsl.gmc.TransitionSetIF;
 import edu.udel.cis.vsl.gmc.concurrent.ConcurrentEnablerIF;
-import edu.udel.cis.vsl.gmc.concurrent.TransitionSet;
 import edu.udel.cis.vsl.gmc.concurrent.util.Configuration;
 
 public class Enabler implements ConcurrentEnablerIF<State, Transition> {
@@ -57,7 +58,7 @@ public class Enabler implements ConcurrentEnablerIF<State, Transition> {
 	}
 
 	@Override
-	public TransitionSet<State, Transition> allEnabledTransitions(State state) {
+	public TransitionSetIF<State, Transition> allEnabledTransitions(State state) {
 		return null;
 	}
 

@@ -1,5 +1,7 @@
 package edu.udel.cis.vsl.gmc.concurrent;
 
+import edu.udel.cis.vsl.gmc.TransitionSetIF;
+
 /**
  * <p>
  * An ConcurrentEnablerIF tells you which transitions should be explored from a
@@ -7,7 +9,7 @@ package edu.udel.cis.vsl.gmc.concurrent;
  * methods in this interface should be thread safe.
  * </p>
  * <p>
- * The result {@link TransitionSet} may be cached to improve performance.
+ * The result {@link TransitionSetIF} may be cached to improve performance.
  * </p>
  * 
  * @author yanyihao
@@ -24,7 +26,7 @@ public interface ConcurrentEnablerIF<STATE, TRANSITION> {
 	 *            source state
 	 * @return the ample set of a given STATE
 	 */
-	TransitionSet<STATE, TRANSITION> ampleSet(STATE source);
+	TransitionSetIF<STATE, TRANSITION> ampleSet(STATE source);
 
 	/**
 	 * Get the TRANSIRTIONs that are not in the ample set of a given STATE.
@@ -33,7 +35,7 @@ public interface ConcurrentEnablerIF<STATE, TRANSITION> {
 	 *            source STATE
 	 * @return TRANSITIONs that are not in the ample set of a give STATE.
 	 */
-	TransitionSet<STATE, TRANSITION> ampleSetComplement(STATE s);
+	TransitionSetIF<STATE, TRANSITION> ampleSetComplement(STATE s);
 
 	/**
 	 * Get all the TRANSIRTIONs that are enabled at a STATE
@@ -42,5 +44,5 @@ public interface ConcurrentEnablerIF<STATE, TRANSITION> {
 	 *            source STATE
 	 * @return all the TRANSITIONs enabled by a given STATE
 	 */
-	TransitionSet<STATE, TRANSITION> allEnabledTransitions(STATE state);
+	TransitionSetIF<STATE, TRANSITION> allEnabledTransitions(STATE state);
 }
