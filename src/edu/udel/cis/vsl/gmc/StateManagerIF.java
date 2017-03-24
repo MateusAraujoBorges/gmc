@@ -181,7 +181,7 @@ public interface StateManagerIF<STATE, TRANSITION> {
 	 *            the boolean value that is going to be assigned to the
 	 *            "all-successors-on-stack" flag
 	 */
-	void setAllSuccessorsOnStack(STATE state, boolean value);
+	void setExpand(STATE state, boolean value);
 
 	/**
 	 * Get the value of the "all-successors-on-stack" flag of a state.
@@ -190,7 +190,7 @@ public interface StateManagerIF<STATE, TRANSITION> {
 	 *            the target state
 	 * @return the value for "all-successors-on-stack" flag
 	 */
-	boolean allSuccessorsOnStack(STATE state);
+	boolean expand(STATE state);
 
 	// optional methods for minimal DFS algorithm
 

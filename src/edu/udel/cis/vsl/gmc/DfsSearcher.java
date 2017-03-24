@@ -335,10 +335,11 @@ public class DfsSearcher<STATE, TRANSITION> {
 				STATE newState = traceStep.getFinalState();
 
 				// Optimization: Since one of the successor is not on stack, the
-				// allSuccessorsOnStack flag can be set to false.
-				if (!manager.allSuccessorsVisited(currentState)
-						&& !manager.onStack(newState)) {
-					manager.setAllSuccessorsOnStack(currentState, false);
+				// expand flag can be set to false.
+				if ((!manager.allSuccessorsVisited(currentState)
+						&& !manager.onStack(newState))
+						|| manager.allSuccessorsVisited(newState)) {
+					manager.setExpand(currentState, false);
 				}
 
 				numTransitions++;
@@ -361,10 +362,12 @@ public class DfsSearcher<STATE, TRANSITION> {
 					TransitionIteratorIF<STATE, TRANSITION> newIterator = newSet
 							.iterator();
 
-					// if new states does not have outgoing edges
-					if (!newIterator.hasNext())
-						manager.setAllSuccessorsOnStack(newState, false);
-
+					// assume a state must be fully expanded until proven
+					// otherwise.
+					if (newIterator.hasNext())
+						manager.setExpand(newState, true);
+					else
+						manager.setExpand(newState, false);
 					stack.push(newIterator);
 					manager.setSeen(newState, true);
 					manager.setOnStack(newState, true);
@@ -384,7 +387,7 @@ public class DfsSearcher<STATE, TRANSITION> {
 
 			// If all successors are on stack, then expand the transition set
 			if (!manager.allSuccessorsVisited(currentState)
-					&& manager.allSuccessorsOnStack(currentState)) {
+					&& manager.expand(currentState)) {
 				TransitionSetIF<STATE, TRANSITION> ampleSetComplement = enabler
 						.ampleSetComplement(currentSet);
 

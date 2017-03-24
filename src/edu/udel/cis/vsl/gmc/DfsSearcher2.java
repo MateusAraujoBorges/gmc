@@ -331,7 +331,7 @@ public class DfsSearcher2<STATE, TRANSITION> {
 
 				// check stack condition
 				if (!manager.allSuccessorsVisited(currentState) && !manager.onStack(newState)) {
-					manager.setAllSuccessorsOnStack(currentState, false);
+					manager.setExpand(currentState, false);
 				}
 
 				numTransitions++;
@@ -354,7 +354,7 @@ public class DfsSearcher2<STATE, TRANSITION> {
 
 					// if new states does not have outgoing edges
 					if (!newIterator.hasNext())
-						manager.setAllSuccessorsOnStack(newState, false);
+						manager.setExpand(newState, false);
 
 					stack.push(newIterator);
 					manager.setSeen(newState, true);
@@ -374,7 +374,7 @@ public class DfsSearcher2<STATE, TRANSITION> {
 			}
 			// If all successors are on stack, then expand the
 			// transitionsequence
-			if (!manager.allSuccessorsVisited(currentState) && manager.allSuccessorsOnStack(currentState)) {
+			if (!manager.allSuccessorsVisited(currentState) && manager.expand(currentState)) {
 				// enabler.expandTransitionSequence(sequence);
 				TransitionSetIF<STATE, TRANSITION> ampleSetComplement = enabler.ampleSetComplement(currentSet);
 
