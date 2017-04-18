@@ -64,40 +64,46 @@ public interface StateManagerIF<STATE, TRANSITION> {
 	boolean seen(STATE state);
 
 	/**
-	 * Sets the "on-the-stack flag" in the given state to the given value. The
-	 * method can be implemented in any way, as long as the corresponding method
-	 * to get the on-the-stack flag returns the correct result. It might be
-	 * implemented using a boolean field in the STATE class, or it might be
+	 * <p>
+	 * Sets the "stack position" field in the given state to the given value.
+	 * The method can be implemented in any way, as long as
+	 * {@link #stackPosition(STATE)} returns the correct result. It might be
+	 * implemented using a integer field in the STATE class, or it might be
 	 * implemented using a hash set in the manager class, or some other way.
-	 * 
-	 * The on-the-stack flag is intended to be used by a depth-first search
+	 * </p>
+	 * <p>
+	 * The "stack position" field is intended to be used by a depth-first search
 	 * algorithm, to mark that a state is currently on the depth-first search
 	 * stack.
+	 * </p>
+	 * <p>
+	 * The bottom element in the stack will have an index 0.
+	 * </p>
 	 * 
 	 * @param state
 	 *            any state in the state transition system
 	 * @param value
 	 *            the value you want to assign to the on-the-stack flag
-	 *            associated to that state
+	 *            associated to that state which is the index the state is at on
+	 *            the stack.
 	 */
-	void setOnStack(STATE state, boolean value);
+	void setStackPosition(STATE state, int stackIndex);
 
 	/**
-	 * Returns the value of the on-the-stack flag associated to the given state.
+	 * Get the position of this state on dfs stack or -1 if it is not on stack.
 	 * 
 	 * @param state
 	 *            any state in the state transition system
-	 * @return the current value of the on-the-stack flag associated to that
-	 *         state
+	 * @return position of this state on dfs stack or -1
 	 */
-	boolean onStack(STATE state);
+	int stackPosition(STATE state);
 
 	/**
 	 * @param state
 	 *            The target state.
 	 * @return true iff the target state has been expanded.
 	 */
-	boolean allSuccessorsVisited(STATE state);
+	boolean fullyExpanded(STATE state);
 
 	/**
 	 * Set the expanded flag of the target state.
@@ -105,7 +111,7 @@ public interface StateManagerIF<STATE, TRANSITION> {
 	 * @param state
 	 *            The target state.
 	 */
-	void setAllSuccessorsVisited(STATE state, boolean value);
+	void setFullyExpanded(STATE state, boolean value);
 
 	/**
 	 * Prints out a short human-readable representation of the state. This is

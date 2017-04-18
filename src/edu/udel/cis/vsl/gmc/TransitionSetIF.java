@@ -26,10 +26,10 @@ public interface TransitionSetIF<STATE, TRANSITION>
 	 * @return a iterator that will iterate the transition set in a fixed order.
 	 */
 	@Override
-	TransitionIteratorIF<STATE, TRANSITION> iterator();
+	TransitionIterator<STATE, TRANSITION> iterator();
 
 	// TODO get rid of it later.
-	TransitionIteratorIF<STATE, TRANSITION> randomIterator();
+	TransitionIterator<STATE, TRANSITION> randomIterator();
 
 	/**
 	 * @return true iff this {@link TransitionSetIF} has more than one element.

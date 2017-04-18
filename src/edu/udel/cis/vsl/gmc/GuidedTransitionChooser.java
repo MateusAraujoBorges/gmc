@@ -176,7 +176,7 @@ public class GuidedTransitionChooser<STATE, TRANSITION>
 			throws MisguidedExecutionException {
 		TransitionSetIF<STATE, TRANSITION> transitionSet = enabler
 				.ampleSet(state);
-		TransitionIteratorIF<STATE, TRANSITION> iterator = transitionSet
+		TransitionIterator<STATE, TRANSITION> iterator = transitionSet
 				.iterator();
 
 		if (!iterator.hasNext())

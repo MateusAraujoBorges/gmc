@@ -4,10 +4,10 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 
-import edu.udel.cis.vsl.gmc.TransitionIteratorIF;
+import edu.udel.cis.vsl.gmc.TransitionIterator;
 import edu.udel.cis.vsl.gmc.TransitionSetIF;
 
-public class RandomTransitionIterator implements TransitionIteratorIF<State, Transition>{
+public class RandomTransitionIterator extends TransitionIterator<State, Transition>{
 	
 	private TransitionSequence transitionSet;
 	private List<Integer> indexes;

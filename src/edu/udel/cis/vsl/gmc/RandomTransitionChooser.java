@@ -30,7 +30,7 @@ public class RandomTransitionChooser<STATE, TRANSITION, TRANSITIONSEQUENCE>
 		ArrayList<TRANSITION> transitions = new ArrayList<TRANSITION>();
 		TransitionSetIF<STATE, TRANSITION> transitionSet = enabler
 				.ampleSet(state);
-		TransitionIteratorIF<STATE, TRANSITION> iterator = transitionSet
+		TransitionIterator<STATE, TRANSITION> iterator = transitionSet
 				.iterator();
 		int n, i;
 
