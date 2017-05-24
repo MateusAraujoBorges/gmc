@@ -224,35 +224,40 @@ public class ConcurrentDfsSearcher<STATE, TRANSITION> {
 		private Stack<TransitionIterator<STATE, TRANSITION>> stack;
 
 		/**
-		 * The number of transitions executed since the beginning of the search.
+		 * TODO
+		 * <p>
+		 * depth bound is not yet used in concurrent depth first search. It will
+		 * be implemented in future.
+		 * </p>
+		 * 
+		 * <p>
+		 * upper bound of the search stack.
+		 * </p>
 		 */
-		private int numTransitions = 0;
+		// private int depthBound = Integer.MAX_VALUE;
 
 		/**
-		 * The number of states encountered which are recognized as having
-		 * already been seen earlier in the search.
-		 */
-		private int numStatesMatched = 0;
-
-		/**
-		 * The number of states seen in this search.
-		 */
-		private int numStatesSeen = 1;
-
-		/**
-		 * Upper bound on stack depth.
-		 */
-		private int depthBound = Integer.MAX_VALUE;
-
-		/**
+		 * TODO
+		 * <p>
+		 * Stack bound is not yet implemented in concurrent searcher.
+		 * </p>
+		 * <p>
 		 * Place an upper bound on stack size (depth).
+		 * <p>
 		 */
-		private boolean stackIsBounded = false;
+		// private boolean stackIsBounded = false;
 
 		/**
+		 * TODO
+		 * <p>
+		 * minimum counterExample is not yet implemented.
+		 * </p>
+		 * 
+		 * <p>
 		 * Are we searching for a minimal counterexample?
+		 * </p>
 		 */
-		private boolean minimize = false;
+		// private boolean minimize = false;
 
 		public SequentialDfsSearchTask(STATE initState, int id,
 				SequentialDfsSearchTask parent, AtomicInteger counter) {
@@ -280,36 +285,36 @@ public class ConcurrentDfsSearcher<STATE, TRANSITION> {
 			}
 		}
 
-		public StatePredicateIF<STATE> predicate() {
-			return predicate;
-		}
+		// public StatePredicateIF<STATE> predicate() {
+		// return predicate;
+		// }
 
-		public boolean isDepthBounded() {
-			return stackIsBounded;
-		}
+		// public boolean isDepthBounded() {
+		// return stackIsBounded;
+		// }
 
-		public void unboundDepth() {
-			this.stackIsBounded = false;
-			depthBound = Integer.MAX_VALUE;
-		}
+		// public void unboundDepth() {
+		// this.stackIsBounded = false;
+		// depthBound = Integer.MAX_VALUE;
+		// }
 
-		public void boundDepth(int value) {
-			depthBound = value;
-			stackIsBounded = true;
-		}
+		// public void boundDepth(int value) {
+		// depthBound = value;
+		// stackIsBounded = true;
+		// }
 
-		public void restrictDepth() {
-			depthBound = stack.size() - 1;
-			stackIsBounded = true;
-		}
+		// public void restrictDepth() {
+		// depthBound = stack.size() - 1;
+		// stackIsBounded = true;
+		// }
 
-		public void setMinimize(boolean value) {
-			this.minimize = value;
-		}
+		// public void setMinimize(boolean value) {
+		// this.minimize = value;
+		// }
 
-		public boolean getMinimize() {
-			return minimize;
-		}
+		// public boolean getMinimize() {
+		// return minimize;
+		// }
 
 		public Stack<TransitionIterator<STATE, TRANSITION>> stack() {
 			return stack;
