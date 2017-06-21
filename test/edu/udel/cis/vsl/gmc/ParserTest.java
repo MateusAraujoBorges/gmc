@@ -7,7 +7,11 @@ import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
-import edu.udel.cis.vsl.gmc.Option.OptionType;
+import edu.udel.cis.vsl.gmc.seq.CommandLineException;
+import edu.udel.cis.vsl.gmc.seq.CommandLineParser;
+import edu.udel.cis.vsl.gmc.seq.GMCConfiguration;
+import edu.udel.cis.vsl.gmc.seq.Option;
+import edu.udel.cis.vsl.gmc.seq.Option.OptionType;
 
 public class ParserTest {
 
