@@ -11,7 +11,7 @@ import java.util.LinkedList;
  */
 public class MatrixDirectedGraph {
 	/**
-	 * The square matrix which represents a directed graph
+	 * The square matrix which represents a directed state-transition graph
 	 */
 	private String[][] matrix;
 
@@ -24,9 +24,8 @@ public class MatrixDirectedGraph {
 	 * Constructs a {@link MatrixDirectedGraph} with given
 	 * <code>squareMatrix</code>. <br>
 	 * The <code>squareMatrix</code> is a 2-dimensional String matrix.The row
-	 * index is the id of the source {@link State}, the column index is the id
-	 * of the destination {@link State}, and the String element in the matrix is
-	 * the label of corresponding transition.<br>
+	 * index is the source state, the column index is the the destination state,
+	 * and the String element in the matrix is the corresponding transition.<br>
 	 * E.g., <br>
 	 * 
 	 * <pre>
@@ -41,13 +40,12 @@ public class MatrixDirectedGraph {
 	 * </pre>
 	 * 
 	 * <br>
-	 * For each {@link State} <code>s</code>, if <code>s</code> has <strong>at
-	 * least one outgoing transition</strong> with a label starting with '@'
-	 * then the ample set for <code>s</code> consists of all transitions
-	 * departing from <code>s</code> whose labels start with '@'. If
-	 * <code>s</code> has no outgoing transition with label beginning with '@'
-	 * then the ample set consists of all transitions departing from
-	 * <code>s</code>.<br>
+	 * For each state <code>s</code>, if <code>s</code> has <strong>at least one
+	 * outgoing transition</strong> starting with '@' then the ample set for
+	 * <code>s</code> consists of all transitions departing from <code>s</code>
+	 * whose names start with '@'. If <code>s</code> has no outgoing transition
+	 * with name beginning with '@' then the ample set consists of all
+	 * transitions departing from <code>s</code>.<br>
 	 * E.g., <br>
 	 * 
 	 * <pre>
@@ -73,70 +71,69 @@ public class MatrixDirectedGraph {
 	 * @throws Exception
 	 */
 	public MatrixDirectedGraph(String[][] squareMatrix) throws Exception {
-		// properties checking
-		int colLength = squareMatrix.length;
+		int rowLength = squareMatrix.length;
 
-		for (int i = 0; i < colLength; i++)
-			if (squareMatrix[i].length != colLength)
+		for (int i = 0; i < rowLength; i++)
+			if (squareMatrix[i].length != rowLength)
 				throw new Exception("Given matrix must be a square matrix.");
-
 		this.matrix = squareMatrix;
-		this.numStates = colLength;
+		this.numStates = rowLength;
 	}
 
 	/**
-	 * Get all outgoing transition labels from the given source state value in
-	 * <code>this</code> graph.
+	 * Get all outgoing transitions from the given source state to all other
+	 * states in <code>this</code> graph. If there is no transition between the
+	 * <code>sourceState</code> and the specific destination state then the
+	 * corresponding transition is <code>null</code>
 	 * 
-	 * @param sourceStateValue
-	 *            The value of a source node.
-	 * @return a String array consisting of all transitions
+	 * @param sourceState
+	 *            The source state.
+	 * @return an array consisting of all transitions outgoing from the given
+	 *         state
 	 */
-	public String[] allTransitions(int sourceStateValue) {
+	public String[] allTransitions(Integer sourceState) {
 		String[] transitions = new String[numStates];
 
-		assert sourceStateValue >= 0 && sourceStateValue < numStates;
+		assert sourceState >= 0 && sourceState < numStates;
 		for (int i = 0; i < numStates; i++) {
-			transitions[i] = matrix[sourceStateValue][i];
+			transitions[i] = matrix[sourceState][i];
 		}
 		return transitions;
 	}
 
 	/**
-	 * Compute the state value of the destination {@link State} with given
-	 * <code>sourceStateValue</code> and <code>transition</code>.
+	 * Find the destination state with the given <code>sourceState</code> and
+	 * <code>transition</code>.
 	 * 
-	 * @param sourceStateValue
-	 *            the value of the source state
+	 * @param sourceState
+	 *            the source state
 	 * @param transition
-	 *            the transition outgoing from the {@link State} with the state
-	 *            value of <code>sourceStateValue</code>
-	 * @return the state value of the destination state; if the destination
-	 *         state is not found then {@link Integer#MIN_VALUE} will be
-	 *         returned.
+	 *            the transition outgoing from the <code>sourceState</code>
+	 * @return the destination state; if it is not found then
+	 *         {@link Integer#MIN_VALUE} will be returned.
 	 */
-	public int getDestStateValue(int sourceStateValue, String transition) {
-		assert sourceStateValue >= 0 && sourceStateValue < numStates;
+	public Integer getDestState(Integer sourceState, String transition) {
+		assert sourceState >= 0 && sourceState < numStates;
 		for (int i = 0; i < numStates; i++)
-			if (matrix[sourceStateValue][i] != null
-					&& matrix[sourceStateValue][i].equals(transition))
+			if (matrix[sourceState][i] != null
+					&& matrix[sourceState][i].equals(transition))
 				return i;
 		return Integer.MIN_VALUE;
 	}
 
 	/**
-	 * Get all outgoing transition labels from the given source state value in
-	 * <code>this</code> graph.
+	 * Get all existing outgoing transitions from the given
+	 * <code>sourceState</code> in <code>this</code> graph.
 	 * 
-	 * @param sourceStateValue
-	 *            The state value of the given source state.
+	 * @param sourceState
+	 *            The source state.
 	 * @return a {@link LinkedList} of outgoing transitions
 	 */
-	public LinkedList<String> outgoingTransitions(int sourceStateValue) {
+	public LinkedList<String> existingTransitions(Integer sourceState) {
 		LinkedList<String> transitions = new LinkedList<String>();
 
-		assert sourceStateValue >= 0 && sourceStateValue < numStates;
-		for (String transition : matrix[sourceStateValue])
+		assert sourceState >= 0 && sourceState < numStates;
+		for (String transition : matrix[sourceState])
 			if (transition != null)
 				transitions.add(transition);
 		return transitions;

@@ -7,16 +7,16 @@ import edu.udel.cis.vsl.gmc.seq.TraceStepIF;
  * 
  * @author Wenhao Wu (wuwenhao@udel.edu)
  */
-public class TraceStep implements TraceStepIF<State> {
+public class TraceStep implements TraceStepIF<Integer> {
 	/**
 	 * The transition related with <code>this</code> trace step.
 	 */
 	private String transition;
 
 	/**
-	 * The final {@link State} of <code>this</code> trace-steps
+	 * The final state of <code>this</code> trace-step
 	 */
-	private State finalState;
+	private Integer finalState;
 
 	/**
 	 * Construct an instance of {@link TraceStep} with given
@@ -25,15 +25,15 @@ public class TraceStep implements TraceStepIF<State> {
 	 * @param transition
 	 *            the transition related with <code>this</code> trace step.
 	 * @param finalState
-	 *            the final {@link State} of <code>this</code> trace step.
+	 *            the final state of <code>this</code> trace step.
 	 */
-	public TraceStep(String transition, State finalState) {
+	public TraceStep(String transition, Integer finalState) {
 		this.transition = transition;
 		this.finalState = finalState;
 	}
 
 	@Override
-	public State getFinalState() {
+	public Integer getFinalState() {
 		return this.finalState;
 	}
 
@@ -43,9 +43,9 @@ public class TraceStep implements TraceStepIF<State> {
 
 		sBuilder.append("['");
 		sBuilder.append(transition);
-		sBuilder.append("'=>");
+		sBuilder.append("'=>State<");
 		sBuilder.append(finalState);
-		sBuilder.append("]");
+		sBuilder.append(">]");
 		return sBuilder.toString();
 	}
 }

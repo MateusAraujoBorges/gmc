@@ -10,7 +10,7 @@ import edu.udel.cis.vsl.gmc.seq.TraceStepIF;
  * 
  * @author Wenhao Wu (wuwenhao@udel.edu)
  */
-public class SimpleStateManager extends StateManager<State, String> {
+public class SimpleStateManager extends StateManager<Integer, String> {
 	/**
 	 * The {@link MatrixDirectedGraph} represents the state-transition map.
 	 */
@@ -21,42 +21,38 @@ public class SimpleStateManager extends StateManager<State, String> {
 	}
 
 	@Override
-	public TraceStepIF<State> nextState(State state, String transition) {
-		int destStateValue = graph.getDestStateValue(state.getValue(),
-				transition);
-
-		return new TraceStep(transition, new State(destStateValue));
+	public TraceStepIF<Integer> nextState(Integer state, String transition) {
+		return new TraceStep(transition, graph.getDestState(state, transition));
 	}
 
 	@Override
-	public int getId(State normalizedState) {
-		return normalizedState.getId();
+	public int getId(Integer normalizedState) {
+		return normalizedState;
 	}
 
 	@Override
-	public void normalize(TraceStepIF<State> traceStep) {
+	public void normalize(TraceStepIF<Integer> traceStep) {
 		// Do nothing
 	}
 
 	@Override
-	public void printStateShort(PrintStream out, State state) {
-		System.out.println("{" + state.getValue() + "}");
+	public void printStateShort(PrintStream out, Integer state) {
+		System.out.println("S:<" + state + ">");
 	}
 
 	@Override
-	public void printStateLong(PrintStream out, State state) {
-		System.out.println(state);
+	public void printStateLong(PrintStream out, Integer state) {
+		System.out.println("State<" + state + ">");
 	}
 
 	@Override
 	public void printTransitionShort(PrintStream out, String transition) {
-		System.out.println(transition);
+		System.out.println("T:'" + transition + "'");
 	}
 
 	@Override
 	public void printTransitionLong(PrintStream out, String transition) {
-		System.err.println("smc.StateManager.printTransitionLong method"
-				+ " is not implemented yet.");
+		System.out.println("Transition'" + transition + "'");
 
 	}
 
@@ -75,20 +71,21 @@ public class SimpleStateManager extends StateManager<State, String> {
 	}
 
 	@Override
-	public void printTraceStep(State sourceState,
-			TraceStepIF<State> traceStep) {
+	public void printTraceStep(Integer sourceState,
+			TraceStepIF<Integer> traceStep) {
 		StringBuilder sBuilder = new StringBuilder();
 
-		sBuilder.append("SourceState:");
+		sBuilder.append("SourceState<");
 		sBuilder.append(sourceState);
-		sBuilder.append("\n TraceStep:");
+		sBuilder.append(">\n TraceStep:");
 		sBuilder.append(traceStep);
 		System.out.println(sBuilder);
 	}
 
 	@Override
-	public void printTraceStepFinalState(State finalState, int normalizedID) {
-		System.out.println("FinalState:" + finalState);
+	public void printTraceStepFinalState(Integer finalState, int normalizedID) {
+		System.out.println(
+				"[" + normalizedID + "]FinalState<" + finalState + ">");
 	}
 
 }

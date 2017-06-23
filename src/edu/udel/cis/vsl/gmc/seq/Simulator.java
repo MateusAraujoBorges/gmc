@@ -6,12 +6,12 @@ import java.io.OutputStream;
 import java.io.PrintStream;
 
 /**
- * TODO: CHANGE THE NAME. This is now more general. It is used to execute the
- * system using any chooser.
- * 
- * A Replayer is used to replay an execution trace of a transition system. The
- * trace is typically stored in a file created by method
- * {@link DfsSearcher#writeStack(File)}.
+ * A {@link Simulator} is used to execute a transition system using a
+ * {@link TransitionChooser} to determine which transition to execute from each
+ * state. E.g., this could be used to replay an execution trace of a transition
+ * system, for which the trace was stored in a file created by method
+ * {@link DfsSearcher#writeStack(File)}. Or, it could be used to perform a
+ * random execution.
  * 
  * @author siegel
  * 
@@ -19,11 +19,8 @@ import java.io.PrintStream;
  *            the type for the states in the transition system
  * @param <TRANSITION>
  *            the type for the transitions in the transition system
- * @param <TRANSITIONSEQUENCE>
- *            the type for a sequence of transitions emanating from a single
- *            state
  */
-public class Replayer<STATE, TRANSITION> {
+public class Simulator<STATE, TRANSITION> {
 
 	// Instance fields...
 	/**
@@ -79,8 +76,7 @@ public class Replayer<STATE, TRANSITION> {
 	 *            stream to which the trace should be written in human-readable
 	 *            form
 	 */
-	public Replayer(StateManager<STATE, TRANSITION> manager,
-			PrintStream out) {
+	public Simulator(StateManager<STATE, TRANSITION> manager, PrintStream out) {
 		this.manager = manager;
 		this.out = out;
 	}
@@ -268,7 +264,9 @@ public class Replayer<STATE, TRANSITION> {
 				traceStep = manager.nextState(current, transition);
 				manager.normalize(traceStep);
 				traces[i].addTraceStep(traceStep);
+				manager.printTraceStep(current, traceStep);
 				newStates[i] = traceStep.getFinalState();
+				manager.printTraceStepFinalState(newStates[i], -1);
 			}
 			if (!hasNewTransition)
 				break;

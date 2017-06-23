@@ -12,7 +12,7 @@ import edu.udel.cis.vsl.gmc.seq.EnablerIF;
  * @author Ziqing Luo
  * @author Wenhao Wu (wuwenhao@udel.edu)
  */
-public class SMCEnabler implements EnablerIF<State, String> {
+public class SMCEnabler implements EnablerIF<Integer, String> {
 
 	/**
 	 * The directed graph of the state-transition model
@@ -37,28 +37,26 @@ public class SMCEnabler implements EnablerIF<State, String> {
 	 * {@inheritDoc}<br>
 	 * <p>
 	 * Note that, all transitions in a same {@link Collection} should share a
-	 * same source {@link State}. (Because the SMC uses the fly-weight)
+	 * same source state. (Because the SMC uses the fly-weight)
 	 * </p>
 	 */
 	@Override
-	public Collection<String> ampleSet(State source) {
-		LinkedList<String> outgoingTransitions = graph
-				.outgoingTransitions(source.getValue());
+	public Collection<String> ampleSet(Integer source) {
+		LinkedList<String> existingTransitions = graph
+				.existingTransitions(source);
 		LinkedList<String> ampleSet = new LinkedList<>();
 
-		for (String transition : outgoingTransitions) {
-			if (transition.startsWith("@")) {
+		for (String transition : existingTransitions)
+			if (transition.startsWith("@"))
 				ampleSet.add(transition);
-			}
-		}
 		if (ampleSet.isEmpty())
-			return outgoingTransitions;
+			return existingTransitions;
 		return ampleSet;
 	}
 
 	@Override
-	public Collection<String> fullSet(State state) {
-		return graph.outgoingTransitions(state.getValue());
+	public Collection<String> fullSet(Integer state) {
+		return graph.existingTransitions(state);
 	}
 
 	@Override

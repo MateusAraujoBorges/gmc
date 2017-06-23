@@ -171,8 +171,7 @@ public abstract class StateManager<STATE, TRANSITION> {
 			else
 				return -1;
 		}
-		throw new RuntimeException(
-				"Sequential node factory haven't been initialized.");
+		return -1;
 	}
 
 	public void setSequentialNodeFactory(

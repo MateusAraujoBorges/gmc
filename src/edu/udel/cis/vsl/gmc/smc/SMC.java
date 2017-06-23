@@ -1,6 +1,6 @@
 package edu.udel.cis.vsl.gmc.smc;
 
-import static edu.udel.cis.vsl.gmc.smc.SMCConstants.DEFAULT_SOURCE_STATE_VALUE;
+import static edu.udel.cis.vsl.gmc.smc.SMCConstants.DEFAULT_SOURCE_STATE;
 
 import edu.udel.cis.vsl.gmc.seq.DfsSearcher;
 import edu.udel.cis.vsl.gmc.seq.EnablerIF;
@@ -18,12 +18,12 @@ import edu.udel.cis.vsl.gmc.seq.StatePredicateIF;
 public class SMC {
 	/**
 	 * The implementation of {@link EnablerIF} used for constructing the
-	 * Transition-{@link State} system.
+	 * Transition-state system.
 	 */
-	private EnablerIF<State, String> enabler = null;
+	private EnablerIF<Integer, String> enabler = null;
 
 	/**
-	 * The {@link SimpleStateManager} used for exploring successor {@link State}s.
+	 * The {@link SimpleStateManager} used for exploring successor state s.
 	 */
 	private SimpleStateManager stateManager = null;
 
@@ -35,7 +35,7 @@ public class SMC {
 	/**
 	 * For a given {@link MatrixDirectedGraph} <code>graph</code>, a
 	 * <code>predicate</code> implementing {@link StatePredicateIF} and a
-	 * starting {@link State} <code>initialState</code>,<br>
+	 * starting state <code>initialState</code>,<br>
 	 * If the <code>predicate</code> is hold, <code>true</code> will be
 	 * returned, else <code>false</code>.
 	 * 
@@ -44,14 +44,14 @@ public class SMC {
 	 * @param predicate
 	 *            A predicate of a property
 	 * @param initialState
-	 *            The starting {@link State}
+	 *            The starting state
 	 * @return <code>true</code> iff there is a state in the violation state
 	 *         list, else <code>false</code>.
 	 */
 	public boolean run(MatrixDirectedGraph graph,
-			StatePredicateIF<State> predicate, State initialState,
+			StatePredicateIF<Integer> predicate, Integer initialState,
 			GMCConfiguration config) {
-		DfsSearcher<State, String> searcher;
+		DfsSearcher<Integer, String> searcher;
 
 		this.enabler = new SMCEnabler(graph);
 		this.stateManager = new SimpleStateManager(graph);
@@ -82,8 +82,8 @@ public class SMC {
 	 *         list, else <code>false</code>.
 	 */
 	public boolean run(MatrixDirectedGraph graph,
-			StatePredicateIF<State> predicate, GMCConfiguration config) {
-		return run(graph, predicate, new State(DEFAULT_SOURCE_STATE_VALUE),
+			StatePredicateIF<Integer> predicate, GMCConfiguration config) {
+		return run(graph, predicate, DEFAULT_SOURCE_STATE,
 				config);
 	}
 

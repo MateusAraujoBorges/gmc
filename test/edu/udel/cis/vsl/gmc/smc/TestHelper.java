@@ -29,7 +29,7 @@ public class TestHelper {
 		transMap[srcStateId][destStateId] = transitionLabel;
 	}
 
-	public void generateViolationPredicate(int... stateIds) {
+	public void generateViolationPredicate(Integer... stateIds) {
 		predicate = new Predicate(stateIds);
 	}
 

@@ -9,9 +9,11 @@ import java.util.SortedMap;
 import java.util.TreeMap;
 
 /**
+ * <p>
  * A log for recording errors and corresponding traces encountered during a
  * model checking run.
- * 
+ * </p>
+ * <p>
  * In the course of performing a search, various kinds of "errors" may be
  * encountered. These do not necessarily pause the search. They are not even
  * necessarily noticed by the searcher. Each application using this package is
@@ -20,14 +22,16 @@ import java.util.TreeMap;
  * or in the process of executing a transition. Division by zero, null pointer
  * dereferences, and so on, are typical errors that should be logged and
  * reported.
- * 
+ * </p>
+ * <p>
  * This class provides a convenient mechanism for logging such as errors as the
  * search progresses. Many applications do not necessarily stop after the first
  * error is discovered, but instead take some corrective mechanism (like
  * constraining the path condition in symbolic execution) and proceed with the
  * search. Those applications can use this class to record the errors
  * encountered.
- * 
+ * </p>
+ * <p>
  * In addition to recording errors, this class provides a number of convenient
  * services: using information provided by the application, it can determine
  * when two errors are considered "equivalent" and therefore only one instance
@@ -35,6 +39,7 @@ import java.util.TreeMap;
  * are reported to the user first; it can associate a trace to each error and
  * save these in a file, so the user can later replay the trace associate to
  * each error discovered.
+ * </p>
  * 
  * @author Stephen F. Siegel, University of Delaware
  * 

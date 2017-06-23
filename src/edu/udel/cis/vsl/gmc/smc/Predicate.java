@@ -1,33 +1,34 @@
 package edu.udel.cis.vsl.gmc.smc;
 
 import java.util.Collection;
+import java.util.Collections;
 import java.util.LinkedList;
 
 import edu.udel.cis.vsl.gmc.seq.StatePredicateIF;
 
 /**
- * The predicate used for detecting violation {@link State} defined in the given
- * list <code>states</code>. <br>
+ * The predicate used for detecting violation state defined in the given list
+ * <code>states</code>. <br>
  * 
  * @author Wenhao Wu (wuwenhao@udel.edu)
  *
  */
-public class Predicate implements StatePredicateIF<State> {
+public class Predicate implements StatePredicateIF<Integer> {
 	/**
-	 * The violation state array.<br>
-	 * If any {@link State} is in this array, that state is considered as a
-	 * violation.
+	 * The violation state collection.<br>
+	 * If any state is in this collection, that state is considered as a
+	 * violation state.
 	 */
-	private Collection<Integer> violationValues = new LinkedList<>();
+	private Collection<Integer> violationStates = new LinkedList<>();
 
 	/**
-	 * Temporarily store the latest detected violation state for explaining.
+	 * Temporarily store the latest detected violation state for
+	 * {@link #explanation()}.
 	 */
-	private State violatedState;
+	private Integer detectedViolationState;
 
-	public Predicate(int... stateValues) {
-		for (int x : stateValues)
-			violationValues.add(x);
+	public Predicate(Integer... states) {
+		Collections.addAll(violationStates, states);
 	}
 
 	/**
@@ -35,16 +36,16 @@ public class Predicate implements StatePredicateIF<State> {
 	 * <p>
 	 * For the Violation State Predicate, if the given <code>state<state> is in
 	 * the field <code>violationStates</code>, this function will return
-	 * <code>true</code> (which will make the checker report a violation), else
-	 * <code>false<code>.
+	 * <code>true</code> (which will make the SMC return <code>false</code> for
+	 * this violation), else <code>false<code>.
 	 * </p>
 	 */
 	@Override
-	public boolean holdsAt(State state) {
-		boolean result = violationValues.contains(state.getValue());
+	public boolean holdsAt(Integer state) {
+		boolean result = violationStates.contains(state);
 
 		if (result)
-			this.violatedState = state;
+			this.detectedViolationState = state;
 		return result;
 	}
 
@@ -54,12 +55,12 @@ public class Predicate implements StatePredicateIF<State> {
 
 		sBuilder.append("Violation type: ");
 		sBuilder.append(Predicate.class.getName());
-		sBuilder.append("\n");
-		sBuilder.append(violatedState);
-		sBuilder.append(" is in the violation state list: \n\t{");
-		for (int val : violationValues) {
+		sBuilder.append("\nState<");
+		sBuilder.append(detectedViolationState);
+		sBuilder.append("> is in the violation state collection: \n\t{");
+		for (Integer state : violationStates) {
 			sBuilder.append("<");
-			sBuilder.append(val);
+			sBuilder.append(state);
 			sBuilder.append(">,");
 		}
 		sBuilder.append("}");

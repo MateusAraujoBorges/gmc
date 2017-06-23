@@ -19,10 +19,10 @@ public class SMCConstants {
 			"stop after finding this many errors", DEFAULT_ERROR_BOUND);
 
 	/**
-	 * The starting state value is {@value #DEFAULT_SOURCE_STATE_VALUE} by
+	 * The starting state value is {@value #DEFAULT_SOURCE_STATE} by
 	 * default.
 	 */
-	static final int DEFAULT_SOURCE_STATE_VALUE = 0;
+	static final int DEFAULT_SOURCE_STATE = 0;
 
 	/**
 	 * The directory name that the replay output of SMC will be written to.

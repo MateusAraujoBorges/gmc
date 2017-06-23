@@ -55,18 +55,18 @@ public class CoverageTest {
 	 * @throws Exception
 	 */
 	private void checkAssertions(boolean hasViolation) throws Exception {
+		Integer lastState = (new SMCSimulator(config, System.out))
+				.run(helper.getTransitionGraph(), helper.getPredicate())
+				.lastState();
+
+		assertTrue(helper.getTransitionGraph().existingTransitions(lastState)
+				.size() == 0);
 		if (hasViolation) {
 			assertTrue(smc.run(helper.getTransitionGraph(),
 					helper.getPredicate(), config));
-			assertTrue((new SMCTracePlayer(config, System.out))
-					.run(helper.getTransitionGraph(), helper.getPredicate())
-					.result());
 		} else {
 			assertFalse(smc.run(helper.getTransitionGraph(),
 					helper.getPredicate(), config));
-			assertFalse((new SMCTracePlayer(config, System.out))
-					.run(helper.getTransitionGraph(), helper.getPredicate())
-					.result());
 		}
 	}
 
@@ -244,7 +244,7 @@ public class CoverageTest {
 		helper.addTrans("@t1", 1, 2);
 		helper.addTrans("t2", 1, 3);
 		helper.printMat(DEBUG);
-		helper.generateViolationPredicate(2);
+		helper.generateViolationPredicate(2, 3);
 		helper.printViolationStatePredicate(DEBUG);
 		checkAssertions(false);
 	}

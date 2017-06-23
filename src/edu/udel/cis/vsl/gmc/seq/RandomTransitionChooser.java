@@ -5,10 +5,25 @@ import java.util.Collection;
 import java.util.Iterator;
 import java.util.Random;
 
+/**
+ * An implementation of {@link TransitionChooser} in which a transition is
+ * chosen randomly from the full set of the enabled transitions enabled at a
+ * state.
+ * 
+ * @author Stephen F. Siegel (siegel@udel.edu)
+ *
+ * @param <STATE>
+ *            the type for the states of the transition system
+ * @param <TRANSITION>
+ *            the type for the transitions of the transition system
+ */
 public class RandomTransitionChooser<STATE, TRANSITION>
 		implements
 			TransitionChooser<STATE, TRANSITION> {
 
+	/**
+	 * The seed used to create the {@link Random} number generator.
+	 */
 	private long seed;
 
 	private EnablerIF<STATE, TRANSITION> enabler;
@@ -30,8 +45,8 @@ public class RandomTransitionChooser<STATE, TRANSITION>
 	public TRANSITION chooseEnabledTransition(STATE state)
 			throws MisguidedExecutionException {
 		ArrayList<TRANSITION> transitions = new ArrayList<TRANSITION>();
-		Collection<TRANSITION> ampleSet = enabler.ampleSet(state);
-		Iterator<TRANSITION> iterator = ampleSet.iterator();
+		Collection<TRANSITION> enabledTransitions = enabler.fullSet(state);
+		Iterator<TRANSITION> iterator = enabledTransitions.iterator();
 		int n, i;
 
 		while (iterator.hasNext())

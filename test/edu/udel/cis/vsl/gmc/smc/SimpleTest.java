@@ -60,21 +60,24 @@ public class SimpleTest {
 	/**
 	 * Check assertions
 	 * 
+	 * @TODO: Check the random simulator has no enabled transitions from the
+	 *        final state.
+	 * 
 	 * @throws Exception
 	 */
 	private void checkAssertions(boolean hasViolation) throws Exception {
+		Integer lastState = (new SMCSimulator(config, System.out))
+				.run(helper.getTransitionGraph(), helper.getPredicate())
+				.lastState();
+
+		assertTrue(helper.getTransitionGraph().existingTransitions(lastState)
+				.size() == 0);
 		if (hasViolation) {
 			assertTrue(smc.run(helper.getTransitionGraph(),
 					helper.getPredicate(), config));
-			assertTrue((new SMCTracePlayer(config, System.out))
-					.run(helper.getTransitionGraph(), helper.getPredicate())
-					.result());
 		} else {
 			assertFalse(smc.run(helper.getTransitionGraph(),
 					helper.getPredicate(), config));
-			assertFalse((new SMCTracePlayer(config, System.out))
-					.run(helper.getTransitionGraph(), helper.getPredicate())
-					.result());
 		}
 	}
 
