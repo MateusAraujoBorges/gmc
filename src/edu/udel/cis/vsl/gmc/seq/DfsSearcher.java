@@ -4,6 +4,9 @@ import java.io.PrintStream;
 import java.util.Collection;
 import java.util.Stack;
 
+import edu.udel.cis.vsl.gmc.GMCConfiguration;
+import edu.udel.cis.vsl.gmc.StatePredicateIF;
+import edu.udel.cis.vsl.gmc.TraceStepIF;
 import edu.udel.cis.vsl.gmc.util.Utils;
 
 /**

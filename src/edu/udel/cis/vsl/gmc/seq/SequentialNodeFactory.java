@@ -4,6 +4,8 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 
+import edu.udel.cis.vsl.gmc.TraceStepIF;
+
 /**
  * The factory to get a GMC search {@link SequentialNode}, if the
  * {@link SequentialNode} has been seen before, the seen {@link SequentialNode}

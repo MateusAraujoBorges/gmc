@@ -1,4 +1,4 @@
-package edu.udel.cis.vsl.gmc.seq;
+package edu.udel.cis.vsl.gmc;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -9,6 +9,7 @@ import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.NoSuchElementException;
 
+import edu.udel.cis.vsl.gmc.seq.EnablerIF;
 import edu.udel.cis.vsl.gmc.util.Pair;
 import edu.udel.cis.vsl.gmc.util.Utils;
 

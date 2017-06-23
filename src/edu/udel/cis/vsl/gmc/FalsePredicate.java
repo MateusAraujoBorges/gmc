@@ -1,4 +1,4 @@
-package edu.udel.cis.vsl.gmc.seq;
+package edu.udel.cis.vsl.gmc;
 
 /**
  * The state predicate which simply returns "false" at every state. This is

@@ -7,15 +7,15 @@ import static edu.udel.cis.vsl.gmc.smc.SMCConstants.DEFAULT_SOURCE_STATE;
 import java.io.File;
 import java.io.PrintStream;
 
+import edu.udel.cis.vsl.gmc.ErrorLog;
+import edu.udel.cis.vsl.gmc.GMCConfiguration;
+import edu.udel.cis.vsl.gmc.MisguidedExecutionException;
+import edu.udel.cis.vsl.gmc.RandomTransitionChooser;
+import edu.udel.cis.vsl.gmc.Simulator;
+import edu.udel.cis.vsl.gmc.StatePredicateIF;
+import edu.udel.cis.vsl.gmc.Trace;
+import edu.udel.cis.vsl.gmc.TransitionChooser;
 import edu.udel.cis.vsl.gmc.seq.EnablerIF;
-import edu.udel.cis.vsl.gmc.seq.ErrorLog;
-import edu.udel.cis.vsl.gmc.seq.GMCConfiguration;
-import edu.udel.cis.vsl.gmc.seq.MisguidedExecutionException;
-import edu.udel.cis.vsl.gmc.seq.RandomTransitionChooser;
-import edu.udel.cis.vsl.gmc.seq.Simulator;
-import edu.udel.cis.vsl.gmc.seq.StatePredicateIF;
-import edu.udel.cis.vsl.gmc.seq.Trace;
-import edu.udel.cis.vsl.gmc.seq.TransitionChooser;
 
 /**
  * 

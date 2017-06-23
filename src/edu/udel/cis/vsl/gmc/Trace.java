@@ -1,4 +1,4 @@
-package edu.udel.cis.vsl.gmc.seq;
+package edu.udel.cis.vsl.gmc;
 
 import java.util.ArrayList;
 import java.util.List;

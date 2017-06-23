@@ -2,10 +2,10 @@ package edu.udel.cis.vsl.gmc.smc;
 
 import static edu.udel.cis.vsl.gmc.smc.SMCConstants.DEFAULT_SOURCE_STATE;
 
+import edu.udel.cis.vsl.gmc.GMCConfiguration;
+import edu.udel.cis.vsl.gmc.StatePredicateIF;
 import edu.udel.cis.vsl.gmc.seq.DfsSearcher;
 import edu.udel.cis.vsl.gmc.seq.EnablerIF;
-import edu.udel.cis.vsl.gmc.seq.GMCConfiguration;
-import edu.udel.cis.vsl.gmc.seq.StatePredicateIF;
 
 /**
  * This is a simple sequential model checker (SMC) implementing general model

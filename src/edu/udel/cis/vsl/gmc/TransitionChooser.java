@@ -1,4 +1,4 @@
-package edu.udel.cis.vsl.gmc.seq;
+package edu.udel.cis.vsl.gmc;
 
 /**
  * General interface for an object which can select one enabled transition from

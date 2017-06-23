@@ -9,7 +9,7 @@ import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
-import edu.udel.cis.vsl.gmc.seq.GMCConfiguration;
+import edu.udel.cis.vsl.gmc.GMCConfiguration;
 
 public class CoverageTest {
 	/**

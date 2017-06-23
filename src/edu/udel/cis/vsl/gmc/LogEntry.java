@@ -1,4 +1,4 @@
-package edu.udel.cis.vsl.gmc.seq;
+package edu.udel.cis.vsl.gmc;
 
 import java.io.File;
 import java.io.PrintStream;

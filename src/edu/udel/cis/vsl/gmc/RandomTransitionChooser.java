@@ -1,9 +1,11 @@
-package edu.udel.cis.vsl.gmc.seq;
+package edu.udel.cis.vsl.gmc;
 
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.Random;
+
+import edu.udel.cis.vsl.gmc.seq.EnablerIF;
 
 /**
  * An implementation of {@link TransitionChooser} in which a transition is

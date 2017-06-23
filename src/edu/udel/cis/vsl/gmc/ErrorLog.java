@@ -1,4 +1,4 @@
-package edu.udel.cis.vsl.gmc.seq;
+package edu.udel.cis.vsl.gmc;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -7,6 +7,8 @@ import java.io.PrintStream;
 import java.util.Date;
 import java.util.SortedMap;
 import java.util.TreeMap;
+
+import edu.udel.cis.vsl.gmc.seq.DfsSearcher;
 
 /**
  * <p>

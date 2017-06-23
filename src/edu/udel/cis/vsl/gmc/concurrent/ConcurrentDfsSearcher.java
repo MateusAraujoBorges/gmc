@@ -9,8 +9,8 @@ import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.ForkJoinTask;
 import java.util.concurrent.atomic.AtomicInteger;
 
+import edu.udel.cis.vsl.gmc.StatePredicateIF;
 import edu.udel.cis.vsl.gmc.seq.EnablerIF;
-import edu.udel.cis.vsl.gmc.seq.StatePredicateIF;
 import edu.udel.cis.vsl.gmc.util.Utils;
 
 /**

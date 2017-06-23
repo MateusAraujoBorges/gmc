@@ -1,7 +1,7 @@
 /**
  * 
  */
-package edu.udel.cis.vsl.gmc.seq;
+package edu.udel.cis.vsl.gmc;
 
 /**
  * An exception thrown when the number of errors encountered in the course of a

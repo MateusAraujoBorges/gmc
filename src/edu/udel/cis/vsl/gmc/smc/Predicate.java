@@ -4,7 +4,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.LinkedList;
 
-import edu.udel.cis.vsl.gmc.seq.StatePredicateIF;
+import edu.udel.cis.vsl.gmc.StatePredicateIF;
 
 /**
  * The predicate used for detecting violation state defined in the given list

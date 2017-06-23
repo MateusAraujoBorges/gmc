@@ -2,8 +2,8 @@ package edu.udel.cis.vsl.gmc.smc;
 
 import java.io.PrintStream;
 
+import edu.udel.cis.vsl.gmc.TraceStepIF;
 import edu.udel.cis.vsl.gmc.seq.StateManager;
-import edu.udel.cis.vsl.gmc.seq.TraceStepIF;
 
 /**
  * The implementation of the interface {@link StateManager} used by SMC.

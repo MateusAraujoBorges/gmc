@@ -1,4 +1,6 @@
-package edu.udel.cis.vsl.gmc.seq;
+package edu.udel.cis.vsl.gmc;
+
+import edu.udel.cis.vsl.gmc.seq.StateManager;
 
 /**
  * A TraceStepIF represents the execution result of nextState of StateManagerIF.

@@ -2,6 +2,8 @@ package edu.udel.cis.vsl.gmc.seq;
 
 import java.io.PrintStream;
 
+import edu.udel.cis.vsl.gmc.TraceStepIF;
+
 /**
  * A StateManagerIF provides part of a generic interface to a state-transition
  * system. The primary method is {@link #nextState}, which, given a state and a

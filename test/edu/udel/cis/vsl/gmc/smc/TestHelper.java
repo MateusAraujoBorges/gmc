@@ -3,7 +3,7 @@ package edu.udel.cis.vsl.gmc.smc;
 import java.io.PrintStream;
 import java.util.Arrays;
 
-import edu.udel.cis.vsl.gmc.seq.GMCConfiguration;
+import edu.udel.cis.vsl.gmc.GMCConfiguration;
 
 public class TestHelper {
 	private String[][] transMap;

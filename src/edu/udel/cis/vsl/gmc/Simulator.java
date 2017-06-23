@@ -1,9 +1,12 @@
-package edu.udel.cis.vsl.gmc.seq;
+package edu.udel.cis.vsl.gmc;
 
 import java.io.File;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.io.PrintStream;
+
+import edu.udel.cis.vsl.gmc.seq.DfsSearcher;
+import edu.udel.cis.vsl.gmc.seq.StateManager;
 
 /**
  * A {@link Simulator} is used to execute a transition system using a

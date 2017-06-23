@@ -1,6 +1,6 @@
 package edu.udel.cis.vsl.gmc.smc;
 
-import edu.udel.cis.vsl.gmc.seq.TraceStepIF;
+import edu.udel.cis.vsl.gmc.TraceStepIF;
 
 /**
  * The implementation of the interface {@link TraceStepIF} used by SMC.

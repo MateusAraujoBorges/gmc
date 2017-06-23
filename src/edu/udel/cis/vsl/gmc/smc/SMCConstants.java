@@ -1,7 +1,7 @@
 package edu.udel.cis.vsl.gmc.smc;
 
-import edu.udel.cis.vsl.gmc.seq.Option;
-import edu.udel.cis.vsl.gmc.seq.Option.OptionType;
+import edu.udel.cis.vsl.gmc.Option;
+import edu.udel.cis.vsl.gmc.Option.OptionType;
 
 public class SMCConstants {
 	/**

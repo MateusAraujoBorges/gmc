@@ -1,4 +1,4 @@
-package edu.udel.cis.vsl.gmc.seq;
+package edu.udel.cis.vsl.gmc;
 
 import java.io.PrintStream;
 import java.io.Serializable;
@@ -8,7 +8,7 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Map.Entry;
 
-import edu.udel.cis.vsl.gmc.seq.Option.OptionType;
+import edu.udel.cis.vsl.gmc.Option.OptionType;
 
 /**
  * <p>

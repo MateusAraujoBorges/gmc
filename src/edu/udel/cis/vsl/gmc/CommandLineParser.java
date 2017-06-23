@@ -1,4 +1,4 @@
-package edu.udel.cis.vsl.gmc.seq;
+package edu.udel.cis.vsl.gmc;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -13,7 +13,7 @@ import java.util.Map;
 import java.util.SortedMap;
 import java.util.TreeMap;
 
-import edu.udel.cis.vsl.gmc.seq.Option.OptionType;
+import edu.udel.cis.vsl.gmc.Option.OptionType;
 
 /**
  * A tool for parsing a command line and generating a {@link GMCConfiguration}.
