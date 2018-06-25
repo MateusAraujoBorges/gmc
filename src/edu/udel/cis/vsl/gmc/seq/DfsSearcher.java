@@ -27,153 +27,21 @@ import edu.udel.cis.vsl.gmc.util.Utils;
  * @author Stephen F. Siegel, University of Delaware
  * @author Yihao Yan (yanyihao)
  */
-public class DfsSearcher<STATE, TRANSITION> {
+public class DfsSearcher<STATE, TRANSITION> extends Searcher<STATE, TRANSITION> {
 
 	/**
-	 * The enabler, used to determine the set of enabled transitions at any
-	 * state, among other things.
-	 */
-	private EnablerIF<STATE, TRANSITION> enabler;
-
-	/**
-	 * The state manager, used to determine the next state, given a state and
-	 * transition. Also used for other state management issues.
-	 */
-	private StateManager<STATE, TRANSITION> manager;
-
-	/**
-	 * The predicate on states. This searching is searching for state that
-	 * satisfies this predicate. Typically, this predicate describes something
-	 * "bad", like deadlock.
-	 */
-	private StatePredicateIF<STATE> predicate;
-
-	/**
-	 * The depth-first search stack. An element in this stack in a transition
-	 * sequence, which encapsulates a state together with the transitions
-	 * enabled at that state which have not yet been completely explored.
+	 * The depth-first search stack. An element in this stack in a transition sequence, which
+	 * encapsulates a state together with the transitions enabled at that state which have not yet
+	 * been completely explored.
 	 */
 	private Stack<StackEntry<STATE, TRANSITION>> stack;
 
-	/**
-	 * This factory is used to get or construct some objects used in the search.
-	 * For example, it is used to get the associated {@link SequentialNode} of a
-	 * {@code state} and construct new instances of {@link StackEntry}.
-	 */
-	private SequentialNodeFactory<STATE, TRANSITION> sequentialNodeFactory;
-
-	/**
-	 * If true, a cycle in the state space is reported as a violation.
-	 */
-	private boolean reportCycleAsViolation = false;
-
-	/**
-	 * If this searcher stopped because a cycle was found, this flag will be set
-	 * to true, else it is false.
-	 */
-	private boolean cycleFound = false;
-
-	/**
-	 * The number of transitions executed since the beginning of the search.
-	 */
-	private int numTransitions = 0;
-
-	/**
-	 * The number of states encountered which are recognized as having already
-	 * been seen earlier in the search.
-	 */
-	private int numStatesMatched = 0;
-
-	/**
-	 * The number of states seen in this search.
-	 */
-	private int numStatesSeen = 1;
-
-	/**
-	 * Where to print debugging output, if debugging is turned on.
-	 */
-	private PrintStream debugOut;
-
-	/**
-	 * Should we print debugging output?
-	 */
-	private boolean debugging = false;
-
-	/**
-	 * A name to give this searcher, used only for printing out messages about
-	 * the search, such as in debugging.
-	 */
-	private String name = null;
-
-	/**
-	 * When the stack is being summarized in debugging output, this is the upper
-	 * bound on the number of stack entries (starting from the top and moving
-	 * down) that will be printed.
-	 */
-	private int summaryCutOff = 5;
-
-	/**
-	 * Upper bound on stack depth.
-	 */
-	private int depthBound = Integer.MAX_VALUE;
-
-	/**
-	 * Place an upper bound on stack size (depth).
-	 */
-	private boolean stackIsBounded = false;
-
-	/**
-	 * Are we searching for a minimal counterexample?
-	 */
-	private boolean minimize = false;
-
-	boolean printTransitions = false;
-
-	/**
-	 * Constructs a new depth first search searcher.
-	 * 
-	 * @param enabler
-	 *            the enabler used to determine the set of enabled transitions
-	 *            at each state in the course of this search
-	 * @param manager
-	 *            the object used to manage states, compute the next state from
-	 *            a current state and transition, and so, during this search
-	 * @param predicate
-	 *            the state predicate -- this will be checked at each state
-	 *            encountered in the search, and if it is found to hold, the
-	 *            search method will return; hence it is usually a predicate
-	 *            about something "bad" happening, like a deadlock
-	 * @param debugOut
-	 *            if null, deubgging output is not printed, otherwise debugging
-	 *            output will be printing to this stream
-	 */
 	public DfsSearcher(EnablerIF<STATE, TRANSITION> enabler,
 			StateManager<STATE, TRANSITION> manager,
 			StatePredicateIF<STATE> predicate, GMCConfiguration gmcConfig,
 			PrintStream debugOut) {
-
-		if (enabler == null) {
-			throw new NullPointerException("null enabler");
-		}
-		if (manager == null) {
-			throw new NullPointerException("null manager");
-		}
-		this.enabler = enabler;
-		this.manager = manager;
-		this.predicate = predicate;
-		this.debugOut = debugOut;
-		this.sequentialNodeFactory = new SequentialNodeFactory<>(manager,
-				gmcConfig.getSaveStates());
-		this.manager.setSequentialNodeFactory(sequentialNodeFactory);
-		if (debugOut != null) {
-			this.debugging = true;
-		}
+		super(enabler, manager, predicate, gmcConfig, debugOut);
 		stack = new Stack<>();
-		this.printTransitions = gmcConfig.printTransitions();
-	}
-
-	public StatePredicateIF<STATE> predicate() {
-		return predicate;
 	}
 
 	public DfsSearcher(EnablerIF<STATE, TRANSITION> enabler,
@@ -182,71 +50,10 @@ public class DfsSearcher<STATE, TRANSITION> {
 		this(enabler, manager, predicate, gmcConfig, null);
 	}
 
-	public void setName(String name) {
-		this.name = name;
-	}
-
-	public String name() {
-		return name;
-	}
-
-	public boolean isDepthBounded() {
-		return stackIsBounded;
-	}
-
-	public void unboundDepth() {
-		this.stackIsBounded = false;
-		depthBound = Integer.MAX_VALUE;
-	}
-
-	public void boundDepth(int value) {
-		depthBound = value;
-		stackIsBounded = true;
-	}
-
-	/**
-	 * Sets the depth bound to one less than the current stack size. Also sets
-	 * the "stackIsBounded" bit to true.
-	 */
-	public void restrictDepth() {
-		depthBound = stack.size() - 1;
-		stackIsBounded = true;
-	}
-
-	public void setMinimize(boolean value) {
-		this.minimize = value;
-	}
-
-	public boolean getMinimize() {
-		return minimize;
-	}
-
-	public boolean reportCycleAsViolation() {
-		return this.reportCycleAsViolation;
-	}
-
-	/**
-	 * If you want to check for cycles in the state space, and report the
-	 * existence of a cycle as a violation, this flag should be set to true.
-	 * Else set it to false. By default, it is false.
-	 */
-	public void setReportCycleAsViolation(boolean value) {
-		this.reportCycleAsViolation = value;
-	}
-
-	/**
-	 * If reportCycleAsViolation is true, and the search terminates with a
-	 * "true" value, then this method can be called to determine whether the
-	 * predicate holds (indicating a standard property violation) or a cycle has
-	 * been found.
-	 */
-	public boolean cycleFound() {
-		return cycleFound;
-	}
-
 	/**
 	 * Returns the state at the top of the stack, without modifying the stack.
 	 */
+	@Override
 	public STATE currentState() {
 		if (stack.isEmpty()) {
 			return null;
@@ -260,6 +67,12 @@ public class DfsSearcher<STATE, TRANSITION> {
 		return stack;
 	}
 
+	@Override
+	public void restrictDepth() {
+		depthBound = stack.size() - 1;
+		stackIsBounded = true;
+	}
+
 	/**
 	 * Performs a depth-first search starting from the given state. Essentially,
 	 * this pushes the given state onto the stack, making it the current state,
@@ -270,6 +83,7 @@ public class DfsSearcher<STATE, TRANSITION> {
 	 *         If false is returned, the search has completed without finding a
 	 *         state satisfying the predicate.
 	 */
+	@Override
 	public boolean search(STATE initialState) {
 		SequentialNode<STATE> initialNode = sequentialNodeFactory
 				.getInitialNode(initialState);
@@ -315,6 +129,7 @@ public class DfsSearcher<STATE, TRANSITION> {
 	 * @return true if state is found which satisfies predicate. false if search
 	 *         completes without finding such a state.
 	 */
+	@Override
 	public boolean search() {
 		while (!predicate.holdsAt(currentState())) {
 			debug("Predicate does not hold at current state of " + name + ".");
@@ -358,6 +173,7 @@ public class DfsSearcher<STATE, TRANSITION> {
 	 * @return true if there is a new state; false if the search is over so
 	 *         there is no new state
 	 */
+	@Override
 	public boolean proceedToNewState() {
 		while (!stack.isEmpty()) {
 			StackEntry<STATE, TRANSITION> currentStackEntry = stack.peek();
@@ -463,17 +279,6 @@ public class DfsSearcher<STATE, TRANSITION> {
 		return false;
 	}
 
-	/**
-	 * Reset the fullyExpanded field of a state to false, and the expand field
-	 * to true.
-	 * 
-	 * @param state
-	 *            The state that will be reset.
-	 */
-	private void resetState(SequentialNode<STATE> node) {
-		node.setExpand(true);
-		node.setFullyExpanded(false);
-	}
 
 	/**
 	 * @return true iff the stack is out of bound.
@@ -482,19 +287,6 @@ public class DfsSearcher<STATE, TRANSITION> {
 		return stackIsBounded && stack.size() >= depthBound;
 	}
 
-	/**
-	 * Update the minimum successor index of the iterator.
-	 * 
-	 * @param iterator
-	 *            The iterator that will be updated.
-	 * @param index
-	 *            The possible smaller successor stack index.
-	 */
-	private void updateMinimumStackIndex(
-			StackEntry<STATE, TRANSITION> stackEntry, int index) {
-		stackEntry.setMinimumSuccessorStackIndex(
-				Math.min(stackEntry.getMinimumSuccessorStackIndex(), index));
-	}
 
 	/**
 	 * @return false iff there exist a state on the trace that has already been
@@ -511,69 +303,6 @@ public class DfsSearcher<STATE, TRANSITION> {
 				return false;
 		}
 		return true;
-	}
-
-	/**
-	 * Set the debugging flag to the given value. If true, debugging output will
-	 * be printed to the debug stream. Otherwise debugging output will not be
-	 * printed.
-	 * 
-	 * @param value
-	 *            if true, start showing the debugging output, otherwise don't
-	 *            show it
-	 */
-	public void setDebugging(boolean value) {
-		debugging = value;
-	}
-
-	/**
-	 * Returns the current value of the debugging flag. If true, debugging
-	 * output will be printed to the debug stream. Otherwise debugging output
-	 * will not be printed.
-	 * 
-	 * @return the current value of the debugging flag
-	 */
-	boolean debugging() {
-		return debugging;
-	}
-
-	/**
-	 * Sets the debugging output stream to the given stream. This is the stream
-	 * used to print debugging information if the debugging flag is on.
-	 * 
-	 * @param out
-	 *            the output stream to which debugging information should be
-	 *            sent
-	 */
-	public void setDebugOut(PrintStream out) {
-		if (out == null) {
-			throw new NullPointerException("null out");
-		}
-		debugOut = out;
-	}
-
-	/**
-	 * Returns the stream used to print debugging output when the debugging flag
-	 * is on.
-	 * 
-	 * @return the debugging output stream
-	 */
-	public PrintStream getDebugOut() {
-		return debugOut;
-	}
-
-	/**
-	 * If the debugging flag is on, prints the message s to the debugging output
-	 * stream, otherwise does nothing.
-	 * 
-	 * @param s
-	 *            a debugging message
-	 */
-	protected void debug(String s) {
-		if (debugging) {
-			debugOut.println(s);
-			debugOut.flush();
-		}
 	}
 
 	/**
@@ -668,74 +397,6 @@ public class DfsSearcher<STATE, TRANSITION> {
 	}
 
 	/**
-	 * If the debugging flag is on, prints out all the states held by the state
-	 * manager in their full gory detail. Otherwise, a no-op.
-	 * 
-	 * @param s
-	 *            a message to print first
-	 */
-	void debugStates(String s) {
-		if (debugging) {
-			debugOut.println(s + "All states for " + name + ":\n");
-			manager.printAllStatesLong(debugOut);
-			debugOut.println();
-			printSummary(debugOut);
-		} else {
-		}
-	}
-
-	/**
-	 * The number of states seen in this search.
-	 * 
-	 * @return the number of states seen so far
-	 */
-	public int numStatesSeen() {
-		return numStatesSeen;
-	}
-
-	/**
-	 * The number of transitions executed in the course of this search so far.
-	 * 
-	 * @return the number of transitions executed.
-	 */
-	public int numTransitions() {
-		return numTransitions;
-	}
-
-	/**
-	 * The number of states matched so far. A state is "matched" when the search
-	 * determines the state has been seen before, earlier in the search. If the
-	 * state has been seen before, it is not explored.
-	 * 
-	 * @return the number of states matched
-	 */
-	public int numStatesMatched() {
-		return numStatesMatched;
-	}
-
-	/**
-	 * @return the number of search nodes saved which is also the number of
-	 *         non-equal states.
-	 */
-	public int numOfSearchNodeSaved() {
-		return sequentialNodeFactory.numOfSearchNodeSaved();
-	}
-
-	/**
-	 * Summarizes the current state of the search in a human-readable form
-	 * printed to the given stream.
-	 * 
-	 * @param out
-	 *            the stream to which to print the information
-	 */
-	public void printSummary(PrintStream out) {
-		out.println("Number of states seen:    " + numStatesSeen);
-		out.println("Number of transitions:   " + numTransitions);
-		out.println("Number of states matched: " + numStatesMatched + "\n");
-		out.flush();
-	}
-
-	/**
 	 * Write the state of the current stack in a condensed form that can be used
 	 * to replay the trace later.
 	 * 
@@ -768,5 +429,15 @@ public class DfsSearcher<STATE, TRANSITION> {
 			}
 		}
 		stream.flush();
+	}
+
+	@Override
+	public void writeTrace(PrintStream stream) {
+		writeStack(stream);
+	}
+
+	@Override
+	public int traceSize() {
+		return stack.size();
 	}
 }

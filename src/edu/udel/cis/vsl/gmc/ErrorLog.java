@@ -9,6 +9,7 @@ import java.util.SortedMap;
 import java.util.TreeMap;
 
 import edu.udel.cis.vsl.gmc.seq.DfsSearcher;
+import edu.udel.cis.vsl.gmc.seq.Searcher;
 
 /**
  * <p>
@@ -54,7 +55,7 @@ public class ErrorLog {
 	 * The searcher performing the search. May be null, in which case traces
 	 * won't be saved, etc.
 	 */
-	private DfsSearcher<?, ?> searcher;
+	private Searcher<?, ?> searcher;
 
 	/**
 	 * A canonical map used for storing and flyweighting the reported errors.
@@ -224,11 +225,11 @@ public class ErrorLog {
 		stream.close();
 	}
 
-	public void setSearcher(DfsSearcher<?, ?> searcher) {
+	public void setSearcher(Searcher<?, ?> searcher) {
 		this.searcher = searcher;
 	}
 
-	public DfsSearcher<?, ?> searcher() {
+	public Searcher<?, ?> searcher() {
 		return searcher;
 	}
 
@@ -281,7 +282,7 @@ public class ErrorLog {
 		out.println("== End Configuration ==");
 		out.println();
 		out.println("== Begin Trace ==");
-		searcher.writeStack(out);
+		searcher.writeTrace(out);
 		out.println("== End Trace ==");
 		out.flush();
 		out.close();
@@ -298,7 +299,7 @@ public class ErrorLog {
 	private void reportWithSearcher(LogEntry entry)
 			throws FileNotFoundException {
 		boolean isQuiet = entry.getConfiguration().isQuiet();
-		int length = searcher.stack().size();
+		int length = searcher.traceSize();
 		LogEntry oldEntry = entryMap.get(entry);
 
 		if (minimalCounterexampleSize < 0
