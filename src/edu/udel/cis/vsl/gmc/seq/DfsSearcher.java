@@ -132,7 +132,8 @@ public class DfsSearcher<STATE, TRANSITION> extends Searcher<STATE, TRANSITION> 
 	@Override
 	public boolean search() {
 		while (!predicate.holdsAt(currentState())) {
-			debug("Predicate does not hold at current state of " + name + ".");
+			debug("[dfs.search] Predicate does not hold at current state (" +
+							currentState() + ") of " + name + ".");
 			if (!proceedToNewState()) {
 				if (cycleFound) {
 					debug("Cycle found in state space.");
@@ -215,11 +216,11 @@ public class DfsSearcher<STATE, TRANSITION> extends Searcher<STATE, TRANSITION> 
 
 					assert newSequentialNode.getStackPosition() == -1;
 					if (debugging) {
-						debugOut.println("New state of " + name + " is "
+						debugOut.println("[dfs.proceedToNewState] New state of " + name + " is "
 								+ newState + ":");
 						debugOut.println();
 						manager.printStateLong(debugOut, newState);
-						debugOut.println();
+						debugOut.println("--");
 						debugOut.flush();
 					}
 					if (minimize)
@@ -237,11 +238,12 @@ public class DfsSearcher<STATE, TRANSITION> extends Searcher<STATE, TRANSITION> 
 					newSequentialNode.setSeen(true);
 					newSequentialNode.setStackPosition(stack.size() - 1);
 					numStatesSeen++;
-					debugPrintStack("Pushed " + newState + " onto the stack "
+					debugPrintStack("[dfs.proceedToNewState] Pushed " + newState + " onto the stack "
 							+ name + ". ", false);
 					return true;
 				}
-				debug(newState + " seen before!  Moving to next transition.");
+				debug("[dfs.proceedToNewState]"+ newState +
+								" seen before!  Moving to next transition.");
 				if (reportCycleAsViolation
 						&& newSequentialNode.getStackPosition() >= 0) {
 					cycleFound = true;
@@ -274,7 +276,7 @@ public class DfsSearcher<STATE, TRANSITION> extends Searcher<STATE, TRANSITION> 
 			currentSequentialNode.setStackPosition(-1);
 			if (!stack.isEmpty())
 				stack.peek().next();
-			debugPrintStack("Popped stack.", false);
+			debugPrintStack("[dfs.proceedToNewState] Popped stack.", false);
 		}
 		return false;
 	}
@@ -392,7 +394,7 @@ public class DfsSearcher<STATE, TRANSITION> extends Searcher<STATE, TRANSITION> 
 		if (debugging) {
 			debugOut.println(s + "  New stack for " + name + ":\n");
 			printStack(debugOut, longFormat, true);
-			debugOut.println();
+			debugOut.println("--");
 		}
 	}
 

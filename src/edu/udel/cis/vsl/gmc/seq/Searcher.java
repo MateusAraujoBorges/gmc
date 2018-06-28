@@ -96,7 +96,7 @@ public abstract class Searcher<STATE, TRANSITION> {
 	 */
 	protected boolean minimize = false;
 
-	boolean printTransitions = false;
+	private boolean printTransitions = false;
 
 
 	/**
@@ -236,24 +236,7 @@ public abstract class Searcher<STATE, TRANSITION> {
 	 * @return true if state is found which satisfies predicate. false if search completes without
 	 * finding such a state.
 	 */
-	public boolean search() {
-		while (!predicate.holdsAt(currentState())) {
-			debug("Predicate does not hold at current state of " + name + ".");
-			if (!proceedToNewState()) {
-				if (cycleFound) {
-					debug("Cycle found in state space.");
-					return true;
-				}
-				debug("Search complete: predicate " + predicate
-								+ " does not hold at " + "any reachable state of "
-								+ name + ".\n");
-				return false;
-			}
-		}
-		debug("Predicate " + predicate + " holds at current state of " + name
-						+ ": terminating search.\n");
-		return true;
-	}
+	public abstract boolean search();
 
 	/**
 	 * <p>
