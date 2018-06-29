@@ -146,7 +146,12 @@ public class StatisticalSearcher<STATE, TRANSITION> extends Searcher<STATE, TRAN
 		if (availableTransitions.isEmpty()) {
 			backtrackAndPrune();
 			// check remaining transitions
-			return !transitionTable.isEmpty();
+			if (!transitionTable.isEmpty()) {
+				assert !transitionTable.row(root()).isEmpty() : "Unreachable transitions! " +
+								"Most likely due to model counting errors. Final table:\n" + transitionTable;
+				return true;
+			}
+			return false;
 		}
 		sampleTransition(availableTransitions);
 		return true;
@@ -225,15 +230,12 @@ public class StatisticalSearcher<STATE, TRANSITION> extends Searcher<STATE, TRAN
 							availableTransitions.entrySet());
 		}
 		for (Map.Entry<STATE, BigRational> entry : availableTransitions.entrySet()) {
-			nextState = entry.getKey();
-			break;
-			// disabling sampling for now
-//			BigRational normalizedTransitionProbability = entry.getValue().div(totalProbability);
-//			sample = sample.sub(normalizedTransitionProbability);
-//			if (sample.isNegative() || sample.isZero()) {
-//				nextState = entry.getKey();
-//				break;
-//			}
+			BigRational normalizedTransitionProbability = entry.getValue().div(totalProbability);
+			sample = sample.sub(normalizedTransitionProbability);
+			if (sample.isNegative() || sample.isZero()) {
+				nextState = entry.getKey();
+				break;
+			}
 		}
 
 		assert nextState != null;
@@ -249,7 +251,7 @@ public class StatisticalSearcher<STATE, TRANSITION> extends Searcher<STATE, TRAN
 
 	private void backtrackAndPrune() {
 		BigRational pathDomainCoverage = null;
-		do {
+		while (trace.size() > 1) {
 			StackEntry<STATE, TRANSITION> current = trace.pop();
 			StackEntry<STATE, TRANSITION> parent = trace.peek();
 			STATE currentState = current.getState();
@@ -258,9 +260,9 @@ public class StatisticalSearcher<STATE, TRANSITION> extends Searcher<STATE, TRAN
 							parentState, currentState);
 
 			if (pathDomainCoverage == null) {
-			 pathDomainCoverage = transitionTable.get(parentState,
-							currentState);
-			 domainCovered = domainCovered.add(pathDomainCoverage);
+				pathDomainCoverage = transitionTable.get(parentState,
+								currentState);
+				domainCovered = domainCovered.add(pathDomainCoverage);
 			}
 			BigRational prunedCoverage = transitionTable.get(parentState,
 							currentState).sub(pathDomainCoverage);
@@ -272,7 +274,7 @@ public class StatisticalSearcher<STATE, TRANSITION> extends Searcher<STATE, TRAN
 				transitionTable.put(parentState, currentState, prunedCoverage);
 			}
 			current.getNode().setStackPosition(-1);
-		} while (trace.size() > 1);
+		}
 	}
 
 
