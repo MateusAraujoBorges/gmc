@@ -347,6 +347,12 @@ public abstract class Searcher<STATE, TRANSITION> {
 		}
 	}
 
+	protected void debugf(String format, Object... args) {
+		if (debugging) {
+			debugOut.printf(format, args);
+		}
+	}
+
 	/**
 	 * If the debugging flag is on, prints out all the states held by the state
 	 * manager in their full gory detail. Otherwise, a no-op.

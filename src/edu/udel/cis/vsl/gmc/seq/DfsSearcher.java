@@ -212,6 +212,9 @@ public class DfsSearcher<STATE, TRANSITION> extends Searcher<STATE, TRANSITION> 
 						&& stack.size() < newSequentialNode.getDepth())) {
 					if (newSequentialNode.getSeen()) {
 						resetState(newSequentialNode);
+						if (debugging) {
+							debugOut.println("[dfs.proceedToNewState] Already saw state " + newState);
+						}
 					}
 
 					assert newSequentialNode.getStackPosition() == -1;

@@ -86,7 +86,6 @@ public class StatisticalSearcher<STATE, TRANSITION> extends Searcher<STATE, TRAN
 		while (!predicate.holdsAt(currentState())) {
 			debug("[statistical.search] Predicate does not hold at current state (" +
 							currentState() + ") of " + name + ".");
-
 			if (!proceedToNewState()) {
 				if (cycleFound) {
 					debug("Cycle found in state space.");
@@ -98,6 +97,7 @@ public class StatisticalSearcher<STATE, TRANSITION> extends Searcher<STATE, TRAN
 				assert domainCovered.compareTo(BigRational.ONE) <= 0;
 				return false;
 			}
+			debugf("[statistical.search] current table: %s\n", transitionTable);
 		}
 		debug("Predicate " + predicate + " holds at current state of " + name
 						+ ": terminating search.\n");
@@ -144,12 +144,9 @@ public class StatisticalSearcher<STATE, TRANSITION> extends Searcher<STATE, TRAN
 		//select next node or jump back to beginning if there are no remaining transitions
 		Map<STATE, BigRational> availableTransitions = transitionTable.row(currentState);
 		if (availableTransitions.isEmpty()) {
-			// no more transitions
-			if (transitionTable.isEmpty()) {
-				return false;
-			}
 			backtrackAndPrune();
-			return true;
+			// check remaining transitions
+			return !transitionTable.isEmpty();
 		}
 		sampleTransition(availableTransitions);
 		return true;
@@ -157,6 +154,13 @@ public class StatisticalSearcher<STATE, TRANSITION> extends Searcher<STATE, TRAN
 
 	private void expandStateTransitions(StackEntry<STATE, TRANSITION> stackEntry) {
 		STATE state = stackEntry.getState();
+		int currentNodeId = stackEntry.getNode().getId();
+		int expanded = 0;
+		if (debugging) {
+			debugOut.printf("[statistical.expand] start expansion for state %s (node %d)" +
+							" : \n--\n", state, currentNodeId);
+		}
+
 		for (TRANSITION transition : stackEntry.getTransitions()) {
 			TraceStepIF<STATE> traceStep = manager.nextState(state,
 							transition);
@@ -183,13 +187,14 @@ public class StatisticalSearcher<STATE, TRANSITION> extends Searcher<STATE, TRAN
 				assert newSequentialNode.getStackPosition() == -1;
 				assert !transitionTable.contains(state, newState);
 				if (debugging) {
-					debugOut.println("[statistical.expand] New state of " + name + " is "
-									+ newState + ":");
+					debugOut.println("[statistical.expand] new state: " + newState + ":");
 					debugOut.println();
 					manager.printStateLong(debugOut, newState);
 					debugOut.println();
 					debugOut.flush();
 				}
+			} else if (debugging) {
+				debugOut.println("[statistical.expand] Already saw state " + newState);
 			}
 			// make sure we don't overwrite any nodes
 			Object oldNode = nodeStorage.put(newState, newSequentialNode);
@@ -197,12 +202,16 @@ public class StatisticalSearcher<STATE, TRANSITION> extends Searcher<STATE, TRAN
 
 			BigRational probability = quantifier.quantify(newState);
 			transitionTable.put(state, newState, probability);
+			expanded++;
 			if (debugging) {
 				debugOut.printf("[statistical.expand] Quantified transition between state " +
 												"%s (node %d) and %s (node %s) : %f\n",
 								state, stackEntry.getNode().getId(), newState,
 								newSequentialNode.getId(), probability.doubleValue());
 			}
+		}
+		if (debugging) {
+			debugOut.printf("[statistical.expand] finished expanding %d states\n--\n", expanded);
 		}
 	}
 
@@ -211,8 +220,13 @@ public class StatisticalSearcher<STATE, TRANSITION> extends Searcher<STATE, TRAN
 						.reduce(BigRational.ZERO, BigRational::add);
 		BigRational sample = BigRational.valueOf(rng.nextDouble());
 		STATE nextState = null;
+		if (debugging) {
+			debugOut.printf("[statistical.sample] choosing between states: \n\t%s\n",
+							availableTransitions.entrySet());
+		}
 		for (Map.Entry<STATE, BigRational> entry : availableTransitions.entrySet()) {
 			nextState = entry.getKey();
+			break;
 			// disabling sampling for now
 //			BigRational normalizedTransitionProbability = entry.getValue().div(totalProbability);
 //			sample = sample.sub(normalizedTransitionProbability);
@@ -235,24 +249,27 @@ public class StatisticalSearcher<STATE, TRANSITION> extends Searcher<STATE, TRAN
 
 	private void backtrackAndPrune() {
 		BigRational pathDomainCoverage = null;
-
 		do {
 			StackEntry<STATE, TRANSITION> current = trace.pop();
 			StackEntry<STATE, TRANSITION> parent = trace.peek();
-			if (pathDomainCoverage == null) {
-				pathDomainCoverage = transitionTable.get(parent.getState(), current.getState());
-			}
+			STATE currentState = current.getState();
+			STATE parentState = parent.getState();
+			debugf("[statistical.backtrack] unwinding transition %s -> %s\n",
+							parentState, currentState);
 
-			BigRational prunedCoverage =
-							transitionTable.get(parent.getState(), current.getState())
-											.sub(pathDomainCoverage);
+			if (pathDomainCoverage == null) {
+			 pathDomainCoverage = transitionTable.get(parentState,
+							currentState);
+			 domainCovered = domainCovered.add(pathDomainCoverage);
+			}
+			BigRational prunedCoverage = transitionTable.get(parentState,
+							currentState).sub(pathDomainCoverage);
 
 			assert !prunedCoverage.isNegative();
 			if (prunedCoverage.isZero()) {
-				transitionTable.remove(parent, current);
-				nodeStorage.remove(current.getState());
+				transitionTable.remove(parentState, currentState);
 			} else {
-				transitionTable.put(parent.getState(), current.getState(), prunedCoverage);
+				transitionTable.put(parentState, currentState, prunedCoverage);
 			}
 			current.getNode().setStackPosition(-1);
 		} while (trace.size() > 1);
